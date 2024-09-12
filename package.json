@@ -2,7 +2,7 @@
   "name": "hmpps-typescript-lib",
   "version": "0.0.1",
   "description": "A set of shared utilities for use with typescript projects",
-  "main": "index.js",
+  "type": "commonjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . --cache --max-warnings 0",
@@ -31,6 +31,7 @@
     "eslint-plugin-cypress": "^3.5.0",
     "eslint-plugin-import": "^2.30.0",
     "eslint-plugin-no-only-tests": "^3.3.0",
-    "eslint-plugin-prettier": "^5.2.1"
+    "eslint-plugin-prettier": "^5.2.1",
+    "typescript": "^5.5.4"
   }
 }
