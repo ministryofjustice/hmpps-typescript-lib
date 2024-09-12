@@ -4,7 +4,9 @@
   "description": "A set of shared utilities for use with typescript projects",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint . --cache --max-warnings 0",
+    "lint-fix": "eslint . --cache --max-warnings 0 --fix"
   },
   "repository": {
     "type": "git",
@@ -19,5 +21,16 @@
   ],
   "author": "hmpps-developers",
   "license": "MIT",
-  "homepage": "https://github.com/ministryofjustice/hmpps-typescript-lib#readme"
+  "homepage": "https://github.com/ministryofjustice/hmpps-typescript-lib#readme",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.5.0",
+    "eslint": "^8.57.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-import-resolver-typescript": "^3.6.3",
+    "eslint-plugin-cypress": "^3.5.0",
+    "eslint-plugin-import": "^2.30.0",
+    "eslint-plugin-no-only-tests": "^3.3.0",
+    "eslint-plugin-prettier": "^5.2.1"
+  }
 }
