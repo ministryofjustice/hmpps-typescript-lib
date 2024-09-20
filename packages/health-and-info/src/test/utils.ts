@@ -1,7 +1,5 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 import nock from 'nock'
 
-// eslint-disable-next-line import/prefer-default-export
 export const createTestNock = (
   method: 'get' | 'post' | 'put' | 'delete' | 'patch',
   baseUrl: string = 'https://test.local',
@@ -13,5 +11,19 @@ export const createTestNock = (
     scope: scope.persist()[method](uniquePath),
     url: `${baseUrl}${uniquePath}`,
     done: () => scope.done(),
+  }
+}
+
+export const createHealthComponentMock = (isHealthy = true, isEnabled = true) => {
+  const name = `mock-component-${Math.random().toString(36).substring(2, 8)}`
+  return {
+    isEnabled: jest.fn().mockResolvedValue(isEnabled),
+    health: jest.fn().mockResolvedValue({
+      name,
+      status: isHealthy ? 'UP' : 'DOWN',
+    }),
+    options: {
+      name,
+    },
   }
 }
