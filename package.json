@@ -20,7 +20,7 @@
     "node"
   ],
   "workspaces": [
-    "packages/health-and-info"
+    "packages/monitoring"
   ],
   "author": "hmpps-developers",
   "license": "MIT",

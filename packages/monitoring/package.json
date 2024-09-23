@@ -1,7 +1,7 @@
 {
-  "name": "@ministryofjustice/hmpps-health-and-info",
+  "name": "@ministryofjustice/hmpps-monitoring",
   "version": "0.0.1",
-  "description": "Check and generate service health pages",
+  "description": "Retrieve and display health and status information from external services and internal components.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {

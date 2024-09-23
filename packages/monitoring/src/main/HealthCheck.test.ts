@@ -1,7 +1,7 @@
 import HealthCheck from './HealthCheck'
 import { createHealthComponentMock } from '../test/utils'
 
-describe('health-and-info', () => {
+describe('HealthCheck', () => {
   let healthCheckComponents: ReturnType<typeof createHealthComponentMock>[]
   let healthChecker: HealthCheck
 
