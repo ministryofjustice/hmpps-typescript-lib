@@ -1,5 +1,4 @@
 import HealthCheckMiddleware from './HealthCheckMiddleware'
-import HealthCheck from './HealthCheck'
 import EndpointComponent from './components/EndpointComponent'
 
 /**
@@ -17,10 +16,6 @@ import EndpointComponent from './components/EndpointComponent'
  */
 export function healthCheckMiddleware(...args: ConstructorParameters<typeof HealthCheckMiddleware>) {
   return new HealthCheckMiddleware(...args)
-}
-
-export function healthCheck(...args: ConstructorParameters<typeof HealthCheck>) {
-  return new HealthCheck(...args)
 }
 
 /**
