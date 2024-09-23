@@ -1,52 +1,25 @@
 import { NextFunction, Request, Response } from 'express'
 import HealthCheckMiddleware from './HealthCheckMiddleware'
-import HealthCheck from './HealthCheck'
-import DeploymentInfo from './DeploymentInfo'
-
 import { HealthCheckOptions } from './types/HealthCheckOptions'
-
-jest.mock('./HealthCheck')
-jest.mock('./DeploymentInfo')
-
-const MockedHealthCheck = HealthCheck as jest.MockedClass<typeof HealthCheck>
-const MockedDeploymentInfo = DeploymentInfo as jest.MockedClass<typeof DeploymentInfo>
+import { createHealthComponentMock } from '../test/utils'
+import { HealthComponent } from './types/HealthComponent'
 
 describe('HealthCheckMiddleware', () => {
-  const mockHealthyService = {
-    status: 'UP',
-    components: [
-      {
-        name: 'mock-component-1',
-        status: 'UP',
-      },
-      {
-        name: 'mock-component-2',
-        status: 'UP',
-      },
-    ],
-  }
-
-  const mockUnHealthyService = {
-    status: 'DOWN',
-    components: [
-      {
-        name: 'mock-component-1',
-        status: 'UP',
-      },
-      {
-        name: 'mock-component-2',
-        status: 'DOWN',
-      },
-    ],
+  const mockApplicationInfo = {
+    buildNumber: '1.0.0',
+    gitRef: 'abc123',
+    branchName: 'main',
+    applicationName: 'test-service-name',
+    productId: 'prod-123',
   }
 
   const mockShortDeploymentInfo = {
-    version: '1',
+    version: '1.0.0',
     build: {
-      buildNumber: '1',
-      gitRef: '1',
+      buildNumber: '1.0.0',
+      gitRef: 'abc123',
     },
-    uptime: 5,
+    uptime: expect.any(Number),
   }
 
   const mockFullDeploymentInfo = {
@@ -55,11 +28,11 @@ describe('HealthCheckMiddleware', () => {
     },
     build: {
       artifact: 'test-service-name',
-      version: '1',
+      version: '1.0.0',
       name: 'test-service-name',
     },
-    productId: 'AL5X',
-    uptime: 5,
+    productId: 'prod-123',
+    uptime: expect.any(Number),
   }
 
   let mockReq: Request
@@ -77,33 +50,61 @@ describe('HealthCheckMiddleware', () => {
 
   describe('health', () => {
     it('should return 200 status with JSON if all components healthy', async () => {
-      const healthCheckMiddleware = new HealthCheckMiddleware({} as HealthCheckOptions)
-      ;(MockedHealthCheck.prototype.check as jest.Mock).mockResolvedValue(mockHealthyService)
-      ;(MockedDeploymentInfo.prototype.getShortInfo as jest.Mock).mockReturnValue(mockShortDeploymentInfo)
+      const mockComponent = createHealthComponentMock(true)
+      const healthCheckOptions = {
+        applicationInfo: mockApplicationInfo,
+        components: [mockComponent],
+      }
+      const healthCheckMiddleware = new HealthCheckMiddleware(healthCheckOptions)
 
       await healthCheckMiddleware.health(mockReq, mockRes, mockNext)
 
       expect(mockRes.status).toHaveBeenCalledWith(200)
-      expect(mockRes.json).toHaveBeenCalledWith({ ...mockHealthyService, ...mockShortDeploymentInfo })
+      expect(mockRes.json).toHaveBeenCalledWith({
+        status: 'UP',
+        components: [
+          {
+            name: mockComponent.options.name,
+            status: 'UP',
+          },
+        ],
+        ...mockShortDeploymentInfo,
+      })
     })
 
     it('should return 500 status with JSON if any components unhealthy', async () => {
-      const healthCheckMiddleware = new HealthCheckMiddleware({} as HealthCheckOptions)
-      ;(MockedHealthCheck.prototype.check as jest.Mock).mockResolvedValue(mockUnHealthyService)
-      ;(MockedDeploymentInfo.prototype.getShortInfo as jest.Mock).mockReturnValue(mockShortDeploymentInfo)
+      const mockComponent = createHealthComponentMock(false)
+      const healthCheckOptions = {
+        applicationInfo: mockApplicationInfo,
+        components: [mockComponent],
+      }
+      const healthCheckMiddleware = new HealthCheckMiddleware(healthCheckOptions)
 
       await healthCheckMiddleware.health(mockReq, mockRes, mockNext)
 
       expect(mockRes.status).toHaveBeenCalledWith(500)
-      expect(mockRes.json).toHaveBeenCalledWith({ ...mockUnHealthyService, ...mockShortDeploymentInfo })
+      expect(mockRes.json).toHaveBeenCalledWith({
+        status: 'DOWN',
+        components: [
+          {
+            name: mockComponent.options.name,
+            status: 'DOWN',
+          },
+        ],
+        ...mockShortDeploymentInfo,
+      })
     })
 
     it('should forward thrown error to next', async () => {
-      const testError = Error('test-error-message')
-      const healthCheckMiddleware = new HealthCheckMiddleware({} as HealthCheckOptions)
-      ;(MockedHealthCheck.prototype.check as jest.Mock).mockRejectedValue(testError)
+      const healthCheckOptions = {
+        applicationInfo: mockApplicationInfo,
+        components: [false as unknown as HealthComponent],
+      }
+      const healthCheckMiddleware = new HealthCheckMiddleware(healthCheckOptions)
 
       await healthCheckMiddleware.health(mockReq, mockRes, mockNext)
+
+      const testError = TypeError('component.isEnabled is not a function')
 
       expect(mockRes.status).not.toHaveBeenCalled()
       expect(mockNext).toHaveBeenCalledWith(testError)
@@ -112,8 +113,10 @@ describe('HealthCheckMiddleware', () => {
 
   describe('info', () => {
     it('should return application info in JSON format', async () => {
-      const healthCheckMiddleware = new HealthCheckMiddleware({} as HealthCheckOptions)
-      ;(MockedDeploymentInfo.prototype.getFullInfo as jest.Mock).mockReturnValue(mockFullDeploymentInfo)
+      const healthCheckOptions = {
+        applicationInfo: mockApplicationInfo,
+      }
+      const healthCheckMiddleware = new HealthCheckMiddleware(healthCheckOptions)
 
       await healthCheckMiddleware.info(mockReq, mockRes, mockNext)
 
