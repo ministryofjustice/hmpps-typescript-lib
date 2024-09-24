@@ -1,5 +1,5 @@
 import { HealthComponent } from './types/HealthComponent'
-import { HealthCheckResult } from './types/HealthCheckOptions'
+import { HealthCheckResult } from './types/MonitoringOptions'
 
 export default class HealthCheck {
   constructor(private readonly healthComponents: HealthComponent[]) {}

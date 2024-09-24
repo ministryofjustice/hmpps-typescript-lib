@@ -1,21 +1,21 @@
-import HealthCheckMiddleware from './HealthCheckMiddleware'
+import MonitoringMiddleware from './MonitoringMiddleware'
 import EndpointComponent from './components/EndpointComponent'
 
 /**
- * HealthCheckMiddleware class provides middleware functions for handling
+ * monitoringMiddleware provides middleware functions for handling
  * health and deployment information endpoints in an Express.js application.
  *
  * Example:
  *
  * ```typescript
- * const healthMiddleware = new HealthCheckMiddleware(options);
- * app.get('/health', healthMiddleware.health);
- * app.get('/info', healthMiddleware.info);
- * app.get('/ping', healthMiddleware.ping);
+ * const middleware = monitoringMiddleware(options);
+ * app.get('/health', middleware.health);
+ * app.get('/info', middleware.info);
+ * app.get('/ping', middleware.ping);
  * ```
  */
-export function healthCheckMiddleware(...args: ConstructorParameters<typeof HealthCheckMiddleware>) {
-  return new HealthCheckMiddleware(...args)
+export function monitoringMiddleware(...args: ConstructorParameters<typeof MonitoringMiddleware>) {
+  return new MonitoringMiddleware(...args)
 }
 
 /**

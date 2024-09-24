@@ -12,10 +12,11 @@ export interface HealthCheckResult {
 }
 
 /**
- * Configuration options for performing health checks.
+ * Configuration options for performing health checks and relaying
+ * service monitoring information.
  */
-export interface HealthCheckOptions {
-  /** Information about the application being health-checked. */
+export interface MonitoringOptions {
+  /** Information about the application being monitored. */
   applicationInfo: ApplicationInfo
   /** An array of components to include in the health check. */
   components?: HealthComponent[]

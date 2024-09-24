@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
-import HealthCheckMiddleware from './HealthCheckMiddleware'
-import { HealthCheckOptions } from './types/HealthCheckOptions'
+import MonitoringMiddleware from './MonitoringMiddleware'
+import { MonitoringOptions } from './types/MonitoringOptions'
 import { createHealthComponentMock } from '../test/utils'
 import { HealthComponent } from './types/HealthComponent'
 
@@ -55,7 +55,7 @@ describe('HealthCheckMiddleware', () => {
         applicationInfo: mockApplicationInfo,
         components: [mockComponent],
       }
-      const healthCheckMiddleware = new HealthCheckMiddleware(healthCheckOptions)
+      const healthCheckMiddleware = new MonitoringMiddleware(healthCheckOptions)
 
       await healthCheckMiddleware.health(mockReq, mockRes, mockNext)
 
@@ -78,7 +78,7 @@ describe('HealthCheckMiddleware', () => {
         applicationInfo: mockApplicationInfo,
         components: [mockComponent],
       }
-      const healthCheckMiddleware = new HealthCheckMiddleware(healthCheckOptions)
+      const healthCheckMiddleware = new MonitoringMiddleware(healthCheckOptions)
 
       await healthCheckMiddleware.health(mockReq, mockRes, mockNext)
 
@@ -100,7 +100,7 @@ describe('HealthCheckMiddleware', () => {
         applicationInfo: mockApplicationInfo,
         components: [false as unknown as HealthComponent],
       }
-      const healthCheckMiddleware = new HealthCheckMiddleware(healthCheckOptions)
+      const healthCheckMiddleware = new MonitoringMiddleware(healthCheckOptions)
 
       await healthCheckMiddleware.health(mockReq, mockRes, mockNext)
 
@@ -116,7 +116,7 @@ describe('HealthCheckMiddleware', () => {
       const healthCheckOptions = {
         applicationInfo: mockApplicationInfo,
       }
-      const healthCheckMiddleware = new HealthCheckMiddleware(healthCheckOptions)
+      const healthCheckMiddleware = new MonitoringMiddleware(healthCheckOptions)
 
       await healthCheckMiddleware.info(mockReq, mockRes, mockNext)
 
@@ -126,7 +126,7 @@ describe('HealthCheckMiddleware', () => {
 
   describe('ping', () => {
     it('should return status "UP" in JSON format', async () => {
-      const healthCheckMiddleware = new HealthCheckMiddleware({} as HealthCheckOptions)
+      const healthCheckMiddleware = new MonitoringMiddleware({} as MonitoringOptions)
 
       await healthCheckMiddleware.ping(mockReq, mockRes, mockNext)
 

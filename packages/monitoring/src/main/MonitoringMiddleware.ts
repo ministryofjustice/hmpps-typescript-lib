@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import HealthCheck from './HealthCheck'
-import { HealthCheckOptions } from './types/HealthCheckOptions'
+import { MonitoringOptions } from './types/MonitoringOptions'
 import DeploymentInfo from './DeploymentInfo'
 
 /**
@@ -16,12 +16,12 @@ import DeploymentInfo from './DeploymentInfo'
  * app.get('/ping', healthMiddleware.ping);
  * ```
  */
-export default class HealthCheckMiddleware {
+export default class MonitoringMiddleware {
   private readonly healthCheck: HealthCheck
 
   private readonly deploymentInfo: DeploymentInfo
 
-  constructor(private readonly options: HealthCheckOptions) {
+  constructor(private readonly options: MonitoringOptions) {
     this.healthCheck = new HealthCheck(options.components ?? [])
     this.deploymentInfo = new DeploymentInfo(options.applicationInfo)
   }
