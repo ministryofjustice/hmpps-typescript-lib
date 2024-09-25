@@ -2,10 +2,14 @@
   "name": "@ministryofjustice/hmpps-monitoring",
   "version": "0.0.1",
   "description": "Retrieve and display health and status information from external services and internal components.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.cjs.js",
+  "module": "./dist/index.esm.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
   "scripts": {
-    "build": "tsc"
+    "build": "rollup -c rollup.config.js --bundleConfigAsCjs"
   },
   "repository": {
     "type": "git",
