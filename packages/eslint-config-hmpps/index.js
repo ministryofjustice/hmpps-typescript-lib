@@ -11,8 +11,4 @@ const rules = Object.assign({}, bestPracticesRules, errorsRules, nodeRules, styl
 
 module.exports = {
   rules,
-  parserOptions: {
-    ecmaVersion: 2018,
-    sourceType: 'module',
-  },
 };
