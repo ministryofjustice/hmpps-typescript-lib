@@ -5,7 +5,8 @@
 	"keywords": [
 		"eslint",
 		"eslintplugin",
-		"eslint-plugin"
+		"eslint-plugin",
+		"hmpps"
 	],
 	"main": "index.js",
 	"files": ["index.js", "rules/"],
@@ -13,13 +14,19 @@
 		"test": "node tests.js"
 	},
 	"dependencies": {
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-import-resolver-typescript": "^3.6.3",
+    "eslint-plugin-cypress": "^4.0.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-no-only-tests": "^3.3.0",
+    "eslint-plugin-prettier": "^5.2.1",
 		"confusing-browser-globals": "^1.0.11"
 	},
 	"devDependencies": {
 		"@types/eslint": "^9.6.1",
 		"@types/eslint__js": "^8.42.3",
 		"@types/node": "^20.16.11",
-		"eslint": "^9.12.0"
+		"eslint": "^9.13.0"
 	},
 	"engines": {
 		"node": "^20",
