@@ -74,6 +74,7 @@ module.exports = [
       }],
       "no-use-before-define": 0,
       semi: 0,
+      "import/no-named-as-default-member": 0,
       "import/no-unresolved": "error",
       "import/extensions": ["error", "ignorePackages", {
         js: "never",
@@ -134,6 +135,7 @@ module.exports = [
       }],
       "@typescript-eslint/semi": 0,
       "import/no-unresolved": "error",
+      "import/no-named-as-default-member": 0,
       "prettier/prettier": ["error", {
         trailingComma: "all",
         singleQuote: true,
