@@ -14,13 +14,17 @@
 		"test": "node tests.js"
 	},
 	"dependencies": {
+		"@eslint/compat": "1.2.1",
+		"@eslint/js": "9.13.0",
+		"@eslint/eslintrc": "3.1.0",
+		"confusing-browser-globals": "^1.0.11",
     "eslint-config-prettier": "^9.1.0",
     "eslint-import-resolver-typescript": "^3.6.3",
     "eslint-plugin-cypress": "^4.0.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-no-only-tests": "^3.3.0",
     "eslint-plugin-prettier": "^5.2.1",
-		"confusing-browser-globals": "^1.0.11"
+		"globals": "15.11.0"
 	},
 	"devDependencies": {
 		"@types/eslint": "^9.6.1",
