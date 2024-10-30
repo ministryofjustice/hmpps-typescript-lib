@@ -31,11 +31,7 @@ module.exports = [
   {
     ignores: [
       "**/node_modules",
-      "**/public",
-      "**/assets",
-      "**/cypress.json",
-      "**/reporter-config.json",
-      "**/dist/",
+      "/dist/",
     ],
   },
   {
@@ -103,6 +99,7 @@ module.exports = [
       "no-empty-function": ["error", {
         allow: ["constructors", "arrowFunctions"],
       }],
+      "reportUnusedDisableDirectives": true,
     },
   },
   ...compat.extends(
