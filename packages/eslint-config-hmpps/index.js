@@ -31,9 +31,7 @@ module.exports = [
   {
     ignores: [
       "**/node_modules",
-      "**/public",
-      "**/assets",
-      "**/dist/",
+      "/dist/",
     ],
   },
   {
