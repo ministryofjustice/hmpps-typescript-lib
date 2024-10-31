@@ -1,6 +1,15 @@
+# editors
 /.idea/
-/node_modules/
-/.eslintcache
-**/dist/*
-**/coverage/*
 
+# root project
+/node_modules/
+/package-lock.json
+
+# packages
+/packages/*/node_modules/
+/packages/*/package-lock.json
+/packages/*/dist/
+/packages/*/coverage/
+
+# logs and caches
+/.eslintcache
