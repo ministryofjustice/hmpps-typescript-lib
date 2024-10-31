@@ -16,14 +16,14 @@
     "url": "https://github.com/ministryofjustice/hmpps-typescript-lib.git"
   },
   "private": true,
-  "devDependencies": {
-    "nock": "^13.5.5"
-  },
   "dependencies": {
+    "agentkeepalive": "^4.5.0",
+    "superagent": "^10.1.0"
+  },
+  "devDependencies": {
     "@types/bunyan": "^1.8.11",
     "@types/express": "^4.17.21",
     "@types/superagent": "^8.1.9",
-    "agentkeepalive": "^4.5.0",
-    "superagent": "^10.1.0"
+    "nock": "^13.5.5"
   }
 }
