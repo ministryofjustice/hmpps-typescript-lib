@@ -4,12 +4,11 @@
 # root project
 /node_modules/
 /package-lock.json
+/.eslintcache
 
 # packages
 /packages/*/node_modules/
 /packages/*/package-lock.json
 /packages/*/dist/
 /packages/*/coverage/
-
-# logs and caches
-/.eslintcache
+/packages/*/.eslintcache

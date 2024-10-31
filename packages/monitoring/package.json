@@ -19,7 +19,11 @@
     "node": "20 || 22"
   },
   "scripts": {
-    "build": "rollup -c rollup.config.js --bundleConfigAsCjs"
+    "build": "rollup -c rollup.config.js --bundleConfigAsCjs",
+    "clean": "rm -rf ./dist/",
+    "test": "jest",
+    "lint": "eslint . --cache --max-warnings 0",
+    "lint-fix": "eslint . --cache --max-warnings 0 --fix"
   },
   "dependencies": {
     "agentkeepalive": "^4.5.0",
