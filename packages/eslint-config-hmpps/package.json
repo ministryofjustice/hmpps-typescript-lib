@@ -15,7 +15,6 @@
     "type": "git",
     "url": "https://github.com/ministryofjustice/hmpps-typescript-lib.git"
   },
-  "private": true,
   "main": "index.js",
   "files": ["index.js", "rules/"],
   "engines": {

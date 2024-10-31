@@ -1,5 +1,5 @@
 {
-  "name": "hmpps-typescript-lib",
+  "name": "@ministryofjustice/hmpps-typescript-lib",
   "version": "0.0.1",
   "description": "A set of shared utilities for use with typescript projects",
   "keywords": [
@@ -16,8 +16,9 @@
     "type": "git",
     "url": "git+https://github.com/ministryofjustice/hmpps-typescript-lib.git"
   },
+  "private": true,
   "workspaces": [
-    "packages/monitoring"
+    "packages/*"
   ],
   "engines": {
     "node": "20 || 22"
