@@ -2,20 +2,26 @@
   "name": "@ministryofjustice/hmpps-monitoring",
   "version": "0.0.1",
   "description": "Retrieve and display health and status information from external services and internal components.",
+  "author": "hmpps-developers",
+  "license": "MIT",
+  "homepage": "https://github.com/ministryofjustice/hmpps-typescript-lib#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ministryofjustice/hmpps-typescript-lib.git"
+  },
+  "private": true,
   "main": "./dist/index.cjs.js",
   "module": "./dist/index.esm.js",
   "types": "./dist/index.d.ts",
   "files": [
     "dist/**/*"
   ],
+  "engines": {
+    "node": "20 || 22"
+  },
   "scripts": {
     "build": "rollup -c rollup.config.js --bundleConfigAsCjs"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ministryofjustice/hmpps-typescript-lib.git"
-  },
-  "private": true,
   "dependencies": {
     "agentkeepalive": "^4.5.0",
     "superagent": "^10.1.0"
