@@ -33,6 +33,9 @@ module.exports = [
       "**/node_modules",
       "/dist/",
     ],
+    linterOptions: {
+      reportUnusedDisableDirectives: true,
+    },
   },
   {
     rules: airBnbRules,
@@ -84,6 +87,7 @@ module.exports = [
         devDependencies: [
           "**/*.test.js",
           "**/*.test.ts",
+          "**/test/**",
           "**/testutils/**",
           "cypress.config.ts",
           "esbuild/**/*",
@@ -99,7 +103,6 @@ module.exports = [
       "no-empty-function": ["error", {
         allow: ["constructors", "arrowFunctions"],
       }],
-      "reportUnusedDisableDirectives": true,
     },
   },
   ...compat.extends(

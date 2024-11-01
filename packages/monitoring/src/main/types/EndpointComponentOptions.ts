@@ -1,4 +1,4 @@
-import { HttpOptions, HttpsOptions } from 'agentkeepalive'
+import type { HttpOptions, HttpsOptions } from 'agentkeepalive'
 
 export default interface EndpointComponentOptions {
   /** The name of the component. */

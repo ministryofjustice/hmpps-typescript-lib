@@ -1,6 +1,6 @@
 import { createTestNock } from '../../test/utils'
 import EndpointComponent from './EndpointComponent'
-import EndpointComponentOptions from '../types/EndpointComponentOptions'
+import type EndpointComponentOptions from '../types/EndpointComponentOptions'
 
 describe('EndpointComponent', () => {
   let nock: ReturnType<typeof createTestNock>

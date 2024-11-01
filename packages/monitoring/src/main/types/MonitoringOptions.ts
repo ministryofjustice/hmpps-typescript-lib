@@ -1,5 +1,5 @@
-import { ApplicationInfo } from './DeploymentInfoType'
-import { ComponentHealthResult, HealthComponent } from './HealthComponent'
+import type { ApplicationInfo } from './DeploymentInfoType'
+import type { ComponentHealthResult, HealthComponent } from './HealthComponent'
 
 /**
  * Represents the overall health check result for the application.

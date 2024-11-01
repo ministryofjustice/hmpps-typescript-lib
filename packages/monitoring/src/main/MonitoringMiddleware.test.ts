@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from 'express'
+
 import MonitoringMiddleware from './MonitoringMiddleware'
-import { MonitoringOptions } from './types/MonitoringOptions'
+import type { MonitoringOptions } from './types/MonitoringOptions'
 import { createHealthComponentMock } from '../test/utils'
-import { HealthComponent } from './types/HealthComponent'
+import type { HealthComponent } from './types/HealthComponent'
 
 describe('HealthCheckMiddleware', () => {
   const mockApplicationInfo = {

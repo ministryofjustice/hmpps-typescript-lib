@@ -1,5 +1,5 @@
 import DeploymentInfo from './DeploymentInfo'
-import { ApplicationInfo } from './types/DeploymentInfoType'
+import type { ApplicationInfo } from './types/DeploymentInfoType'
 
 describe('DeploymentInfo', () => {
   let mockApplicationInfo: ApplicationInfo
