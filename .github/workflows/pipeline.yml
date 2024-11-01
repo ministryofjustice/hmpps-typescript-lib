@@ -10,7 +10,7 @@ on:
       - main
   # when a release is published
   release:
-    types: [published]
+    types: [ published ]
   # and manually
   workflow_dispatch:
 
@@ -33,10 +33,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
+      - name: Install dependencies
+        run: npm install
       - name: Run unit tests
-        run: |
-          npm install
-          npm test
+        run: npm test
 
   lint:
     name: Run linting checks
@@ -48,10 +48,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Install dependencies
+        run: npm install
       - name: Run linting checks
-        run: |
-          npm install
-          npm run lint
+        run: npm run lint
 
   publish:
     name: Publish packages
@@ -66,24 +66,50 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          # need this setting to be able to check changes in last commit
+          fetch-depth: 0
       - name: Setup node with public npmjs.com registry
         uses: actions/setup-node@v4
         with:
           node-version: 22
           registry-url: 'https://registry.npmjs.org'
           scope: '@ministryofjustice'
-      - name: Build library
+      - name: Install dependencies
+        run: npm install
+      - name: Build all packages
         run: |
-          npm install
           npm run clean
           npm run build
-          npm pack
-      # TODO
-      #  - name: Upload package to Github release
-      #    run: gh release upload ${{ github.event.release.tag_name }} ???.tgz
-      #    env:
-      #      GH_TOKEN: ${{ github.token }}
-      # - name: Publish package to npmjs.com
-      #   run: npm publish --provenance --access public
-      #   env:
-      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish changed packages
+        run: |
+          root_path=$(pwd)
+
+          echo "→ Finding paths to packages whose package.json was changed in the last commit"
+          changed_package_json_paths=$(
+            git diff --name-only HEAD HEAD~ |
+            grep -E 'packages/[^/]+/package.json'
+          )
+          echo "${changed_package_json_paths}"
+
+          echo "${changed_package_json_paths}" | while read -r changed_package_json_path
+          do
+            changed_package_path=$(dirname "${changed_package_json_path}")
+            cd "${root_path}/${changed_package_path}"
+
+            name=$(jq -r .name package.json)
+            version=$(jq -r .version package.json)
+            echo "→ Will publish version ${version} of ${name}…"
+
+            echo "→ Building package ${package_name}"
+            package_name=$(npm pack)
+
+            echo "→ Uploading package ${package_name} to Github release"
+            gh release upload ${{ github.event.release.tag_name }} "${package_name}"
+
+            echo "→ Publishing package ${package_name} to npmjs.com"
+            npm publish --provenance --access public
+          done
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
