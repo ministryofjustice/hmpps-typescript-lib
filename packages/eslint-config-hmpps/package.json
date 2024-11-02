@@ -19,12 +19,15 @@
   "files": [
     "*.md",
     "index.js",
-    "rules/"
+    "airBnbRules/"
   ],
   "engines": {
     "node": "20 || 22"
   },
-  "scripts": {},
+  "scripts": {
+    "lint": "eslint . --cache --max-warnings 0",
+    "lint-fix": "eslint . --cache --max-warnings 0 --fix"
+  },
   "dependencies": {
     "@eslint/compat": "1.2.1",
     "@eslint/js": "9.13.0",
