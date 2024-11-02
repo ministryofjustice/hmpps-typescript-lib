@@ -31,7 +31,7 @@ module.exports = [
   {
     ignores: [
       "**/node_modules",
-      "/dist/",
+      "dist/",
     ],
     linterOptions: {
       reportUnusedDisableDirectives: true,
