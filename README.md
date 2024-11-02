@@ -7,26 +7,51 @@ The `@ministryofjustice/hmpps-typescript-lib` package itself should not be insta
 
 See individual packages’ README.md
 
-TODO: list what is available
+- @ministryofjustice/eslint-config-hmpps – ESLint rules for HMPPS typescript projects
+- @ministryofjustice/hmpps-monitoring – Retrieve and display health and status information from external services and internal components
+
+Some of these will be included in the [template project](https://github.com/ministryofjustice/hmpps-template-typescript)
+and would be adopted automatically by new projects.
 
 ## Development
 
-TODO: list useful npm scripts, best practice, how to add new sub-packages
+Sub-packages in this projects are build on node 22 and tested on node 20 and 22.
+
+npm scripts from the root all delegate to sub-packages:
+
+```shell
+npm clean        # remove built artefacts
+npm build        # built artefacts
+npm test         # run unit tests
+npm run lint     # run lint checks
+npm run lint-fix # fix lint errors automatically where possible
+```
+
+… and can be called within packages themselves:
+
+```shell
+npm test --workspace packages/monitoring
+cd packages/monitoring && npm test
+```
+
+TODO: document adding a new sub-package
 
 ### Publishing process
 
 TODO: document this better once we have trialled it
 
+There is a Github actions pipeline to publish new releases of sub-packages.
 When a new version needs to be released, these steps should be followed as part of the usual pull request process…
 
-1) Make necessary changes to package(s), making sure the README.md and CHANGELOG.md files are correct.
-2) Update version in package.json for the updated packages, _not_ the root project.
-3) Create pull request and review as usual.
-4) Create a tag on the `main` branch for the pull request’s squashed merge commit.
+1) Make necessary changes to package(s).
+2) Ensure the README.md and CHANGELOG.md files are correct.
+3) Update version in package.json for the updated packages, _not_ the root project.
+4) Create pull request and review as usual.
+5) Create a tag on the `main` branch for the pull request’s squashed merge commit.
    This is important! The publish process relies one the last commit to determine which packages have changed.
    The tag name can be in the form `[package]-[version]`, but automation does not rely on this.
-5) On Github, create a new release from this tag. This kicks off the Github actions pipeline to publish changed packages
-   to npmjs.com and as tarball attachments to the release.
+6) On Github, create a new release from this tag. This kicks off the Github actions pipeline to publish changed packages
+   to npmjs.com and as tarball attachments to the release itself.
 
 TODO: ideally, we would use something like this automatically, however squashing commits leaves the tag dangling
 ```shell

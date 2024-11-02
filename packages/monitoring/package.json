@@ -1,7 +1,7 @@
 {
   "name": "@ministryofjustice/hmpps-monitoring",
   "version": "0.0.1-alpha.1",
-  "description": "Retrieve and display health and status information from external services and internal components.",
+  "description": "Retrieve and display health and status information from external services and internal components",
   "author": "hmpps-developers",
   "license": "MIT",
   "homepage": "https://github.com/ministryofjustice/hmpps-typescript-lib#readme",

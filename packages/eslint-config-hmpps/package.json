@@ -1,7 +1,7 @@
 {
   "name": "@ministryofjustice/eslint-config-hmpps",
   "version": "0.0.1-alpha.4",
-  "description": "ESLint rules for HMPPS Typescript projects",
+  "description": "ESLint rules for HMPPS typescript projects",
   "keywords": [
     "eslint",
     "eslintplugin",
@@ -45,7 +45,7 @@
     "@types/eslint": "^9.6.1",
     "@types/eslint__js": "^8.42.3",
     "@types/node": "^20.16.11",
-    "@typescript-eslint/eslint-plugin" :"^8.12.2",
+    "@typescript-eslint/eslint-plugin": "^8.12.2",
     "@typescript-eslint/parser": "^8.12.2",
     "eslint": "^9.13.0"
   }

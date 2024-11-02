@@ -101,13 +101,13 @@ jobs:
             version=$(jq -r .version package.json)
             echo "→ Will publish version ${version} of ${name}…"
 
-            echo "→ Building package ${package_name}"
+            echo "→ Building package ${name}"
             package_name=$(npm pack)
 
             echo "→ Uploading package ${package_name} to Github release"
             gh release upload ${{ github.event.release.tag_name }} "${package_name}"
 
-            echo "→ Publishing package ${package_name} to npmjs.com"
+            echo "→ Publishing package ${name} v${version} to npmjs.com"
             npm publish --provenance --access public
           done
         env:
