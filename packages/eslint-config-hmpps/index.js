@@ -10,14 +10,14 @@ const js = require("@eslint/js")
 
 const { FlatCompat } = require("@eslint/eslintrc")
 
-const { rules: bestPracticesRules } = require('./rules/best-practices')
-const { rules: errorsRules } = require('./rules/errors')
-const { rules: nodeRules } = require('./rules/node')
-const { rules: styleRules } = require('./rules/style')
-const { rules: variablesRules } = require('./rules/variables')
-const { rules: es6Rules } = require('./rules/es6')
-const { rules: importsRules } = require('./rules/imports')
-const { rules: strictRules } = require('./rules/strict')
+const { rules: bestPracticesRules } = require('./airBnbRules/best-practices')
+const { rules: errorsRules } = require('./airBnbRules/errors')
+const { rules: nodeRules } = require('./airBnbRules/node')
+const { rules: styleRules } = require('./airBnbRules/style')
+const { rules: variablesRules } = require('./airBnbRules/variables')
+const { rules: es6Rules } = require('./airBnbRules/es6')
+const { rules: importsRules } = require('./airBnbRules/imports')
+const { rules: strictRules } = require('./airBnbRules/strict')
 
 const airBnbRules = Object.assign({}, bestPracticesRules, errorsRules, nodeRules, styleRules, variablesRules, es6Rules, importsRules, strictRules)
 
