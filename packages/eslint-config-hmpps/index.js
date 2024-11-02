@@ -1,10 +1,12 @@
-const _import = require('eslint-plugin-import')
+const importPlugin = require('eslint-plugin-import')
 const noOnlyTests = require('eslint-plugin-no-only-tests')
 
 const { fixupPluginRules } = require('@eslint/compat')
 
 const globals = require('globals')
+// eslint-disable-next-line import/no-extraneous-dependencies
 const typescriptEslint = require('@typescript-eslint/eslint-plugin')
+// eslint-disable-next-line import/no-extraneous-dependencies
 const tsParser = require('@typescript-eslint/parser')
 const js = require('@eslint/js')
 
@@ -49,7 +51,7 @@ module.exports = [
   ...compat.extends('plugin:prettier/recommended'),
   {
     plugins: {
-      import: fixupPluginRules(_import),
+      import: fixupPluginRules(importPlugin),
       'no-only-tests': noOnlyTests,
     },
     languageOptions: {
