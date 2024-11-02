@@ -29,9 +29,9 @@
     "lint-fix": "eslint . --cache --max-warnings 0 --fix"
   },
   "dependencies": {
-    "@eslint/compat": "1.2.1",
-    "@eslint/js": "9.13.0",
+    "@eslint/compat": "^1.2.2",
     "@eslint/eslintrc": "3.1.0",
+    "@eslint/js": "^9.14.0",
     "confusing-browser-globals": "^1.0.11",
     "eslint-config-prettier": "^9.1.0",
     "eslint-import-resolver-typescript": "^3.6.3",
@@ -44,7 +44,6 @@
   "devDependencies": {
     "@types/eslint": "^9.6.1",
     "@types/eslint__js": "^8.42.3",
-    "@types/node": "^20.16.11",
     "@typescript-eslint/eslint-plugin": "^8.12.2",
     "@typescript-eslint/parser": "^8.12.2",
     "eslint": "^9.13.0"
