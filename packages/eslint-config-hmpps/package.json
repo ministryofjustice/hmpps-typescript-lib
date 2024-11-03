@@ -39,11 +39,15 @@
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-no-only-tests": "^3.3.0",
     "eslint-plugin-prettier": "^5.2.1",
-    "globals": "15.11.0"
+    "globals": "15.11.0",
+    "semver": "^7.6.3"
   },
   "devDependencies": {
+    "@types/confusing-browser-globals": "^1.0.3",
     "@types/eslint": "^9.6.1",
+    "@types/eslint__eslintrc": "^2.1.2",
     "@types/eslint__js": "^8.42.3",
+    "@types/semver": "^7.5.8",
     "@typescript-eslint/eslint-plugin": "^8.12.2",
     "@typescript-eslint/parser": "^8.12.2",
     "eslint": "^9.13.0"
