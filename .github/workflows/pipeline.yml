@@ -1,0 +1,115 @@
+name: Test, lint & publish packages from mono-repo
+
+# run testing and linting pipeline…
+on:
+  # on pull requests
+  pull_request:
+  # when main branch is updated
+  push:
+    branches:
+      - main
+  # when a release is published
+  release:
+    types: [ published ]
+  # and manually
+  workflow_dispatch:
+
+# cancel builds when PR is updated
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Run unit tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [20, 22]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup node ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Install dependencies
+        run: npm install
+      - name: Run unit tests
+        run: npm test
+
+  lint:
+    name: Run linting checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install
+      - name: Run linting checks
+        run: npm run lint
+
+  publish:
+    name: Publish packages
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    needs:
+      - test
+      - lint
+    if: github.event_name == 'release' && github.event.action == 'published'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # need this setting to be able to check changes in last commit
+          fetch-depth: 0
+      - name: Setup node with public npmjs.com registry
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@ministryofjustice'
+      - name: Install dependencies
+        run: npm install
+      - name: Build all packages
+        run: |
+          npm run clean
+          npm run build
+      - name: Publish changed packages
+        run: |
+          root_path=$(pwd)
+
+          echo "→ Finding paths to packages whose package.json was changed in the last commit"
+          changed_package_json_paths=$(
+            git diff --name-only HEAD HEAD~ |
+            grep -E 'packages/[^/]+/package.json'
+          )
+          echo "${changed_package_json_paths}"
+
+          echo "${changed_package_json_paths}" | while read -r changed_package_json_path
+          do
+            changed_package_path=$(dirname "${changed_package_json_path}")
+            cd "${root_path}/${changed_package_path}"
+
+            name=$(jq -r .name package.json)
+            version=$(jq -r .version package.json)
+            echo "→ Will publish version ${version} of ${name}…"
+
+            echo "→ Building package ${name}"
+            package_name=$(npm pack)
+
+            echo "→ Uploading package ${package_name} to Github release"
+            gh release upload ${{ github.event.release.tag_name }} "${package_name}"
+
+            echo "→ Publishing package ${name} v${version} to npmjs.com"
+            npm publish --provenance --access public
+          done
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

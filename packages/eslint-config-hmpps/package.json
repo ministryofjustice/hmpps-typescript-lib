@@ -1,45 +1,55 @@
 {
-	"name": "@ministryofjustice/eslint-config-hmpps",
-	"version": "0.0.1",
-	"description": "ESLint rules for HMPPS Typescript projects",
-	"keywords": [
-		"eslint",
-		"eslintplugin",
-		"eslint-plugin",
-		"hmpps"
-	],
-	"main": "index.js",
-	"files": ["index.js", "rules/"],
-	"scripts": {
-		"test": "node tests.js"
-	},
-	"dependencies": {
-		"@eslint/compat": "1.2.1",
-		"@eslint/js": "9.13.0",
-		"@eslint/eslintrc": "3.1.0",
-		"confusing-browser-globals": "^1.0.11",
+  "name": "@ministryofjustice/eslint-config-hmpps",
+  "version": "0.0.1-alpha.4",
+  "description": "ESLint rules for HMPPS typescript projects",
+  "keywords": [
+    "eslint",
+    "eslintplugin",
+    "eslint-plugin",
+    "hmpps"
+  ],
+  "author": "hmpps-developers",
+  "license": "MIT",
+  "homepage": "https://github.com/ministryofjustice/hmpps-typescript-lib#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ministryofjustice/hmpps-typescript-lib.git"
+  },
+  "main": "index.js",
+  "files": [
+    "*.md",
+    "index.js",
+    "airBnbRules/"
+  ],
+  "engines": {
+    "node": "20 || 22"
+  },
+  "scripts": {
+    "lint": "eslint . --cache --max-warnings 0",
+    "lint-fix": "eslint . --cache --max-warnings 0 --fix"
+  },
+  "dependencies": {
+    "@eslint/compat": "^1.2.2",
+    "@eslint/eslintrc": "3.1.0",
+    "@eslint/js": "^9.14.0",
+    "confusing-browser-globals": "^1.0.11",
     "eslint-config-prettier": "^9.1.0",
     "eslint-import-resolver-typescript": "^3.6.3",
     "eslint-plugin-cypress": "^4.0.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-no-only-tests": "^3.3.0",
     "eslint-plugin-prettier": "^5.2.1",
-		"globals": "15.11.0"
-	},
-	"devDependencies": {
-		"@types/eslint": "^9.6.1",
-		"@types/eslint__js": "^8.42.3",
-		"@types/node": "^20.16.11",
-		"eslint": "^9.13.0"
-	},
-	"engines": {
-		"node": "20 || 22",
-		"npm": "^10"
-	},
-	"license": "MIT",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/ministryofjustice/hmpps-typescript-lib.git"
-	},
-	"private": true
+    "globals": "15.11.0",
+    "semver": "^7.6.3"
+  },
+  "devDependencies": {
+    "@types/confusing-browser-globals": "^1.0.3",
+    "@types/eslint": "^9.6.1",
+    "@types/eslint__eslintrc": "^2.1.2",
+    "@types/eslint__js": "^8.42.3",
+    "@types/semver": "^7.5.8",
+    "@typescript-eslint/eslint-plugin": "^8.12.2",
+    "@typescript-eslint/parser": "^8.12.2",
+    "eslint": "^9.13.0"
+  }
 }

@@ -1,16 +1,7 @@
 {
-  "name": "hmpps-typescript-lib",
-  "version": "0.0.1",
+  "name": "@ministryofjustice/hmpps-typescript-lib",
+  "version": "0.0.0",
   "description": "A set of shared utilities for use with typescript projects",
-  "scripts": {
-    "test": "jest",
-    "lint": "eslint . --cache --max-warnings 0",
-    "lint-fix": "eslint . --cache --max-warnings 0 --fix"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ministryofjustice/hmpps-typescript-lib.git"
-  },
   "keywords": [
     "hmpps",
     "typescript",
@@ -18,29 +9,38 @@
     "modules",
     "node"
   ],
-  "workspaces": [
-    "packages/monitoring"
-  ],
   "author": "hmpps-developers",
-  "license": "MIT",
   "homepage": "https://github.com/ministryofjustice/hmpps-typescript-lib#readme",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ministryofjustice/hmpps-typescript-lib.git"
+  },
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": "20 || 22"
+  },
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "clean": "npm run clean --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "lint-fix": "npm run lint-fix --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present"
+  },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^26.0.1",
+    "@rollup/plugin-commonjs": "^26.0.3",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-typescript": "^11.1.6",
+    "@tsconfig/node22": "^22.0.0",
     "@types/jest": "^29.5.13",
     "@typescript-eslint/eslint-plugin": "^8.5.0",
-    "eslint": "^8.57.0",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-import-resolver-typescript": "^3.6.3",
-    "eslint-plugin-cypress": "^3.5.0",
-    "eslint-plugin-import": "^2.30.0",
-    "eslint-plugin-no-only-tests": "^3.3.0",
-    "eslint-plugin-prettier": "^5.2.1",
+    "eslint": "^9.13.0",
+    "jest": "^29.7.0",
     "rollup": "^4.21.3",
     "rollup-plugin-dts": "^6.1.1",
-    "jest": "^29.7.0",
     "ts-jest": "^29.2.5",
     "typescript": "^5.5.4"
   }
