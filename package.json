@@ -31,9 +31,9 @@
     "test": "npm run test --workspaces --if-present"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^26.0.3",
+    "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-typescript": "^11.1.6",
+    "@rollup/plugin-typescript": "^12.1.1",
     "@tsconfig/node22": "^22.0.0",
     "@types/jest": "^29.5.13",
     "@typescript-eslint/eslint-plugin": "^8.5.0",
