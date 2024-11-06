@@ -4,9 +4,7 @@ const noOnlyTests = require('eslint-plugin-no-only-tests')
 const { fixupPluginRules } = require('@eslint/compat')
 
 const globals = require('globals')
-// eslint-disable-next-line import/no-extraneous-dependencies
 const typescriptEslint = require('@typescript-eslint/eslint-plugin')
-// eslint-disable-next-line import/no-extraneous-dependencies
 const tsParser = require('@typescript-eslint/parser')
 const js = require('@eslint/js')
 
@@ -86,6 +84,7 @@ module.exports = [
       ],
       'no-use-before-define': 0,
       semi: 0,
+      'import/named': 0,
       'import/no-named-as-default-member': 0,
       'import/no-unresolved': 'error',
       'import/extensions': [
@@ -109,11 +108,13 @@ module.exports = [
             '**/test/**',
             '**/testutils/**',
             'cypress.config.ts',
+            'eslint.config.mjs',
             'esbuild/**/*',
           ],
         },
       ],
       'no-only-tests/no-only-tests': 'error',
+      'no-restricted-syntax': ['error', 'ForInStatement', 'LabeledStatement', 'WithStatement'],
       'prettier/prettier': [
         'error',
         {

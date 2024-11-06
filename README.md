@@ -21,7 +21,7 @@ npm scripts from the root all delegate to sub-packages:
 
 ```shell
 npm clean        # remove built artefacts
-npm build        # built artefacts
+npm build        # build artefacts
 npm test         # run unit tests
 npm run lint     # run lint checks
 npm run lint-fix # fix lint errors automatically where possible
