@@ -86,6 +86,7 @@ module.exports = [
       ],
       'no-use-before-define': 0,
       semi: 0,
+      'import/named': 0,
       'import/no-named-as-default-member': 0,
       'import/no-unresolved': 'error',
       'import/extensions': [
