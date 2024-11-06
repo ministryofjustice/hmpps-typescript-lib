@@ -4,9 +4,7 @@ const noOnlyTests = require('eslint-plugin-no-only-tests')
 const { fixupPluginRules } = require('@eslint/compat')
 
 const globals = require('globals')
-// eslint-disable-next-line import/no-extraneous-dependencies
 const typescriptEslint = require('@typescript-eslint/eslint-plugin')
-// eslint-disable-next-line import/no-extraneous-dependencies
 const tsParser = require('@typescript-eslint/parser')
 const js = require('@eslint/js')
 
