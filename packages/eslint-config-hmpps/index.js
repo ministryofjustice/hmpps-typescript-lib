@@ -115,6 +115,7 @@ module.exports = [
         },
       ],
       'no-only-tests/no-only-tests': 'error',
+      'no-restricted-syntax': ['error', 'ForInStatement', 'LabeledStatement', 'WithStatement'],
       'prettier/prettier': [
         'error',
         {
