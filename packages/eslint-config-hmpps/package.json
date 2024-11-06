@@ -4,7 +4,6 @@
   "description": "ESLint rules for HMPPS typescript projects",
   "keywords": [
     "eslint",
-    "eslintplugin",
     "eslint-plugin",
     "hmpps"
   ],
