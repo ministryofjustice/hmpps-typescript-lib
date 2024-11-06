@@ -110,6 +110,7 @@ module.exports = [
             '**/test/**',
             '**/testutils/**',
             'cypress.config.ts',
+            'eslint.config.mjs',
             'esbuild/**/*',
           ],
         },
