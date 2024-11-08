@@ -48,18 +48,23 @@ const compat = new FlatCompat({
  */
 function hmppsConfig({ extraIgnorePaths = [], extraPathsAllowingDevDependencies = [], extraGlobals = {} } = {}) {
   return [
+    // ignore dependencies and build artefacts
     {
       ignores: ['**/node_modules', 'dist/', ...extraIgnorePaths],
     },
+    // warn when an eslint-disable comment does nothing
     {
       linterOptions: {
         reportUnusedDisableDirectives: true,
       },
     },
+    // Airbnb best-practice rules
     {
       rules: airbnbRules,
     },
+    // `prettier` rules
     ...compat.extends('plugin:prettier/recommended'),
+    // general plugins and rule overrides
     {
       plugins: {
         import: fixupPluginRules(importPlugin),
@@ -151,6 +156,7 @@ function hmppsConfig({ extraIgnorePaths = [], extraPathsAllowingDevDependencies 
         ],
       },
     },
+    // typescript-specific plugins and rule overrides
     ...compat
       .extends(
         'plugin:@typescript-eslint/eslint-recommended',
