@@ -20,11 +20,11 @@ Sub-packages in this projects are build on node 22 and tested on node 20 and 22.
 npm scripts from the root all delegate to sub-packages:
 
 ```shell
-npm clean        # remove built artefacts
-npm build        # build artefacts
-npm test         # run unit tests
-npm run lint     # run lint checks
-npm run lint-fix # fix lint errors automatically where possible
+npm run clean     # remove built artefacts
+npm run build     # build artefacts
+npm test          # run unit tests
+npm run lint      # run lint checks
+npm run lint-fix  # fix lint errors automatically where possible
 ```
 
 … and can be called within packages themselves:
