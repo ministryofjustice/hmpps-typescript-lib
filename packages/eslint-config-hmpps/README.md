@@ -18,7 +18,7 @@ New projects based on this template will automatically adopt this package.
 
 #### Automatically installing the library
 
-The package will self install by running via npx:  
+The package will self install by running via npx:
 `npx @ministryofjustice/eslint-config-hmpps`
 
 The final step of the installation script is to run the linting tool, with `--fix`.
