@@ -9,6 +9,8 @@ const typescriptEslint = require('@typescript-eslint/eslint-plugin')
 const tsParser = require('@typescript-eslint/parser')
 const js = require('@eslint/js')
 
+// TODO: replace typescript plugin and parser with eslint v9 plugins
+
 const { FlatCompat } = require('@eslint/eslintrc')
 
 const { rules: bestPracticesRules } = require('./airbnbRules/best-practices')

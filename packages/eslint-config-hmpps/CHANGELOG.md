@@ -1,5 +1,15 @@
 # History of changes
 
+## 0.0.1-alpha.7
+
+Pre-release for testing with HMPPS projects.
+Updated eslint rules to:
+
+- separate server and front-end config layers importing different globals for the browser.
+- downgrade `prettier` eslint rules to warning because they make _typing_ code rather painful.
+  NB: warnings will still fail lint checks so this is just a quality-of-life change.
+- re-add `eslint-plugin-cypress` plugin
+
 ## 0.0.1-alpha.6
 
 Pre-release for testing with HMPPS projects.
