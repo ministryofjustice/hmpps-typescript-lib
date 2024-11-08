@@ -145,7 +145,7 @@ function hmppsConfig({
         'no-only-tests/no-only-tests': 'error',
         'no-restricted-syntax': ['error', 'ForInStatement', 'LabeledStatement', 'WithStatement'],
         'prettier/prettier': [
-          'error',
+          'warn',
           {
             trailingComma: 'all',
             singleQuote: true,
@@ -199,7 +199,7 @@ function hmppsConfig({
         'import/no-unresolved': 'error',
         'import/no-named-as-default-member': 0,
         'prettier/prettier': [
-          'error',
+          'warn',
           {
             trailingComma: 'all',
             singleQuote: true,
