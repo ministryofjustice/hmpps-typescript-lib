@@ -10,16 +10,16 @@ const js = require('@eslint/js')
 
 const { FlatCompat } = require('@eslint/eslintrc')
 
-const { rules: bestPracticesRules } = require('./airBnbRules/best-practices')
-const { rules: errorsRules } = require('./airBnbRules/errors')
-const { rules: nodeRules } = require('./airBnbRules/node')
-const { rules: styleRules } = require('./airBnbRules/style')
-const { rules: variablesRules } = require('./airBnbRules/variables')
-const { rules: es6Rules } = require('./airBnbRules/es6')
-const { rules: importsRules } = require('./airBnbRules/imports')
-const { rules: strictRules } = require('./airBnbRules/strict')
+const { rules: bestPracticesRules } = require('./airbnbRules/best-practices')
+const { rules: errorsRules } = require('./airbnbRules/errors')
+const { rules: nodeRules } = require('./airbnbRules/node')
+const { rules: styleRules } = require('./airbnbRules/style')
+const { rules: variablesRules } = require('./airbnbRules/variables')
+const { rules: es6Rules } = require('./airbnbRules/es6')
+const { rules: importsRules } = require('./airbnbRules/imports')
+const { rules: strictRules } = require('./airbnbRules/strict')
 
-const airBnbRules = {
+const airbnbRules = {
   ...bestPracticesRules,
   ...errorsRules,
   ...nodeRules,
@@ -46,7 +46,7 @@ module.exports = [
     },
   },
   {
-    rules: airBnbRules,
+    rules: airbnbRules,
   },
   ...compat.extends('plugin:prettier/recommended'),
   {

@@ -20,7 +20,7 @@
     "bin/",
     "*.md",
     "index.js",
-    "airBnbRules/"
+    "airbnbRules/"
   ],
   "engines": {
     "node": "20 || 22"
