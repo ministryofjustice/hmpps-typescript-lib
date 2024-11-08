@@ -42,11 +42,17 @@ const compat = new FlatCompat({
  *
  * @param {string[]} extraIgnorePaths add extra glob entires to ignored paths (e.g. build artefacts)
  * @param {string[]} extraPathsAllowingDevDependencies add extra glob entries that should allow dev dependencies (e.g. bin scripts)
- * @param {Linter.Globals} extraGlobals add languageOptions.globals entries (browser, node and jest are already included)
+ * @param {Linter.Globals} extraGlobals add languageOptions.globals entries (node and jest are already included)
+ * @param {Linter.Globals} extraFrontendGlobals add languageOptions.globals entries to front-end assets (browser is already included)
  *
  * @return {Linter.Config[]}
  */
-function hmppsConfig({ extraIgnorePaths = [], extraPathsAllowingDevDependencies = [], extraGlobals = {} } = {}) {
+function hmppsConfig({
+  extraIgnorePaths = [],
+  extraPathsAllowingDevDependencies = [],
+  extraGlobals = {},
+  extraFrontendGlobals = {},
+} = {}) {
   return [
     // ignore dependencies and build artefacts
     {
@@ -72,7 +78,6 @@ function hmppsConfig({ extraIgnorePaths = [], extraPathsAllowingDevDependencies 
       },
       languageOptions: {
         globals: {
-          ...globals.browser,
           ...globals.node,
           ...globals.jest,
           ...extraGlobals,
@@ -202,6 +207,16 @@ function hmppsConfig({ extraIgnorePaths = [], extraPathsAllowingDevDependencies 
             semi: false,
           },
         ],
+      },
+    },
+    // front-end globals
+    {
+      files: ['assets/**/*.js', 'assets/**/*.ts'],
+      languageOptions: {
+        globals: {
+          ...globals.browser,
+          ...extraFrontendGlobals,
+        },
       },
     },
   ]
