@@ -5,7 +5,7 @@ This package aims so simplify code style enforcement in HMPPS typescript project
 It should include all:
 
 - the necessary npm packages to simplify dependency management within repositories
-- rules as defined by classic Airbnb best practice with HMPPS overrides and typescript parsing
+- rules as defined by classic Airbnb best-practice with HMPPS overrides and typescript parsing
 
 ## Usage
 
@@ -45,12 +45,14 @@ Essentially, the move from eslint v8 to v9 requires changes to eslint configurat
 ## Customising config
 
 The point of having shared styling rules is that it reduces [bike-shedding](https://en.wiktionary.org/wiki/bikeshedding#:~:text=(file)-,Noun,Procrastination.) and adds some consistency across projects.
-If some overriding is required to make your project successfully build configuration can be overriden via `eslint.config.mjs`, e.g: [here](https://github.com/ministryofjustice/hmpps-assess-for-early-release-ui/blob/47adef8af84e823e9d232ccb717830aabec93236/eslint.config.mjs)
+If some overriding is required to make your project successfully build configuration can be overriden via `eslint.config.mjs`,
+e.g: [here](https://github.com/ministryofjustice/hmpps-assess-for-early-release-ui/pull/46)
+and [here](https://github.com/ministryofjustice/hmpps-incident-reporting/pull/255).
 
 ## Developing this package
 
 It is deliberately not using typescript or rollup so that building is not required.
-This enabled the parent and sibling packages to use it directly for lint checks.
+CommonJS enables the parent and sibling packages to use the rules directly for lint checks.
 
 ### TODO
 

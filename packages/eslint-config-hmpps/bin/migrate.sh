@@ -20,7 +20,7 @@ printStage "* Create new config"
 [ -e eslint.config.mjs ] || cat > eslint.config.mjs <<EOL
 import hmppsConfig from '@ministryofjustice/eslint-config-hmpps'
 
-export default hmppsConfig
+export default hmppsConfig()
 EOL
 
 printStage "* Uninstalling old eslint dependencies"

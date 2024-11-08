@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/eslint-config-hmpps",
-  "version": "0.0.1-alpha.5",
+  "version": "0.0.1-alpha.6",
   "description": "ESLint rules for HMPPS typescript projects",
   "keywords": [
     "eslint",
@@ -15,11 +15,11 @@
     "url": "https://github.com/ministryofjustice/hmpps-typescript-lib.git"
   },
   "bin": "./bin/migrate.sh",
-  "main": "index.js",
+  "main": "index.cjs",
   "files": [
-    "bin/",
     "*.md",
-    "index.js",
+    "bin/*.sh",
+    "index.cjs",
     "airbnbRules/"
   ],
   "engines": {

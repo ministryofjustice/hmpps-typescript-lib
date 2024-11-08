@@ -1,8 +1,6 @@
-// eslint-disable-next-line import/extensions
-import hmppsConfig from './index.js'
+import hmppsConfig from './index.cjs'
 
-export default [
+export default hmppsConfig({
   // ignoring linting within Airbnb rules since they are vendored as-is
-  { ignores: ['airbnbRules/'] },
-  ...hmppsConfig,
-]
+  extraIgnorePaths: ['airbnbRules/'],
+})
