@@ -1,5 +1,6 @@
 const importPlugin = require('eslint-plugin-import')
 const noOnlyTests = require('eslint-plugin-no-only-tests')
+const cypressPlugin = require('eslint-plugin-cypress/flat')
 
 const { fixupPluginRules } = require('@eslint/compat')
 
@@ -208,6 +209,11 @@ function hmppsConfig({
           },
         ],
       },
+    },
+    // cypress integration tests
+    {
+      files: ['integration_tests/**/*.js', 'integration_tests/**/*.ts'],
+      ...cypressPlugin.configs.recommended,
     },
     // front-end globals
     {
