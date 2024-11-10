@@ -40,13 +40,18 @@ const compat = new FlatCompat({
   allConfig: js.configs.all,
 })
 
+/** micromatch glob for script file extensions */
+const scriptExtensionsGlob = '@(js|mjs|cjs|ts|mts|cts)'
+
 /**
  * Generates the HMPPS shared best-practice eslint rules for typescript projects
  *
  * @param {string[]} extraIgnorePaths add extra glob entires to ignored paths (e.g. build artefacts)
  * @param {string[]} extraPathsAllowingDevDependencies add extra glob entries that should allow dev dependencies (e.g. bin scripts)
- * @param {Linter.Globals} extraGlobals add languageOptions.globals entries (node and jest are already included)
- * @param {Linter.Globals} extraFrontendGlobals add languageOptions.globals entries to front-end assets (browser is already included)
+ * @param {Linter.Globals} extraGlobals add languageOptions.globals entries (node is already included)
+ * @param {Linter.Globals} extraFrontendGlobals add languageOptions.globals entries to frontend assets (browser is already included)
+ * @param {Linter.Globals} extraUnitTestGlobals add languageOptions.globals entries to backend server (jest is already included)
+ * @param {Linter.Globals} extraIntegrationGlobals add languageOptions.globals entries to frontend assets (cypress, browser and mocha already included)
  *
  * @return {Linter.Config[]}
  */
@@ -55,6 +60,8 @@ function hmppsConfig({
   extraPathsAllowingDevDependencies = [],
   extraGlobals = {},
   extraFrontendGlobals = {},
+  extraUnitTestGlobals = {},
+  extraIntegrationGlobals = {},
 } = {}) {
   return [
     // ignore dependencies and build artefacts
@@ -78,13 +85,6 @@ function hmppsConfig({
       plugins: {
         import: fixupPluginRules(importPlugin),
         'no-only-tests': noOnlyTests,
-      },
-      languageOptions: {
-        globals: {
-          ...globals.node,
-          ...globals.jest,
-          ...extraGlobals,
-        },
       },
       settings: {
         'import/parsers': {
@@ -214,12 +214,43 @@ function hmppsConfig({
     },
     // cypress integration tests
     {
-      files: ['integration_tests/**/*.js', 'integration_tests/**/*.ts'],
+      files: [`integration_tests/**/*.${scriptExtensionsGlob}`],
       ...cypressPlugin.configs.recommended,
     },
-    // front-end globals
+    // non-frontend globals
     {
-      files: ['assets/**/*.js', 'assets/**/*.ts'],
+      files: [`**/*.${scriptExtensionsGlob}`],
+      ignores: [`assets/**/*.${scriptExtensionsGlob}`],
+      languageOptions: {
+        globals: {
+          ...globals.node,
+          ...extraGlobals,
+        },
+      },
+    },
+    // unit test globals
+    {
+      files: [`**/*.test.${scriptExtensionsGlob}`],
+      languageOptions: {
+        globals: {
+          ...globals.jest,
+          ...extraUnitTestGlobals,
+        },
+      },
+    },
+    // integration test globals
+    {
+      files: [`integration_tests/**/*.${scriptExtensionsGlob}`],
+      languageOptions: {
+        globals: {
+          // cypress, browser and mocha included by cypressPlugin.configs.recommended
+          ...extraIntegrationGlobals,
+        },
+      },
+    },
+    // frontend globals
+    {
+      files: [`assets/**/*.${scriptExtensionsGlob}`],
       languageOptions: {
         globals: {
           ...globals.browser,
