@@ -1,0 +1,2 @@
+// node globals
+process.cwd()

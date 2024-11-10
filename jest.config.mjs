@@ -1,8 +1,8 @@
 export default {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  moduleFileExtensions: ['ts', 'tsx', 'js'],
-  testMatch: ['**/__tests__/**/*.+(ts|tsx|js)', '**/?(*.)+(spec|test).+(ts|tsx|js)'],
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'cjs', 'mjs'],
+  testMatch: ['**/?(*.)+(spec|test).+(ts|tsx|js|cjs|mjs)'],
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest',
   },

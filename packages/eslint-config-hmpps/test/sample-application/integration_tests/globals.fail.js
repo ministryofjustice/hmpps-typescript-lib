@@ -1,0 +1,2 @@
+// jest globals
+jest.now()

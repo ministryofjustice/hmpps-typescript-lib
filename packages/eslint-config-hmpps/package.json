@@ -27,7 +27,8 @@
   },
   "scripts": {
     "lint": "eslint . --cache --max-warnings 0",
-    "lint-fix": "eslint . --cache --max-warnings 0 --fix"
+    "lint-fix": "eslint . --cache --max-warnings 0 --fix",
+    "test": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest"
   },
   "dependencies": {
     "@eslint/compat": "^1.2.2",
