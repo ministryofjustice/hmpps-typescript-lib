@@ -22,6 +22,16 @@ const { rules: es6Rules } = require('./airbnbRules/es6')
 const { rules: importsRules } = require('./airbnbRules/imports')
 const { rules: strictRules } = require('./airbnbRules/strict')
 
+/**
+ * Eslint linter config object
+ * @typedef { import('eslint').Linter.Config } LinterConfig
+ */
+
+/**
+ * Eslint linter globals object
+ * @typedef { import('eslint').Linter.Globals } LinterGlobals
+ */
+
 /** Best practice rules as vendored from Airbnb’s eslint-config-airbnb-base */
 const airbnbRules = {
   ...bestPracticesRules,
@@ -40,18 +50,26 @@ const compat = new FlatCompat({
   allConfig: js.configs.all,
 })
 
+/**
+ * Uses `@eslint/eslintrc` to turn classic eslint config into named modern configs
+ * @param {string[]} configsToExtend classic plugins to load and convert
+ * @param {LinterConfig=} overrides overrides to add to each produced modern config
+ * @return {LinterConfig[]} an array of eslint config objects
+ */
+function makeCompat(configsToExtend, overrides = {}) {
+  return configsToExtend
+    .map(configToExtend => {
+      return compat.extends(configToExtend).map(config => ({
+        name: configToExtend,
+        ...config,
+        ...overrides,
+      }))
+    })
+    .flat()
+}
+
 /** micromatch glob for script file extensions */
 const scriptExtensionsGlob = '@(js|mjs|cjs|ts|mts|cts)'
-
-/**
- * Eslint linter config object
- * @typedef { import('eslint').Linter.Config } LinterConfig
- */
-
-/**
- * Eslint linter globals object
- * @typedef { import('eslint').Linter.Globals } LinterGlobals
- */
 
 /**
  * Generates the HMPPS shared best-practice eslint rules for typescript projects
@@ -81,18 +99,21 @@ function hmppsConfig({
     },
     // warn when an eslint-disable comment does nothing
     {
+      name: 'universal-options',
       linterOptions: {
         reportUnusedDisableDirectives: true,
       },
     },
     // Airbnb best-practice rules
     {
+      name: 'airbnb-rules',
       rules: airbnbRules,
     },
     // `prettier` rules
-    ...compat.extends('plugin:prettier/recommended'),
+    ...makeCompat(['plugin:prettier/recommended']),
     // general plugins and rule overrides
     {
+      name: 'hmpps-universal',
       plugins: {
         import: fixupPluginRules(importPlugin),
         'no-only-tests': noOnlyTests,
@@ -176,18 +197,19 @@ function hmppsConfig({
       },
     },
     // typescript-specific plugins and rule overrides
-    ...compat
-      .extends(
+    ...makeCompat(
+      [
         'plugin:@typescript-eslint/eslint-recommended',
         'plugin:@typescript-eslint/recommended',
         'plugin:prettier/recommended',
-      )
-      .map(config => ({
-        ...config,
+      ],
+      {
         files: ['**/*.ts'],
         ignores: ['**/*.js'],
-      })),
+      },
+    ),
     {
+      name: 'hmpps-typescript',
       files: ['**/*.ts'],
       ignores: ['**/*.js'],
       plugins: {
@@ -230,6 +252,7 @@ function hmppsConfig({
     },
     // non-frontend globals
     {
+      name: 'hmpps-globals',
       files: [`**/*.${scriptExtensionsGlob}`],
       ignores: [`assets/**/*.${scriptExtensionsGlob}`],
       languageOptions: {
@@ -241,6 +264,7 @@ function hmppsConfig({
     },
     // unit test globals
     {
+      name: 'hmpps-unit-test-globals',
       files: [`**/*.test.${scriptExtensionsGlob}`],
       languageOptions: {
         globals: {
@@ -251,6 +275,7 @@ function hmppsConfig({
     },
     // integration test globals
     {
+      name: 'hmpps-integration-test-globals',
       files: [`integration_tests/**/*.${scriptExtensionsGlob}`],
       languageOptions: {
         globals: {
@@ -261,6 +286,7 @@ function hmppsConfig({
     },
     // frontend globals
     {
+      name: 'hmpps-frontend-globals',
       files: [`assets/**/*.${scriptExtensionsGlob}`],
       languageOptions: {
         globals: {
