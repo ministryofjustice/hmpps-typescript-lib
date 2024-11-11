@@ -46,14 +46,18 @@ const scriptExtensionsGlob = '@(js|mjs|cjs|ts|mts|cts)'
 /**
  * Generates the HMPPS shared best-practice eslint rules for typescript projects
  *
- * @param {string[]} extraIgnorePaths add extra glob entires to ignored paths (e.g. build artefacts)
- * @param {string[]} extraPathsAllowingDevDependencies add extra glob entries that should allow dev dependencies (e.g. bin scripts)
- * @param {Linter.Globals} extraGlobals add languageOptions.globals entries (node is already included)
- * @param {Linter.Globals} extraFrontendGlobals add languageOptions.globals entries to frontend assets (browser is already included)
- * @param {Linter.Globals} extraUnitTestGlobals add languageOptions.globals entries to backend server (jest is already included)
- * @param {Linter.Globals} extraIntegrationGlobals add languageOptions.globals entries to frontend assets (cypress, browser and mocha already included)
+ * @typedef { Record<string, Boolean> } Globals
+ * @typedef { import('eslint').Linter.Config } LinterConfig
  *
- * @return {Linter.Config[]}
+ * @param {object} args
+ * @param {string[]=} args.extraIgnorePaths add extra glob entires to ignored paths (e.g. build artefacts)
+ * @param {string[]=} args.extraPathsAllowingDevDependencies add extra glob entries that should allow dev dependencies (e.g. bin scripts)
+ * @param {Globals=} args.extraGlobals add languageOptions.globals entries (node is already included)
+ * @param {Globals=} args.extraFrontendGlobals add languageOptions.globals entries to frontend assets (browser is already included)
+ * @param {Globals=} args.extraUnitTestGlobals add languageOptions.globals entries to backend server (jest is already included)
+ * @param {Globals=} args.extraIntegrationGlobals add languageOptions.globals entries to frontend assets (cypress, browser and mocha already included)
+ *
+ * @return {LinterConfig[]}
  */
 function hmppsConfig({
   extraIgnorePaths = [],
