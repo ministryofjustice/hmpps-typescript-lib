@@ -2,8 +2,6 @@ const importPlugin = require('eslint-plugin-import')
 const noOnlyTests = require('eslint-plugin-no-only-tests')
 const cypressPlugin = require('eslint-plugin-cypress/flat')
 
-const { fixupPluginRules } = require('@eslint/compat')
-
 const globals = require('globals')
 const typescriptEslint = require('@typescript-eslint/eslint-plugin')
 const tsParser = require('@typescript-eslint/parser')
@@ -109,15 +107,8 @@ function hmppsConfig({
       name: 'airbnb-rules',
       rules: airbnbRules,
     },
-    // `prettier` rules
-    ...makeCompat(['plugin:prettier/recommended']),
-    // general plugins and rule overrides
+    // `import` plugin rules
     {
-      name: 'hmpps-universal',
-      plugins: {
-        import: fixupPluginRules(importPlugin),
-        'no-only-tests': noOnlyTests,
-      },
       settings: {
         'import/parsers': {
           '@typescript-eslint/parser': ['.ts', '.tsx'],
@@ -130,6 +121,16 @@ function hmppsConfig({
             extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
           },
         },
+      },
+      ...importPlugin.flatConfigs.recommended,
+    },
+    // `prettier` rules
+    ...makeCompat(['plugin:prettier/recommended']),
+    // general plugins and rule overrides
+    {
+      name: 'hmpps-universal',
+      plugins: {
+        'no-only-tests': noOnlyTests,
       },
       rules: {
         'no-unused-vars': [

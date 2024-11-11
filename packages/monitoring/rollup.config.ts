@@ -3,7 +3,7 @@ import typescript from '@rollup/plugin-typescript'
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { dts } from 'rollup-plugin-dts'
 
-import pkg from './package.json' with { type: 'json' }
+import pkg from './package.json'
 
 export default [
   {

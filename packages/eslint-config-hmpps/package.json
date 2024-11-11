@@ -30,7 +30,6 @@
     "lint-fix": "eslint . --cache --max-warnings 0 --fix"
   },
   "dependencies": {
-    "@eslint/compat": "^1.2.2",
     "@eslint/eslintrc": "3.1.0",
     "@eslint/js": "^9.14.0",
     "@typescript-eslint/eslint-plugin": "^8.13.0",
