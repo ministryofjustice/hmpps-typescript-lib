@@ -56,28 +56,27 @@ describe('DeploymentInfo', () => {
       expect(deploymentInfo.getFullInfo()).toEqual(expectedFullInfo)
     })
 
-    it('should return full deployment info without productId when productId is not provided', () => {
-      const mockApplicationInfoWithoutProductId = {
-        ...mockApplicationInfo,
-        productId: undefined,
-      }
-
-      deploymentInfo = new DeploymentInfo(mockApplicationInfoWithoutProductId)
-
-      const expectedFullInfoWithoutProductId = {
+    it('should return additional fields if provided', () => {
+      const expectedFullInfo = {
         git: {
-          branch: mockApplicationInfoWithoutProductId.branchName,
+          branch: mockApplicationInfo.branchName,
         },
         build: {
-          artifact: mockApplicationInfoWithoutProductId.applicationName,
-          version: mockApplicationInfoWithoutProductId.buildNumber,
-          name: mockApplicationInfoWithoutProductId.applicationName,
+          artifact: mockApplicationInfo.applicationName,
+          version: mockApplicationInfo.buildNumber,
+          name: mockApplicationInfo.applicationName,
         },
-        productId: undefined,
+        productId: mockApplicationInfo.productId,
         uptime: 12345,
+        activeAgencies: ['aaa-1', 'bbb-1'],
       }
 
-      expect(deploymentInfo.getFullInfo()).toEqual(expectedFullInfoWithoutProductId)
+      deploymentInfo = new DeploymentInfo({
+        ...mockApplicationInfo,
+        additionalFields: { activeAgencies: ['aaa-1', 'bbb-1'] },
+      })
+
+      expect(deploymentInfo.getFullInfo()).toEqual(expectedFullInfo)
     })
   })
 })
