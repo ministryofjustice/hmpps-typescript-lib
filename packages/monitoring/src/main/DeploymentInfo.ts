@@ -26,6 +26,7 @@ export default class DeploymentInfo {
       },
       productId: this.applicationInfo.productId,
       uptime: Math.floor(process.uptime()),
+      ...(this.applicationInfo.additionalFields || {}),
     }
   }
 }

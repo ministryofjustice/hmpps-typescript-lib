@@ -17,7 +17,7 @@ export interface ExtendedDeploymentInfo {
     name: string
   }
   uptime: number
-  productId?: string
+  productId: string
 }
 
 /**
@@ -28,10 +28,12 @@ export interface ApplicationInfo {
   buildNumber: string
   /** The name of the application. */
   applicationName: string
-  /** (Optional) The service catalogue/product ID associated with the application. */
-  productId?: string
+  /** The service catalogue/product ID associated with the application. */
+  productId: string
   /** The name of the branch from which the application was built. */
   branchName: string
   /** The reference (commit hash) of the build. */
   gitRef: string
+  /** Additional fields that should be surfaced via the /info endpoint. */
+  additionalFields?: Record<string, unknown>
 }
