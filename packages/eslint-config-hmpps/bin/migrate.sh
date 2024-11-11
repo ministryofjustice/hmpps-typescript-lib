@@ -18,6 +18,8 @@ rm -f .eslintignore .eslintrc.json
 
 printStage "* Create new config"
 [ -e eslint.config.mjs ] || cat > eslint.config.mjs <<EOL
+// @ts-check
+
 import hmppsConfig from '@ministryofjustice/eslint-config-hmpps'
 
 export default hmppsConfig()
