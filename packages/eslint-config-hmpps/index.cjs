@@ -72,7 +72,7 @@ const scriptExtensionsGlob = '@(js|mjs|cjs|ts|mts|cts)'
 /**
  * Generates the HMPPS shared best-practice eslint rules for typescript projects
  *
- * @param {Object=} args
+ * @param {Object} args
  * @param {string[]=} args.extraIgnorePaths add extra glob entires to ignored paths (e.g. build artefacts)
  * @param {string[]=} args.extraPathsAllowingDevDependencies add extra glob entries that should allow dev dependencies (e.g. bin scripts)
  * @param {LinterGlobals=} args.extraGlobals add languageOptions.globals entries (node is already included)
