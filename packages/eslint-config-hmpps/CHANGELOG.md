@@ -1,5 +1,10 @@
 # History of changes
 
+## 0.0.1-alpha.8
+
+Pre-release for testing with HMPPS projects.
+Fixed js doc annotation to help with auto-complete 
+
 ## 0.0.1-alpha.7
 
 Pre-release for testing with HMPPS projects.
