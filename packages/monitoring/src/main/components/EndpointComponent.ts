@@ -4,7 +4,7 @@ import superagent from 'superagent'
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Logger from 'bunyan'
 
-import EndpointComponentOptions from '../types/EndpointComponentOptions'
+import { EndpointComponentOptions } from '../types/EndpointComponentOptions'
 import { ComponentHealthResult, HealthComponent } from '../types/HealthComponent'
 
 /**
@@ -24,8 +24,9 @@ export default class EndpointComponent implements HealthComponent {
   private readonly agent: Agent
 
   constructor(
+    private logger: Console | Logger,
+    private readonly name: string,
     private readonly options: EndpointComponentOptions,
-    private logger?: Console | Logger,
   ) {
     this.agent = options.url.startsWith('https')
       ? new HttpsAgent(options.agentConfig as HttpsOptions)
@@ -50,7 +51,9 @@ export default class EndpointComponent implements HealthComponent {
    * @returns A promise that resolves to a ComponentCheckResult, indicating the health status of the service.
    */
   health = async (): Promise<ComponentHealthResult> => {
-    const { name, url, timeout, retries } = this.options
+    const { url, timeout, retries } = this.options
+    const { name } = this
+
     let attemptsCount = 1
 
     try {
@@ -60,9 +63,13 @@ export default class EndpointComponent implements HealthComponent {
         .timeout(timeout as number)
         .retry(retries, (err, res) => {
           attemptsCount += 1
-          if (err && this.logger) {
+          if (err) {
             this.logger.info(
               `Attempting to get health of external service '${name}', got: ${err.code} - ${err.message}`,
+            )
+          } else if (res?.clientError || res?.serverError) {
+            this.logger.info(
+              `Attempting to get health of external service '${name}', received response: ${res.statusCode}`,
             )
           }
         })
@@ -72,12 +79,7 @@ export default class EndpointComponent implements HealthComponent {
         status: response.status === 200 ? 'UP' : 'DOWN',
       }
     } catch (error: unknown) {
-      if (this.logger) {
-        this.logger.warn(
-          `Failed getting health of external service '${name}'`,
-          (error as superagent.ResponseError).stack,
-        )
-      }
+      this.logger.warn(`Failed getting health of external service '${name}'`, (error as superagent.ResponseError).stack)
 
       const responseError = error as superagent.ResponseError
       if (responseError?.response) {

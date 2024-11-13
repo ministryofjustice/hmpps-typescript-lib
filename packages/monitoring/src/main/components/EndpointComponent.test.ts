@@ -1,35 +1,46 @@
 import { createTestNock } from '../../test/utils'
 import EndpointComponent from './EndpointComponent'
-import type EndpointComponentOptions from '../types/EndpointComponentOptions'
+import type { EndpointComponentOptions } from '../types/EndpointComponentOptions'
 
 describe('EndpointComponent', () => {
   let nock: ReturnType<typeof createTestNock>
+  const componentName = 'test-component'
   let endpointComponentOptions: EndpointComponentOptions
+
+  const messages = jest.fn()
+  const logger = {
+    info: messages,
+    warn: messages,
+  } as unknown as jest.Mocked<Console>
 
   beforeEach(() => {
     nock = createTestNock('get')
     endpointComponentOptions = {
-      name: 'test-component',
       enabled: true,
       retries: 2,
       timeout: 1000,
       url: nock.url,
+      healthPath: '',
     }
+    jest.resetAllMocks()
+  })
+
+  afterEach(() => {
+    nock.done()
   })
 
   it('should return UP status if the external service responds successfully', async () => {
     nock.scope.reply(200)
-    const endpointComponent = new EndpointComponent(endpointComponentOptions)
+    const endpointComponent = new EndpointComponent(logger, componentName, endpointComponentOptions)
 
     const result = await endpointComponent.health()
 
     const expectedResult = {
-      name: endpointComponentOptions.name,
+      name: componentName,
       status: 'UP',
     }
 
     expect(result).toEqual(expectedResult)
-    nock.done()
   })
 
   it('should return DOWN status if the external service fails all retries', async () => {
@@ -38,12 +49,12 @@ describe('EndpointComponent', () => {
       connectionAttempts += 1
     })
 
-    const endpointComponent = new EndpointComponent(endpointComponentOptions)
+    const endpointComponent = new EndpointComponent(logger, componentName, endpointComponentOptions)
     const result = await endpointComponent.health()
 
     const expectedConnectionAttempts = 1 + Number(endpointComponentOptions.retries)
     const expectedResult = {
-      name: endpointComponentOptions.name,
+      name: componentName,
       status: 'DOWN',
       details: {
         message: 'Internal Server Error',
@@ -54,7 +65,21 @@ describe('EndpointComponent', () => {
 
     expect(connectionAttempts).toEqual(expectedConnectionAttempts)
     expect(result).toEqual(expectedResult)
-    nock.done()
+  })
+
+  it('should log retries / failure if the external service', async () => {
+    nock.scope.reply(500)
+
+    const endpointComponent = new EndpointComponent(logger, componentName, endpointComponentOptions)
+    await endpointComponent.health()
+
+    const logMessages = messages.mock.calls.map(call => call[0])
+
+    expect(logMessages).toStrictEqual([
+      `Attempting to get health of external service '${componentName}', received response: 500`,
+      `Attempting to get health of external service '${componentName}', received response: 500`,
+      `Failed getting health of external service '${componentName}'`,
+    ])
   })
 
   it('should return DOWN with timeout message if the external service takes too long to respond', async () => {
@@ -69,11 +94,11 @@ describe('EndpointComponent', () => {
     }
     endpointComponentOptions.retries = 2
 
-    const endpointComponent = new EndpointComponent(endpointComponentOptions)
+    const endpointComponent = new EndpointComponent(logger, componentName, endpointComponentOptions)
 
     const expectedConnectionAttempts = 1 + Number(endpointComponentOptions.retries)
     const expectedResult = {
-      name: endpointComponentOptions.name,
+      name: componentName,
       status: 'DOWN',
       details: {
         message: 'Response timeout of 100ms exceeded',
@@ -87,7 +112,6 @@ describe('EndpointComponent', () => {
 
     expect(result).toEqual(expectedResult)
     expect(connectionAttempts).toEqual(expectedConnectionAttempts)
-    nock.done()
   })
 
   it('should only attempt once if retries are set to 0', async () => {
@@ -98,11 +122,11 @@ describe('EndpointComponent', () => {
 
     endpointComponentOptions.retries = 0
 
-    const endpointComponent = new EndpointComponent(endpointComponentOptions)
+    const endpointComponent = new EndpointComponent(logger, componentName, endpointComponentOptions)
 
     const expectedConnectionAttempts = 1 + Number(endpointComponentOptions.retries)
     const expectedResult = {
-      name: endpointComponentOptions.name,
+      name: componentName,
       status: 'DOWN',
       details: {
         message: 'Internal Server Error',
@@ -115,6 +139,5 @@ describe('EndpointComponent', () => {
 
     expect(result).toEqual(expectedResult)
     expect(connectionAttempts).toEqual(expectedConnectionAttempts)
-    nock.done()
   })
 })
