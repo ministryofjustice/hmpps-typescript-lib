@@ -42,6 +42,8 @@ export interface HealthComponent {
 
 /**
  * Represents the result of a health check for a component.
+ *
+ *  Note: Do not include any sensitive info in custom fields as this will be exposed to unauthenticated users.
  */
 export interface ComponentHealthResult {
   /** The name of the component. */

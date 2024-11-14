@@ -52,11 +52,11 @@ describe('HealthCheckMiddleware', () => {
   describe('health', () => {
     it('should return 200 status with JSON if all components healthy', async () => {
       const mockComponent = createHealthComponentMock(true)
-      const healthCheckOptions = {
+      const monitoringOptions: MonitoringOptions = {
         applicationInfo: mockApplicationInfo,
-        components: [mockComponent],
+        healthComponents: [mockComponent],
       }
-      const healthCheckMiddleware = new MonitoringMiddleware(healthCheckOptions)
+      const healthCheckMiddleware = new MonitoringMiddleware(monitoringOptions)
 
       await healthCheckMiddleware.health(mockReq, mockRes, mockNext)
 
@@ -75,11 +75,11 @@ describe('HealthCheckMiddleware', () => {
 
     it('should return 500 status with JSON if any components unhealthy', async () => {
       const mockComponent = createHealthComponentMock(false)
-      const healthCheckOptions = {
+      const monitoringOptions: MonitoringOptions = {
         applicationInfo: mockApplicationInfo,
-        components: [mockComponent],
+        healthComponents: [mockComponent],
       }
-      const healthCheckMiddleware = new MonitoringMiddleware(healthCheckOptions)
+      const healthCheckMiddleware = new MonitoringMiddleware(monitoringOptions)
 
       await healthCheckMiddleware.health(mockReq, mockRes, mockNext)
 
@@ -97,11 +97,11 @@ describe('HealthCheckMiddleware', () => {
     })
 
     it('should forward thrown error to next', async () => {
-      const healthCheckOptions = {
+      const monitoringOptions: MonitoringOptions = {
         applicationInfo: mockApplicationInfo,
-        components: [false as unknown as HealthComponent],
+        healthComponents: [false as unknown as HealthComponent],
       }
-      const healthCheckMiddleware = new MonitoringMiddleware(healthCheckOptions)
+      const healthCheckMiddleware = new MonitoringMiddleware(monitoringOptions)
 
       await healthCheckMiddleware.health(mockReq, mockRes, mockNext)
 
@@ -114,10 +114,10 @@ describe('HealthCheckMiddleware', () => {
 
   describe('info', () => {
     it('should return application info in JSON format', async () => {
-      const healthCheckOptions = {
+      const monitoringOptions: MonitoringOptions = {
         applicationInfo: mockApplicationInfo,
       }
-      const healthCheckMiddleware = new MonitoringMiddleware(healthCheckOptions)
+      const healthCheckMiddleware = new MonitoringMiddleware(monitoringOptions)
 
       await healthCheckMiddleware.info(mockReq, mockRes, mockNext)
 

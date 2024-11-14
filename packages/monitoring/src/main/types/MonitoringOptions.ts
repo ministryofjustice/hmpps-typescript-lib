@@ -18,6 +18,6 @@ export interface HealthCheckResult {
 export interface MonitoringOptions {
   /** Information about the application being monitored. */
   applicationInfo: ApplicationInfo
-  /** An array of components to include in the health check. */
-  components?: HealthComponent[]
+  /** An array of health components to include in the health check. */
+  healthComponents?: HealthComponent[]
 }
