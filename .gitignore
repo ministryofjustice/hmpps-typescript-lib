@@ -13,3 +13,5 @@
 /packages/*/coverage/
 /packages/*/.eslintcache
 /packages/*/ministryofjustice-*.tgz
+
+**/.DS_Store
