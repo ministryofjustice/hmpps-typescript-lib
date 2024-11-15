@@ -16,6 +16,24 @@ New projects based on this template will automatically adopt this package.
 
 ### Migrating existing projects
 
+#### Automatically installing the library
+
+The package will self install by running via npx:
+`npx @ministryofjustice/hmpps-monitoring`
+
+How successful this will be is dependent on how similar the codebase is to the current HEAD of the template project.
+
+The final step of the installation script prints instructions on how to manually apply a few changes:
+
+* Decorating `config.ts` to add `healthPath` declarations to each api definition.
+  * Spring boot applications usually expose their health endpoints on `/health/ping` but this may vary and you will need to check this for each api.  
+* Ensure that this has not removed any existing health checks
+  * This migration only attempts to ensure you have coverage for configured APIs
+* Ensure that you have integration test coverage for any newly added health checks
+  * Stubs will need to be added for any previously missing endpoints
+
+The generated changes will need to be reviewed carefully! 
+
 #### Manually installing the library
 
 The template project was migrated as part of [pull request 479](https://github.com/ministryofjustice/hmpps-template-typescript/pull/479),

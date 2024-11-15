@@ -15,7 +15,6 @@ New projects based on this template will automatically adopt this package.
 
 ### Migrating existing projects
 
-
 #### Automatically installing the library
 
 The package will self install by running via npx:

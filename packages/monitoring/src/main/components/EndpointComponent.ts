@@ -23,6 +23,8 @@ export default class EndpointComponent implements HealthComponent {
 
   private readonly agent: Agent
 
+  private readonly healthUrl: string
+
   constructor(
     private logger: Console | Logger,
     private readonly name: string,
@@ -32,7 +34,10 @@ export default class EndpointComponent implements HealthComponent {
       ? new HttpsAgent(options.agentConfig as HttpsOptions)
       : new Agent(options.agentConfig as HttpOptions)
 
+    this.healthUrl = `${options.url}${options.healthPath}`
     this.options = { ...this.defaultOptions, ...options } as EndpointComponentOptions
+
+    logger.info(`Monitoring health of external service '${name}' on: '${this.healthUrl}'`)
   }
 
   /**
@@ -51,14 +56,14 @@ export default class EndpointComponent implements HealthComponent {
    * @returns A promise that resolves to a ComponentCheckResult, indicating the health status of the service.
    */
   health = async (): Promise<ComponentHealthResult> => {
-    const { url, timeout, retries } = this.options
+    const { timeout, retries } = this.options
     const { name } = this
 
     let attemptsCount = 1
 
     try {
       const response = await superagent
-        .get(url)
+        .get(this.healthUrl)
         .agent(this.agent)
         .timeout(timeout as number)
         .retry(retries, (err, res) => {

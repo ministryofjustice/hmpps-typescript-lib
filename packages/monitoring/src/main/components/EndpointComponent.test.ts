@@ -14,13 +14,13 @@ describe('EndpointComponent', () => {
   } as unknown as jest.Mocked<Console>
 
   beforeEach(() => {
-    nock = createTestNock('get')
+    nock = createTestNock({ method: 'get', baseUrl: 'https://test.local', path: '/some-path' })
     endpointComponentOptions = {
       enabled: true,
       retries: 2,
       timeout: 1000,
-      url: nock.url,
-      healthPath: '',
+      url: nock.baseUrl,
+      healthPath: nock.uniquePath,
     }
     jest.resetAllMocks()
   })
@@ -76,6 +76,7 @@ describe('EndpointComponent', () => {
     const logMessages = messages.mock.calls.map(call => call[0])
 
     expect(logMessages).toStrictEqual([
+      `Monitoring health of external service '${componentName}' on: '${nock.fullUrl}'`,
       `Attempting to get health of external service '${componentName}', received response: 500`,
       `Attempting to get health of external service '${componentName}', received response: 500`,
       `Failed getting health of external service '${componentName}'`,
