@@ -1,5 +1,5 @@
 import MonitoringMiddleware from './MonitoringMiddleware'
-import EndpointComponent from './components/EndpointComponent'
+import EndpointHealthComponent from './components/EndpointHealthComponent'
 
 /**
  * monitoringMiddleware provides middleware functions for handling
@@ -19,12 +19,12 @@ export function monitoringMiddleware(...args: ConstructorParameters<typeof Monit
 }
 
 /**
- * EndpointComponent class implements the HealthComponent interface.
+ * EndpointHealthComponent class implements the HealthComponent interface.
  * It checks the health status of an external service by sending HTTP requests to a specified endpoint.
  */
-export function endpointComponent(...args: ConstructorParameters<typeof EndpointComponent>) {
-  return new EndpointComponent(...args)
+export function endpointHealthComponent(...args: ConstructorParameters<typeof EndpointHealthComponent>) {
+  return new EndpointHealthComponent(...args)
 }
 
 export type { HealthComponent, ComponentHealthResult } from './types/HealthComponent'
-export type { EndpointComponentOptions } from './types/EndpointComponentOptions'
+export type { EndpointHealthComponentOptions } from './types/EndpointHealthComponentOptions'

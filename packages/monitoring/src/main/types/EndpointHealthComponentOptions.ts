@@ -1,6 +1,6 @@
 import type { HttpOptions, HttpsOptions } from 'agentkeepalive'
 
-export interface EndpointComponentOptions {
+export interface EndpointHealthComponentOptions {
   /** The root URL of the external service to be health-checked. */
   url: string
   /** The path that represents the endpoint that will be called on the external service to be health-checked. The full endpoint url that will be called is `${url}${healthPath}`. */

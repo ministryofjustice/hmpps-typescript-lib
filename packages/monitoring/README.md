@@ -58,23 +58,27 @@ To configure the middleware it needs to be initialised with [ApplicationInfo](ht
 - This should match the `ApplicationInfo` type that comes with recent versions of the template project.
 - One recent change is that `productId` is now mandatory and should be configured - reach out to `#ask-hmpps-sre-team` about this on slack.
 
-It also requires an array of `EndpointComponent`s which represent each API that this service calls.
+It also requires an array of `HealthComponent`s which represent components that this service relies on.
 By including these then things like pingdom and the health monitor will correctly record when your application is healthy.
+
+### EndpointHealthComponents
+
+The library provides an implementation of `HealthComponent`, `EndpointHealthComponent`, which is used to track the health of APIs that this service relies on. 
 
 These require:
 
 - An instance of the logger that your application uses
 - The name of your API that you rely on
-- [EndpointComponentOptions](https://github.com/ministryofjustice/hmpps-typescript-lib/blob/dd4da10195ec6701fa3120a8935ffac679701cbd/packages/monitoring/src/main/types/EndpointComponentOptions.ts#L3)
+- `EndpointHealthComponentOptions`
 
-Dependending on how your Api Configuration is organised in `config.ts`it might be possible to automatically map this to the correct form required by the `endpointComponent` as demonstrated below:
+Dependending on how your Api Configuration is organised in `config.ts`it might be possible to automatically map this to the correct form required by the `endpointHealthComponent` as demonstrated below:
 
 ```ts
-const apis: Array<[name: string, config: EndpointComponentOptions]> =  ...
+const apis: Array<[name: string, config: EndpointHealthComponentOptions]> =  ...
 
 const middleware = monitoringMiddleware({
   applicationInfo,
-  healthComponents: apis.map(([name, config]) => endpointComponent(logger, name, config)),
+  healthComponents: apis.map(([name, config]) => endpointHealthComponent(logger, name, config)),
 })
 ```
 
