@@ -6,14 +6,15 @@ export default class HealthCheck {
 
   /** Run and return component health checks */
   async check(): Promise<HealthCheckResult> {
-    const components = this.healthComponents.filter(component => component.isEnabled())
+    const enabledComponents = this.healthComponents.filter(component => component.isEnabled())
 
-    if (components.length) {
-      const componentHealthResults = await Promise.all(components.map(component => component.health()))
+    if (enabledComponents.length) {
+      const componentHealthResults = await Promise.all(enabledComponents.map(component => component.health()))
+      const formattedResults = Object.fromEntries(componentHealthResults.map(({ name, ...rest }) => [name, rest]))
 
       return {
         status: componentHealthResults.some(component => component.status === 'DOWN') ? 'DOWN' : 'UP',
-        components: componentHealthResults,
+        components: formattedResults,
       }
     }
 

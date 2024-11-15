@@ -7,8 +7,8 @@ import type { ComponentHealthResult, HealthComponent } from './HealthComponent'
 export interface HealthCheckResult {
   /** The overall health status of the application. */
   status: string
-  /** (Optional) An array of health check results for individual components. */
-  components?: ComponentHealthResult[]
+  /** (Optional) A mapping of component name to component health result. */
+  components?: Record<string, Omit<ComponentHealthResult, 'name'>>
 }
 
 /**
