@@ -28,16 +28,14 @@ describe('HealthCheck', () => {
       const result = await healthChecker.check()
       const expectedResult = {
         status: 'UP',
-        components: [
-          {
-            name: healthCheckComponents[0].options.name,
+        components: {
+          [healthCheckComponents[0].options.name]: {
             status: 'UP',
           },
-          {
-            name: healthCheckComponents[1].options.name,
+          [healthCheckComponents[1].options.name]: {
             status: 'UP',
           },
-        ],
+        },
       }
 
       expect(result).toEqual(expectedResult)
@@ -50,18 +48,15 @@ describe('HealthCheck', () => {
       const result = await healthChecker.check()
       const expectedResult = {
         status: 'DOWN',
-        components: [
-          {
-            name: healthCheckComponents[0].options.name,
+        components: {
+          [healthCheckComponents[0].options.name]: {
             status: 'UP',
           },
-          {
-            name: healthCheckComponents[1].options.name,
+          [healthCheckComponents[1].options.name]: {
             status: 'DOWN',
           },
-        ],
+        },
       }
-
       expect(result).toEqual(expectedResult)
     })
   })

@@ -1,11 +1,11 @@
 import { createTestNock } from '../../test/utils'
-import EndpointComponent from './EndpointComponent'
-import type { EndpointComponentOptions } from '../types/EndpointComponentOptions'
+import EndpointHealthComponent from './EndpointHealthComponent'
+import type { EndpointHealthComponentOptions } from '../types/EndpointHealthComponentOptions'
 
-describe('EndpointComponent', () => {
+describe('EndpointHealthComponent', () => {
   let nock: ReturnType<typeof createTestNock>
   const componentName = 'test-component'
-  let endpointComponentOptions: EndpointComponentOptions
+  let endpointHealthComponentOptions: EndpointHealthComponentOptions
 
   const messages = jest.fn()
   const logger = {
@@ -15,7 +15,7 @@ describe('EndpointComponent', () => {
 
   beforeEach(() => {
     nock = createTestNock({ method: 'get', baseUrl: 'https://test.local', path: '/some-path' })
-    endpointComponentOptions = {
+    endpointHealthComponentOptions = {
       enabled: true,
       retries: 2,
       timeout: 1000,
@@ -31,9 +31,9 @@ describe('EndpointComponent', () => {
 
   it('should return UP status if the external service responds successfully', async () => {
     nock.scope.reply(200)
-    const endpointComponent = new EndpointComponent(logger, componentName, endpointComponentOptions)
+    const endpointHealthComponent = new EndpointHealthComponent(logger, componentName, endpointHealthComponentOptions)
 
-    const result = await endpointComponent.health()
+    const result = await endpointHealthComponent.health()
 
     const expectedResult = {
       name: componentName,
@@ -49,17 +49,17 @@ describe('EndpointComponent', () => {
       connectionAttempts += 1
     })
 
-    const endpointComponent = new EndpointComponent(logger, componentName, endpointComponentOptions)
-    const result = await endpointComponent.health()
+    const endpointHealthComponent = new EndpointHealthComponent(logger, componentName, endpointHealthComponentOptions)
+    const result = await endpointHealthComponent.health()
 
-    const expectedConnectionAttempts = 1 + Number(endpointComponentOptions.retries)
+    const expectedConnectionAttempts = 1 + Number(endpointHealthComponentOptions.retries)
     const expectedResult = {
       name: componentName,
       status: 'DOWN',
       details: {
         message: 'Internal Server Error',
         status: 500,
-        attempts: Number(endpointComponentOptions.retries) + 1,
+        attempts: Number(endpointHealthComponentOptions.retries) + 1,
       },
     }
 
@@ -70,8 +70,8 @@ describe('EndpointComponent', () => {
   it('should log retries / failure if the external service', async () => {
     nock.scope.reply(500)
 
-    const endpointComponent = new EndpointComponent(logger, componentName, endpointComponentOptions)
-    await endpointComponent.health()
+    const endpointHealthComponent = new EndpointHealthComponent(logger, componentName, endpointHealthComponentOptions)
+    await endpointHealthComponent.health()
 
     const logMessages = messages.mock.calls.map(call => call[0])
 
@@ -89,15 +89,15 @@ describe('EndpointComponent', () => {
       connectionAttempts += 1
     })
 
-    endpointComponentOptions.timeout = {
+    endpointHealthComponentOptions.timeout = {
       response: 100,
       deadline: 200,
     }
-    endpointComponentOptions.retries = 2
+    endpointHealthComponentOptions.retries = 2
 
-    const endpointComponent = new EndpointComponent(logger, componentName, endpointComponentOptions)
+    const endpointHealthComponent = new EndpointHealthComponent(logger, componentName, endpointHealthComponentOptions)
 
-    const expectedConnectionAttempts = 1 + Number(endpointComponentOptions.retries)
+    const expectedConnectionAttempts = 1 + Number(endpointHealthComponentOptions.retries)
     const expectedResult = {
       name: componentName,
       status: 'DOWN',
@@ -109,7 +109,7 @@ describe('EndpointComponent', () => {
       },
     }
 
-    const result = await endpointComponent.health()
+    const result = await endpointHealthComponent.health()
 
     expect(result).toEqual(expectedResult)
     expect(connectionAttempts).toEqual(expectedConnectionAttempts)
@@ -121,11 +121,11 @@ describe('EndpointComponent', () => {
       connectionAttempts += 1
     })
 
-    endpointComponentOptions.retries = 0
+    endpointHealthComponentOptions.retries = 0
 
-    const endpointComponent = new EndpointComponent(logger, componentName, endpointComponentOptions)
+    const endpointHealthComponent = new EndpointHealthComponent(logger, componentName, endpointHealthComponentOptions)
 
-    const expectedConnectionAttempts = 1 + Number(endpointComponentOptions.retries)
+    const expectedConnectionAttempts = 1 + Number(endpointHealthComponentOptions.retries)
     const expectedResult = {
       name: componentName,
       status: 'DOWN',
@@ -136,7 +136,7 @@ describe('EndpointComponent', () => {
       },
     }
 
-    const result = await endpointComponent.health()
+    const result = await endpointHealthComponent.health()
 
     expect(result).toEqual(expectedResult)
     expect(connectionAttempts).toEqual(expectedConnectionAttempts)

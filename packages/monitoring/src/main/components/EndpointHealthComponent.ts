@@ -4,14 +4,14 @@ import superagent from 'superagent'
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Logger from 'bunyan'
 
-import { EndpointComponentOptions } from '../types/EndpointComponentOptions'
+import { EndpointHealthComponentOptions } from '../types/EndpointHealthComponentOptions'
 import { ComponentHealthResult, HealthComponent } from '../types/HealthComponent'
 
 /**
- * EndpointComponent class implements the HealthComponent interface.
+ * EndpointHealthComponent class implements the HealthComponent interface.
  * It checks the health status of an external service by sending HTTP requests to a specified endpoint.
  */
-export default class EndpointComponent implements HealthComponent {
+export default class EndpointHealthComponent implements HealthComponent {
   private readonly defaultOptions = {
     timeout: {
       response: 1500,
@@ -28,14 +28,14 @@ export default class EndpointComponent implements HealthComponent {
   constructor(
     private logger: Console | Logger,
     private readonly name: string,
-    private readonly options: EndpointComponentOptions,
+    private readonly options: EndpointHealthComponentOptions,
   ) {
     this.agent = options.url.startsWith('https')
       ? new HttpsAgent(options.agentConfig as HttpsOptions)
       : new Agent(options.agentConfig as HttpOptions)
 
     this.healthUrl = `${options.url}${options.healthPath}`
-    this.options = { ...this.defaultOptions, ...options } as EndpointComponentOptions
+    this.options = { ...this.defaultOptions, ...options } as EndpointHealthComponentOptions
 
     logger.info(`Monitoring health of external service '${name}' on: '${this.healthUrl}'`)
   }

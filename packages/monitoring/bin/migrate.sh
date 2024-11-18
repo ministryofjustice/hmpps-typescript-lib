@@ -27,7 +27,7 @@ printStage "* Replace healthcheck middleware"
 cat > server/middleware/setUpHealthChecks.ts <<EOL
 import express, { Router } from 'express'
 
-import { monitoringMiddleware, endpointComponent } from '@ministryofjustice/hmpps-monitoring'
+import { monitoringMiddleware, endpointHealthComponent } from '@ministryofjustice/hmpps-monitoring'
 import type { ApplicationInfo } from '../applicationInfo'
 import logger from '../../logger'
 import config from '../config'
@@ -39,7 +39,7 @@ export default function setUpHealthChecks(applicationInfo: ApplicationInfo): Rou
 
   const middleware = monitoringMiddleware({
     applicationInfo,
-    healthComponents: apiConfig.map(([name, options]) => endpointComponent(logger, name, options)),
+    healthComponents: apiConfig.map(([name, options]) => endpointHealthComponent(logger, name, options)),
   })
 
   router.get('/health', middleware.health)

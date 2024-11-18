@@ -63,12 +63,11 @@ describe('HealthCheckMiddleware', () => {
       expect(mockRes.status).toHaveBeenCalledWith(200)
       expect(mockRes.json).toHaveBeenCalledWith({
         status: 'UP',
-        components: [
-          {
-            name: mockComponent.options.name,
+        components: {
+          [mockComponent.options.name]: {
             status: 'UP',
           },
-        ],
+        },
         ...mockShortDeploymentInfo,
       })
     })
@@ -86,12 +85,11 @@ describe('HealthCheckMiddleware', () => {
       expect(mockRes.status).toHaveBeenCalledWith(500)
       expect(mockRes.json).toHaveBeenCalledWith({
         status: 'DOWN',
-        components: [
-          {
-            name: mockComponent.options.name,
+        components: {
+          [mockComponent.options.name]: {
             status: 'DOWN',
           },
-        ],
+        },
         ...mockShortDeploymentInfo,
       })
     })
