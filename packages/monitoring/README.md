@@ -58,8 +58,8 @@ To configure the middleware it needs to be initialised with [ApplicationInfo](ht
 - This should match the `ApplicationInfo` type that comes with recent versions of the template project.
 - One recent change is that `productId` is now mandatory and should be configured - reach out to `#ask-hmpps-sre-team` about this on slack.
 
-It also requires an array of `HealthComponent`s which represent components that this service relies on.
-By including these then things like pingdom and the health monitor will correctly record when your application is healthy.
+It also requires an array of `HealthComponent`s which represent dependencies that this service relies on.
+Reflecting dependency health via the /health endpoint will ensure that pingdom and the health monitor correctly record when your application is unhealthy.
 
 ### EndpointHealthComponents
 
