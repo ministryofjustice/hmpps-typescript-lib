@@ -83,34 +83,39 @@ jobs:
         run: |
           npm run clean
           npm run build
-      - name: Publish changed packages
+      - name: Publish new versions of packages
         run: |
           root_path=$(pwd)
 
-          echo "→ Finding paths to packages whose package.json was changed in the last commit"
-          changed_package_json_paths=$(
-            git diff --name-only HEAD HEAD~ |
-            grep -E 'packages/[^/]+/package.json'
-          )
-          echo "${changed_package_json_paths}"
+          echo "→ Finding packages"
+          all_package_json_files=$( find packages -maxdepth 2 -name package.json )
+          echo "${all_package_json_files}"
 
-          echo "${changed_package_json_paths}" | while read -r changed_package_json_path
+          echo "${all_package_json_files}" | while read -r package_json_files
           do
-            changed_package_path=$(dirname "${changed_package_json_path}")
-            cd "${root_path}/${changed_package_path}"
-
+            package_dir=$(dirname "${package_json_files}")
+            
+            cd "${root_path}/${package_dir}"
             name=$(jq -r .name package.json)
+
+            latest_version=$(npm view $name version)
             version=$(jq -r .version package.json)
-            echo "→ Will publish version ${version} of ${name}…"
+            
+            if [ "$version" == "$latest_version" ]; then
+              echo "package ${name} has already published latest version: ${version}, skipping..."
 
-            echo "→ Building package ${name}"
-            package_name=$(npm pack)
+            else
+              echo "→ Existing published version is ${latest_version}, publishing version ${version} of ${name}…"
 
-            echo "→ Uploading package ${package_name} to Github release"
-            gh release upload ${{ github.event.release.tag_name }} "${package_name}"
+              echo "→ Building package ${name}"
+              package_name=$(npm pack)
 
-            echo "→ Publishing package ${name} v${version} to npmjs.com"
-            npm publish --provenance --access public
+              echo "→ Uploading package ${package_name} to Github release"
+              gh release upload ${{ github.event.release.tag_name }} "${package_name}"
+
+              echo "→ Publishing package ${name} v${version} to npmjs.com"
+              npm publish --provenance --access public
+            fi
           done
         env:
           GH_TOKEN: ${{ github.token }}
