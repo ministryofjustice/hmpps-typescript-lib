@@ -10,7 +10,7 @@ on:
       - main
   # when a release is published
   release:
-    types: [ published ]
+    types: [published]
   # and manually
   workflow_dispatch:
 
@@ -68,9 +68,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          # need this setting to be able to check changes in last commit
-          fetch-depth: 0
       - name: Setup node with public npmjs.com registry
         uses: actions/setup-node@v4
         with:
@@ -98,7 +95,7 @@ jobs:
             cd "${root_path}/${package_dir}"
             name=$(jq -r .name package.json)
 
-            latest_version=$(npm view $name version)
+            latest_version=$(npm view $name version || echo unpublished)
             version=$(jq -r .version package.json)
             
             if [ "$version" == "$latest_version" ]; then
