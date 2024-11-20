@@ -1,9 +1,14 @@
 # History of changes
 
+## 0.0.1-alpha.9
+
+Pre-release for testing with HMPPS projects.
+Updated dependencies should once again allow typescript to use `no-unused-expressions` and other rules.
+
 ## 0.0.1-alpha.8
 
 Pre-release for testing with HMPPS projects.
-Fixed js doc annotation to help with auto-complete 
+Fixed js doc annotation to help with auto-complete
 
 ## 0.0.1-alpha.7
 
