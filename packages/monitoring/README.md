@@ -8,6 +8,10 @@ It includes:
 - `/info` - an endpoint that returns information about the application including it's name, version, productId, and other metadata about the service
 - `/health` - an endpoint that will return the current state of the application. This will include information about whether it's downstream services are responsive or not.
 
+## Status
+
+This library is now in beta. Teams are free to use this library, but further breaking changes may occur.
+
 ## Usage
 
 Usage is best demonstrated by the [HMPPS typescript template](https://github.com/ministryofjustice/hmpps-template-typescript)

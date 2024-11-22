@@ -7,6 +7,10 @@ It should include all:
 - the necessary npm packages to simplify dependency management within repositories
 - rules as defined by classic Airbnb best-practice with HMPPS overrides and typescript parsing
 
+## Status
+
+This library is now in beta. Teams are free to use this library, but further breaking changes may occur.
+
 ## Usage
 
 Usage is best demonstrated by the [HMPPS typescript template](https://github.com/ministryofjustice/hmpps-template-typescript)
