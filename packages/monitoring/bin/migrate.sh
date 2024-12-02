@@ -23,6 +23,9 @@ rm -f \
 printStage "* Ensuring productId is mandatory in ApplicationInfo"
 sed -i '' "s/productId?/productId/g" server/applicationInfo.ts
 
+printStage "* Fixing e2e tests"
+sed -i '' "s/retries: 2/attempts: 3/g" integration_tests/e2e/health.cy.ts
+
 printStage "* Replace healthcheck middleware"
 cat > server/middleware/setUpHealthChecks.ts <<EOL
 import express, { Router } from 'express'
