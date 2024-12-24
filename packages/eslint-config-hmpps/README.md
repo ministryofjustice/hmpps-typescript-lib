@@ -61,8 +61,9 @@ CommonJS enables the parent and sibling packages to use the rules directly for l
 
 `cd` to this directory and then pack this library to home directory: `npm pack --pack-destination ~`
 Inside the project of choice then:
-* uninstall the existing library: `npm uninstall @ministryofjustice/eslint-config-hmpps`
-* install from the packed file: `npm install -D ~/ministryofjustice-eslint-config-hmpps-<some-version>.tgz`
+
+- uninstall the existing library: `npm uninstall @ministryofjustice/eslint-config-hmpps`
+- install from the packed file: `npm install -D ~/ministryofjustice-eslint-config-hmpps-<some-version>.tgz`
 
 ### TODO
 
