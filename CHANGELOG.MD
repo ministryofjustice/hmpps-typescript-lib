@@ -1,3 +1,3 @@
-# History of changes
+# Change log
 
 See individual packages’ CHANGELOG.md

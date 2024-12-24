@@ -103,3 +103,10 @@ Custom health components can be implemented by implementing the `HealthComponent
 This module uses rollup, to build:
 
 `npm run lint-fix && npm run build && npm run test`
+
+## Testing changes to this library
+
+`cd` to this directory and then pack this library to home directory: `npm pack --pack-destination ~`
+Inside the project of choice then:
+* uninstall the existing library: `npm uninstall @ministryofjustice/hmpps-monitoring`
+* install from the packed file: `npm install -D ~/ministryofjustice-hmpps-monitoring-<some-version>.tgz`

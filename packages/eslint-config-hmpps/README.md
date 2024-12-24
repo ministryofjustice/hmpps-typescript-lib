@@ -47,7 +47,7 @@ Essentially, the move from eslint v8 to v9 requires changes to eslint configurat
 
 ## Customising config
 
-The point of having shared styling rules is that it reduces [bike-shedding](https://en.wiktionary.org/wiki/bikeshedding#:~:text=(file)-,Noun,Procrastination.) and adds some consistency across projects.
+The point of having shared styling rules is that it reduces [bike-shedding](<https://en.wiktionary.org/wiki/bikeshedding#:~:text=(file)-,Noun,Procrastination.>) and adds some consistency across projects.
 If some overriding is required to make your project successfully build configuration can be overriden via `eslint.config.mjs`,
 e.g: [here](https://github.com/ministryofjustice/hmpps-assess-for-early-release-ui/pull/46)
 and [here](https://github.com/ministryofjustice/hmpps-incident-reporting/pull/255).
@@ -56,6 +56,13 @@ and [here](https://github.com/ministryofjustice/hmpps-incident-reporting/pull/25
 
 It is deliberately not using typescript or rollup so that building is not required.
 CommonJS enables the parent and sibling packages to use the rules directly for lint checks.
+
+## Testing changes to this library
+
+`cd` to this directory and then pack this library to home directory: `npm pack --pack-destination ~`
+Inside the project of choice then:
+* uninstall the existing library: `npm uninstall @ministryofjustice/eslint-config-hmpps`
+* install from the packed file: `npm install -D ~/ministryofjustice-eslint-config-hmpps-<some-version>.tgz`
 
 ### TODO
 
