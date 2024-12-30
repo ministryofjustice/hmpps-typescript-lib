@@ -1,0 +1,28 @@
+{
+    "name": "@ministryofjustice/hmpps-azure-monitoring-sample",
+    "version": "0.0.1-alpha.0",
+    "description": "Sample app for testing azure monitoring",
+    "author": "hmpps-developers",
+    "license": "MIT",
+    "homepage": "https://github.com/ministryofjustice/hmpps-typescript-lib#readme",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ministryofjustice/hmpps-typescript-lib.git"
+    },
+    "engines": {
+        "node": "22"
+    },
+    "scripts": {
+        "start": "npx ts-node -r dotenv/config -r ./instrumentation.ts index.ts"
+    },
+    "dependencies": {
+        "@ministryofjustice/hmpps-azure-monitoring": "file:../..",
+        "bunyan": "^1.8.15",
+        "bunyan-format": "^0.2.1",
+        "express": "^4.21.2"
+    },
+    "devDependencies": {
+        "@types/bunyan-format": "^0.2.9",
+        "dotenv": "^16.4.7"
+    }
+}
