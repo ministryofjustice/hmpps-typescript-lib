@@ -7,7 +7,8 @@
 /.eslintcache
 
 # packages
-/packages/*/node_modules/
+/packages/**/node_modules/
+/packages/**/.env
 /packages/*/package-lock.json
 /packages/*/dist/
 /packages/*/coverage/
