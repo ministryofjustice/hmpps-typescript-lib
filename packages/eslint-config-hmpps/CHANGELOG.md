@@ -1,4 +1,18 @@
-# History of changes
+# Change log
+
+## 0.0.1-beta.2
+
+Patching:
+  @eslint/js                         ^9.15.0  →  ^9.17.0
+  @typescript-eslint/eslint-plugin   ^8.15.0  →  ^8.18.2
+  @typescript-eslint/parser          ^8.15.0  →  ^8.18.2
+  eslint                             ^9.15.0  →  ^9.17.0
+  eslint-import-resolver-typescript   ^3.6.3  →   ^3.7.0
+  eslint-plugin-cypress               ^4.0.0  →   ^4.1.0
+
+## 0.0.1-beta.1
+
+Initial beta
 
 ## 0.0.1-alpha.9
 

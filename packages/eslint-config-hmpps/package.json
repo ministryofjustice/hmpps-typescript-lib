@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/eslint-config-hmpps",
-  "version": "0.0.1-beta.1",
+  "version": "0.0.1-beta.2",
   "description": "ESLint rules for HMPPS typescript projects",
   "keywords": [
     "eslint",
@@ -31,14 +31,14 @@
   },
   "dependencies": {
     "@eslint/eslintrc": "3.2.0",
-    "@eslint/js": "^9.15.0",
-    "@typescript-eslint/eslint-plugin": "^8.15.0",
-    "@typescript-eslint/parser": "^8.15.0",
+    "@eslint/js": "^9.17.0",
+    "@typescript-eslint/eslint-plugin": "^8.18.2",
+    "@typescript-eslint/parser": "^8.18.2",
     "confusing-browser-globals": "^1.0.11",
-    "eslint": "^9.15.0",
+    "eslint": "^9.17.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-import-resolver-typescript": "^3.6.3",
-    "eslint-plugin-cypress": "^4.0.0",
+    "eslint-import-resolver-typescript": "^3.7.0",
+    "eslint-plugin-cypress": "^4.1.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-no-only-tests": "^3.3.0",
     "eslint-plugin-prettier": "^5.2.1",
