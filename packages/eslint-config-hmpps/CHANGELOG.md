@@ -3,12 +3,14 @@
 ## 0.0.1-beta.2
 
 Patching:
-  @eslint/js                         ^9.15.0  →  ^9.17.0
-  @typescript-eslint/eslint-plugin   ^8.15.0  →  ^8.18.2
-  @typescript-eslint/parser          ^8.15.0  →  ^8.18.2
+  @eslint/js                         ^9.15.0  →  ^9.18.0
+  @typescript-eslint/eslint-plugin   ^8.15.0  →  ^8.20.0
+  @typescript-eslint/parser          ^8.15.0  →  ^8.20.0
   eslint                             ^9.15.0  →  ^9.17.0
   eslint-import-resolver-typescript   ^3.6.3  →   ^3.7.0
   eslint-plugin-cypress               ^4.0.0  →   ^4.1.0
+  eslint-config-prettier              ^9.1.0  →  ^10.0.1
+
 
 ## 0.0.1-beta.1
 
