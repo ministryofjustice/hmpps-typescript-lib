@@ -72,6 +72,5 @@ This module uses rollup, to build:
 
 ## Testing changes to this library
 
-* `cd` to this directory and then pack this library to home directory: `npm link`
-Inside the project of choice then:
-* link the in-development library: `npm link @ministryofjustice/hmpps-rest-client`
+* `cd` to this directory and then link this library: `npm link`
+* Utilise the in-development library within a project by using: `npm link @ministryofjustice/hmpps-rest-client`
