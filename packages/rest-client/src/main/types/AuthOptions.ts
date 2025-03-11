@@ -2,15 +2,15 @@ import { User } from './User'
 
 /**
  * Represents how we want to authenticate the call:
- * - client: Are we using a system or user token?
+ * - tokenType: Are we using a system or user token?
  * - user: For system calls, we only need username; for user calls, we only need token.
  */
 export interface AuthOptions {
-  client: Token
+  tokenType: TokenType
   user: Partial<User>
 }
 
-export enum Token {
+export enum TokenType {
   USER_TOKEN = 'USER_TOKEN',
   SYSTEM_TOKEN = 'SYSTEM_TOKEN',
 }

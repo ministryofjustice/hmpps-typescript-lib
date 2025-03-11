@@ -1,12 +1,21 @@
-import { AuthOptions, Token } from '../types/AuthOptions'
+import { AuthOptions, TokenType } from '../types/AuthOptions'
 
 /**
- * Use a User Token for calls on behalf of a specific user.
- * Example: restClient.get('/some-api', asUser('jwt_token_here'))
+ * Generate authentication options for making a request with a user token.
+ *
+ * Use this function to authenticate API requests on behalf of a specific user.
+ * The provided token represents the user's identity and permissions, ensuring
+ * the request is authorized based on their role/access level.
+ *
+ * @param token - The JWT access token for the user.
+ * @returns AuthOptions - Authentication options configured for a user token.
+ *
+ * @example
+ * restClient.get('/some-api', asUser('jwt_token_here'))
  */
 export default function asUser(token: string): AuthOptions {
   return {
-    client: Token.USER_TOKEN,
+    tokenType: TokenType.USER_TOKEN,
     user: { token },
   }
 }
