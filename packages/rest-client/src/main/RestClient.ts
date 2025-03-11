@@ -20,13 +20,13 @@ export default abstract class RestClient {
    * @param name - The name of the API client.
    * @param config - The API configuration, including URL, timeout, and agent options.
    * @param logger - A logger instance for logging.
-   * @param authenticationClient - The client responsible for retrieving authentication tokens.
+   * @param authenticationClient - (Optional) The client responsible for retrieving system authentication tokens.
    */
   protected constructor(
     private readonly name: string,
     private readonly config: ApiConfig,
     private readonly logger: Logger | Console,
-    private readonly authenticationClient: AuthenticationClient,
+    private readonly authenticationClient?: AuthenticationClient,
   ) {
     this.agent = config.url.startsWith('https') ? new HttpsAgent(config.agent) : new HttpAgent(config.agent)
   }
@@ -271,13 +271,19 @@ export default abstract class RestClient {
    */
   private resolveToken(authOptions: AuthOptions): Promise<string> {
     const { tokenType, user } = authOptions
+
     if (tokenType === TokenType.SYSTEM_TOKEN) {
+      if (!this.authenticationClient) {
+        throw new Error('No authentication client provided for system tokens')
+      }
+
       return this.authenticationClient.getToken(user.username)
     }
 
     if (!user.token) {
       throw new Error('No user token provided for user-token call')
     }
+
     return Promise.resolve(user.token)
   }
 }
