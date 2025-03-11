@@ -77,7 +77,7 @@ export default abstract class RestClient {
    * @returns The response body or the full response if raw is true.
    * @throws Sanitised error if the request fails.
    */
-  async get<Response = unknown>(
+  async get<Response = unknown, ErrorData = unknown>(
     { path, query = {}, headers = {}, responseType = '', raw = false }: Request,
     authOptions: AuthOptions,
   ): Promise<Response> {
@@ -98,8 +98,9 @@ export default abstract class RestClient {
 
       return raw ? (result as unknown as Response) : result.body
     } catch (error) {
-      const sanitisedError = sanitiseError(error as ResponseError)
+      const sanitisedError = sanitiseError<ErrorData>(error as ResponseError)
       this.logger.warn({ ...sanitisedError }, `Error calling ${this.name}, path: '${path}', verb: 'GET'`)
+
       throw sanitisedError
     }
   }
@@ -113,7 +114,7 @@ export default abstract class RestClient {
    * @returns The response body or the full response if raw is true.
    * @throws Sanitised error if the request fails.
    */
-  private async requestWithBody<Response = unknown>(
+  private async requestWithBody<Response = unknown, ErrorData = unknown>(
     method: 'patch' | 'post' | 'put',
     { path, query = {}, headers = {}, responseType = '', data = {}, raw = false, retry = false }: RequestWithBody,
     authOptions: AuthOptions,
@@ -135,11 +136,12 @@ export default abstract class RestClient {
 
       return raw ? (result as unknown as Response) : result.body
     } catch (error) {
-      const sanitisedError = sanitiseError(error as ResponseError)
+      const sanitisedError = sanitiseError<ErrorData>(error as ResponseError)
       this.logger.warn(
         { ...sanitisedError },
         `Error calling ${this.name}, path: '${path}', verb: '${method.toUpperCase()}'`,
       )
+
       throw sanitisedError
     }
   }
@@ -151,8 +153,11 @@ export default abstract class RestClient {
    * @param authOptions - The authentication options.
    * @returns The response body.
    */
-  async patch<Response = unknown>(request: RequestWithBody, authOptions: AuthOptions): Promise<Response> {
-    return this.requestWithBody('patch', request, authOptions)
+  async patch<Response = unknown, ErrorData = unknown>(
+    request: RequestWithBody,
+    authOptions: AuthOptions,
+  ): Promise<Response> {
+    return this.requestWithBody<Response, ErrorData>('patch', request, authOptions)
   }
 
   /**
@@ -162,8 +167,11 @@ export default abstract class RestClient {
    * @param authOptions - The authentication options.
    * @returns The response body.
    */
-  async post<Response = unknown>(request: RequestWithBody, authOptions: AuthOptions): Promise<Response> {
-    return this.requestWithBody('post', request, authOptions)
+  async post<Response = unknown, ErrorData = unknown>(
+    request: RequestWithBody,
+    authOptions: AuthOptions,
+  ): Promise<Response> {
+    return this.requestWithBody<Response, ErrorData>('post', request, authOptions)
   }
 
   /**
@@ -173,8 +181,11 @@ export default abstract class RestClient {
    * @param authOptions - The authentication options.
    * @returns The response body.
    */
-  async put<Response = unknown>(request: RequestWithBody, authOptions: AuthOptions): Promise<Response> {
-    return this.requestWithBody('put', request, authOptions)
+  async put<Response = unknown, ErrorData = unknown>(
+    request: RequestWithBody,
+    authOptions: AuthOptions,
+  ): Promise<Response> {
+    return this.requestWithBody<Response, ErrorData>('put', request, authOptions)
   }
 
   /**
@@ -185,7 +196,7 @@ export default abstract class RestClient {
    * @returns The response body.
    * @throws Sanitised error if the request fails.
    */
-  async delete<Response = unknown>(
+  async delete<Response = unknown, ErrorData = unknown>(
     { path, query = {}, headers = {}, responseType = '', raw = false }: Request,
     authOptions: AuthOptions,
   ): Promise<Response> {
@@ -206,8 +217,9 @@ export default abstract class RestClient {
 
       return raw ? (result as unknown as Response) : result.body
     } catch (error) {
-      const sanitisedError = sanitiseError(error as ResponseError)
+      const sanitisedError = sanitiseError<ErrorData>(error as ResponseError)
       this.logger.warn({ ...sanitisedError }, `Error calling ${this.name}, path: '${path}', verb: 'DELETE'`)
+
       throw sanitisedError
     }
   }

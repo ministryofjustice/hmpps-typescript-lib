@@ -1,12 +1,16 @@
 import type { ResponseError } from 'superagent'
 
-export interface SanitisedError extends Error {
+/**
+ * An error that may be safe to log as it omits sensitive request headers
+ */
+export class SanitisedError<ErrorData = unknown> extends Error {
   text?: string
+
   status?: number
+
   headers?: unknown
-  data?: unknown
-  stack: string
-  message: string
+
+  data?: ErrorData
 }
 
 export type UnsanitisedError = ResponseError
