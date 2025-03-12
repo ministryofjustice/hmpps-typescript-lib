@@ -1,7 +1,7 @@
 import type { Request } from 'express'
 
 export interface AuthenticatedRequest extends Request {
-  verified: boolean
+  verified?: boolean
   user: {
     username: string
     token: string

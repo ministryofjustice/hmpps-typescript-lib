@@ -5,7 +5,32 @@ import TokenStore from './types/TokenStore'
 import AuthConfig from './types/AuthConfig'
 import InMemoryTokenStore from './tokenStores/InMemoryTokenStore'
 
+/**
+ * A client for authenticating with the HMPPS Auth API, retrieving tokens for system usage or impersonation.
+ * @class
+ * @extends RestClient
+ *
+ * @example
+ * import AuthenticationClient from './AuthenticationClient'
+ *
+ * const authClient = new AuthenticationClient(
+ *   {
+ *     systemClientId: 'client-id',
+ *     systemClientSecret: 'client-secret',
+ *     ...ApiConfig
+ *   },
+ *   console
+ * )
+ *
+ * const token = await authClient.getToken('some-user')
+ */
 export default class AuthenticationClient extends RestClient {
+  /**
+   * Creates an instance of AuthenticationClient.
+   * @param {AuthConfig} config - The AuthConfig settings for the client.
+   * @param {Logger|Console} logger - The logging mechanism.
+   * @param {TokenStore} [tokenStore=new InMemoryTokenStore()] - Optional token store to cache tokens.
+   */
   constructor(
     protected readonly config: AuthConfig,
     protected readonly logger: Logger | Console,
@@ -14,6 +39,11 @@ export default class AuthenticationClient extends RestClient {
     super('HMPPS Auth API', config, logger)
   }
 
+  /**
+   * Retrieves a token from the token store or fetches a new one from the HMPPS Auth API.
+   * @param {string} [username] - An optional username to impersonate; if omitted, a system (anonymous) token is fetched.
+   * @returns {Promise<string>} - A promise that resolves with the retrieved or newly fetched token.
+   */
   async getToken(username?: string): Promise<string> {
     const key = username || '%ANONYMOUS%'
     const existingToken = await this.tokenStore.getToken(key)
