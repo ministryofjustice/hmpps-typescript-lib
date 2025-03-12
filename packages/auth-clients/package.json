@@ -35,8 +35,6 @@
     "redis": "^4.7.0"
   },
   "dependencies": {
-    "@ministryofjustice/hmpps-rest-client": "^0.0.1-alpha.1",
-    "agentkeepalive": "4.x",
-    "superagent": "^10.x"
+    "@ministryofjustice/hmpps-rest-client": "^0.0.1-alpha.1"
   }
 }
