@@ -284,6 +284,7 @@ export default abstract class RestClient {
    * @param authOptions - AuthOptions, a raw token string, or undefined (no auth).
    * @returns A promise that resolves to the authentication token or undefined if no auth.
    * @throws An error if no user token is provided for user-token calls.
+   * @throws An error if no authentication client is provided for system token calls.
    */
   private async resolveToken(authOptions?: AuthOptions | string): Promise<string | undefined> {
     if (!authOptions) {
