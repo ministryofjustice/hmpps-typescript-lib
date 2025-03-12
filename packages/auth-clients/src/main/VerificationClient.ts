@@ -2,6 +2,7 @@ import type Logger from 'bunyan'
 import { RestClient, asUser } from '@ministryofjustice/hmpps-rest-client'
 import { AuthenticatedRequest } from './types/AuthenticatedRequest'
 import VerifyConfig from './types/VerifyConfig'
+import sanitiseError from './helpers/sanitiseError'
 
 /**
  * A client for verifying tokens using the HMPPS Token Verification API.
@@ -61,9 +62,8 @@ export default class VerificationClient extends RestClient {
       }
 
       return false
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (_) {
-      this.logger.debug(`Token verification failed for user "${user.username}"`)
+    } catch (e) {
+      this.logger.warn(`Token verification failed for user "${user.username}", ${sanitiseError(e)}`)
       return false
     }
   }
