@@ -57,12 +57,13 @@ export default new ExampleApiClient()
 ```
 
 ### Authentication
-This library relies on a `AuthenticationClient` provider which implements
-a `getToken` endpoint, which should return system tokens.
+This library accepts an optional `AuthenticationClient` provider which implements
+a `getToken` endpoint, used for return system tokens.
 
 Additionally, the library provides
 * `asSystem` - for generating authentication options for making a request with a system token.
 * `asUser` - for generating authentication options for making a request with a user token.
+* You may also use the raw JWT string by passing it in place of authOptions.
 
 ## Developing this package
 
