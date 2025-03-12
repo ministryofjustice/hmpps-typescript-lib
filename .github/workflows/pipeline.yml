@@ -35,10 +35,10 @@ jobs:
           node-version: ${{ matrix.node }}
       - name: Install dependencies
         run: npm install
-      - name: Run unit tests
-        run: npm test
       - name: Test build step
         run: npm run build
+      - name: Run unit tests
+        run: npm test
 
   lint:
     name: Run linting checks
