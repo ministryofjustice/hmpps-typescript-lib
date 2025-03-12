@@ -9,7 +9,7 @@ export interface Request {
 }
 
 export interface RequestWithBody extends Request {
-  data?: Record<string, unknown>
+  data?: Record<string, unknown> | string
   retry?: boolean
 }
 

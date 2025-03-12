@@ -23,9 +23,9 @@ export default abstract class RestClient {
    * @param authenticationClient - (Optional) The client responsible for retrieving system authentication tokens.
    */
   protected constructor(
-    private readonly name: string,
-    private readonly config: ApiConfig,
-    private readonly logger: Logger | Console,
+    protected readonly name: string,
+    protected readonly config: ApiConfig,
+    protected readonly logger: Logger | Console,
     private readonly authenticationClient?: AuthenticationClient,
   ) {
     this.agent = config.url.startsWith('https') ? new HttpsAgent(config.agent) : new HttpAgent(config.agent)
@@ -60,11 +60,9 @@ export default abstract class RestClient {
       if (!retry) {
         return false
       }
-
       if (err) {
         this.logger.info(`Retry handler found API error with ${err.name} - ${err.message}`)
       }
-
       return undefined
     }
   }
@@ -73,34 +71,39 @@ export default abstract class RestClient {
    * Sends a GET request to the API.
    *
    * @param request - The request options including path, query, headers, responseType, and raw flag.
-   * @param authOptions - The authentication options containing token type and user details.
+   * @param authOptions - (Optional) Either an AuthOptions object, a raw JWT string, or undefined for no auth.
    * @returns The response body or the full response if raw is true.
    * @throws Sanitised error if the request fails.
    */
   async get<Response = unknown, ErrorData = unknown>(
     { path, query = {}, headers = {}, responseType = '', raw = false }: Request,
-    authOptions: AuthOptions,
+    authOptions?: AuthOptions | string,
   ): Promise<Response> {
     this.logger.info(`${this.name} GET: ${path}`)
 
+    // 1) Resolve the token (if any)
     const token = await this.resolveToken(authOptions)
 
     try {
-      const result = await superagent
+      // 2) Build the request
+      const req = superagent
         .get(`${this.apiUrl()}${path}`)
         .query(query)
         .agent(this.agent)
         .retry(2, this.handleRetry())
-        .auth(token, { type: 'bearer' })
         .set(headers)
         .responseType(responseType)
         .timeout(this.timeoutConfig())
 
+      if (token) {
+        req.auth(token, { type: 'bearer' })
+      }
+
+      const result = await req
       return raw ? (result as unknown as Response) : result.body
     } catch (error) {
       const sanitisedError = sanitiseError<ErrorData>(error as ResponseError)
       this.logger.warn({ ...sanitisedError }, `Error calling ${this.name}, path: '${path}', verb: 'GET'`)
-
       throw sanitisedError
     }
   }
@@ -110,30 +113,34 @@ export default abstract class RestClient {
    *
    * @param method - The HTTP method ('patch', 'post', or 'put').
    * @param request - The request options including path, query, headers, responseType, data, raw flag, and retry flag.
-   * @param authOptions - The authentication options containing token type and user details.
+   * @param authOptions - (Optional) Either an AuthOptions object, a raw JWT string, or undefined for no auth.
    * @returns The response body or the full response if raw is true.
    * @throws Sanitised error if the request fails.
    */
   private async requestWithBody<Response = unknown, ErrorData = unknown>(
     method: 'patch' | 'post' | 'put',
     { path, query = {}, headers = {}, responseType = '', data = {}, raw = false, retry = false }: RequestWithBody,
-    authOptions: AuthOptions,
+    authOptions?: AuthOptions | string,
   ): Promise<Response> {
     this.logger.info(`${this.name} ${method.toUpperCase()}: ${path}`)
 
     const token = await this.resolveToken(authOptions)
 
     try {
-      const result = await superagent[method](`${this.apiUrl()}${path}`)
+      const req = superagent[method](`${this.apiUrl()}${path}`)
         .query(query)
         .send(data)
         .agent(this.agent)
         .retry(2, this.handleRetry(retry))
-        .auth(token, { type: 'bearer' })
         .set(headers)
         .responseType(responseType)
         .timeout(this.timeoutConfig())
 
+      if (token) {
+        req.auth(token, { type: 'bearer' })
+      }
+
+      const result = await req
       return raw ? (result as unknown as Response) : result.body
     } catch (error) {
       const sanitisedError = sanitiseError<ErrorData>(error as ResponseError)
@@ -141,7 +148,6 @@ export default abstract class RestClient {
         { ...sanitisedError },
         `Error calling ${this.name}, path: '${path}', verb: '${method.toUpperCase()}'`,
       )
-
       throw sanitisedError
     }
   }
@@ -155,7 +161,7 @@ export default abstract class RestClient {
    */
   async patch<Response = unknown, ErrorData = unknown>(
     request: RequestWithBody,
-    authOptions: AuthOptions,
+    authOptions?: AuthOptions | string,
   ): Promise<Response> {
     return this.requestWithBody<Response, ErrorData>('patch', request, authOptions)
   }
@@ -169,7 +175,7 @@ export default abstract class RestClient {
    */
   async post<Response = unknown, ErrorData = unknown>(
     request: RequestWithBody,
-    authOptions: AuthOptions,
+    authOptions?: AuthOptions | string,
   ): Promise<Response> {
     return this.requestWithBody<Response, ErrorData>('post', request, authOptions)
   }
@@ -183,7 +189,7 @@ export default abstract class RestClient {
    */
   async put<Response = unknown, ErrorData = unknown>(
     request: RequestWithBody,
-    authOptions: AuthOptions,
+    authOptions?: AuthOptions | string,
   ): Promise<Response> {
     return this.requestWithBody<Response, ErrorData>('put', request, authOptions)
   }
@@ -192,34 +198,37 @@ export default abstract class RestClient {
    * Sends a DELETE request to the API.
    *
    * @param request - The DELETE request options including path, query, headers, responseType, and raw flag.
-   * @param authOptions - The authentication options.
+   * @param authOptions - (Optional) Either an AuthOptions object, a raw JWT string, or undefined for no auth.
    * @returns The response body.
    * @throws Sanitised error if the request fails.
    */
   async delete<Response = unknown, ErrorData = unknown>(
     { path, query = {}, headers = {}, responseType = '', raw = false }: Request,
-    authOptions: AuthOptions,
+    authOptions?: AuthOptions | string,
   ): Promise<Response> {
     this.logger.info(`${this.name} DELETE: ${path}`)
 
     const token = await this.resolveToken(authOptions)
 
     try {
-      const result = await superagent
+      const req = superagent
         .delete(`${this.apiUrl()}${path}`)
         .query(query)
         .agent(this.agent)
         .retry(2, this.handleRetry())
-        .auth(token, { type: 'bearer' })
         .set(headers)
         .responseType(responseType)
         .timeout(this.timeoutConfig())
 
+      if (token) {
+        req.auth(token, { type: 'bearer' })
+      }
+
+      const result = await req
       return raw ? (result as unknown as Response) : result.body
     } catch (error) {
       const sanitisedError = sanitiseError<ErrorData>(error as ResponseError)
       this.logger.warn({ ...sanitisedError }, `Error calling ${this.name}, path: '${path}', verb: 'DELETE'`)
-
       throw sanitisedError
     }
   }
@@ -228,48 +237,63 @@ export default abstract class RestClient {
    * Streams data from the API.
    *
    * @param request - The stream request options including path and headers.
-   * @param authOptions - The authentication options.
+   * @param authOptions - (Optional) Either an AuthOptions object, a raw JWT string, or undefined for no auth.
    * @returns A Readable stream containing the response data.
-   * @throws An error if the streaming request fails.
    */
   // eslint-disable-next-line default-param-last
-  async stream({ path, headers = {} }: StreamRequest = {}, authOptions: AuthOptions): Promise<Readable> {
+  async stream({ path, headers = {} }: StreamRequest = {}, authOptions?: AuthOptions | string): Promise<Readable> {
     this.logger.info(`${this.name} streaming: ${path}`)
 
     const token = await this.resolveToken(authOptions)
 
     return new Promise((resolve, reject) => {
-      superagent
+      const req = superagent
         .get(`${this.apiUrl()}${path}`)
         .agent(this.agent)
-        .auth(token, { type: 'bearer' })
         .retry(2, this.handleRetry())
         .timeout(this.timeoutConfig())
         .set(headers)
-        .end((error, response) => {
-          if (error) {
-            this.logger.warn(sanitiseError(error), `Error calling ${this.name}`)
-            reject(error)
-          } else if (response) {
-            const s = new Readable()
-            // eslint-disable-next-line no-underscore-dangle
-            s._read = () => {}
-            s.push(response.text)
-            s.push(null)
-            resolve(s)
-          }
-        })
+
+      if (token) {
+        req.auth(token, { type: 'bearer' })
+      }
+
+      req.end((error, response) => {
+        if (error) {
+          const sanitised = sanitiseError(error)
+          this.logger.warn(sanitised, `Error calling ${this.name}`)
+          reject(sanitised)
+        } else if (response) {
+          const s = new Readable()
+          // eslint-disable-next-line no-underscore-dangle
+          s._read = () => {}
+          s.push(response.text)
+          s.push(null)
+          resolve(s)
+        }
+      })
     })
   }
 
   /**
-   * Resolves an authentication token based on the provided authentication options.
+   * Resolves an authentication token from several possible inputs:
+   *  1) A raw JWT string
+   *  2) An AuthOptions object referencing a system or user token
+   *  3) Undefined (no token)
    *
-   * @param authOptions - The authentication options containing token type and user details.
-   * @returns A promise that resolves to the authentication token.
+   * @param authOptions - AuthOptions, a raw token string, or undefined (no auth).
+   * @returns A promise that resolves to the authentication token or undefined if no auth.
    * @throws An error if no user token is provided for user-token calls.
    */
-  private resolveToken(authOptions: AuthOptions): Promise<string> {
+  private async resolveToken(authOptions?: AuthOptions | string): Promise<string | undefined> {
+    if (!authOptions) {
+      return undefined
+    }
+
+    if (typeof authOptions === 'string') {
+      return authOptions
+    }
+
     const { tokenType, user } = authOptions
 
     if (tokenType === TokenType.SYSTEM_TOKEN) {
@@ -284,6 +308,6 @@ export default abstract class RestClient {
       throw new Error('No user token provided for user-token call')
     }
 
-    return Promise.resolve(user.token)
+    return user.token
   }
 }
