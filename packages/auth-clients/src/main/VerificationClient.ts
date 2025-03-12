@@ -2,7 +2,6 @@ import type Logger from 'bunyan'
 import { RestClient, asUser } from '@ministryofjustice/hmpps-rest-client'
 import { AuthenticatedRequest } from './types/AuthenticatedRequest'
 import VerifyConfig from './types/VerifyConfig'
-import sanitiseError from './helpers/sanitiseError'
 
 /**
  * A client for verifying tokens using the HMPPS Token Verification API.
@@ -62,8 +61,8 @@ export default class VerificationClient extends RestClient {
       }
 
       return false
-    } catch (e) {
-      this.logger.warn(`Token verification failed for user "${user.username}", ${sanitiseError(e)}`)
+    } catch (error) {
+      this.logger.warn(`Token verification failed for user "${user.username}", ${error}`)
       return false
     }
   }
