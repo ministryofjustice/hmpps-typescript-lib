@@ -1,5 +1,5 @@
 {
-  "name": "@ministryofjustice/hmpps-rest-client",
+  "name": "hmpps-rest-client",
   "version": "0.0.1-alpha.1",
   "description": "Standardized, reusable REST client for use with HMPPS services",
   "author": "hmpps-developers",
@@ -21,7 +21,7 @@
     "node": "20 || 22"
   },
   "scripts": {
-    "build": "rollup -c rollup.config.ts --bundleConfigAsCjs",
+    "build": "rollup -c rollup.config.ts --bundleConfigAsCjs && rm -rf ./dist",
     "clean": "rm -rf ./dist/",
     "test": "tsc && jest",
     "lint": "eslint src --cache --max-warnings 0",
