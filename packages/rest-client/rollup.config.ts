@@ -8,6 +8,7 @@ import pkg from './package.json'
 /* eslint-enable import/no-extraneous-dependencies */
 
 const outputDir = path.resolve(__dirname, '../../dist', pkg.name)
+pkg.name = `@ministryofjustice/${pkg.name}`
 
 export default [
   {
@@ -28,20 +29,9 @@ export default [
           {
             src: 'package.json',
             dest: outputDir,
-            transform: () => {
-              return JSON.stringify(
-                {
-                  ...pkg,
-                  name: `@ministryofjustice/${pkg.name}`,
-                  devDependencies: {},
-                },
-                null,
-                2,
-              )
-            },
+            transform: () => JSON.stringify(pkg, null, 2),
           },
-          { src: '*.md', dest: outputDir },
-          { src: 'dist', dest: outputDir },
+          { src: ['dist', '*.md'], dest: outputDir },
         ],
       }),
     ],
