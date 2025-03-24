@@ -6,7 +6,8 @@
     "outDir": "./dist",
     "declarationDir": "./dist",
     "resolveJsonModule": true,
-    "sourceMap": true
+    "declaration": true,
+    "module": "Node16",
   },
   "include": ["./src/**/*.ts"],
 }
