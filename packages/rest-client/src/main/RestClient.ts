@@ -240,8 +240,7 @@ export default abstract class RestClient {
    * @param authOptions - (Optional) Either an AuthOptions object, a raw JWT string, or undefined for no auth.
    * @returns A Readable stream containing the response data.
    */
-  // eslint-disable-next-line default-param-last
-  async stream({ path, headers = {} }: StreamRequest = {}, authOptions?: AuthOptions | string): Promise<Readable> {
+  async stream({ path, headers = {} }: StreamRequest, authOptions?: AuthOptions | string): Promise<Readable> {
     this.logger.info(`${this.name} streaming: ${path}`)
 
     const token = await this.resolveToken(authOptions)
