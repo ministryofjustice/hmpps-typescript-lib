@@ -1,4 +1,5 @@
 import nock from 'nock'
+import { AgentConfig } from '@ministryofjustice/hmpps-rest-client'
 import AuthenticationClient from './AuthenticationClient'
 import AuthConfig from './types/AuthConfig'
 import InMemoryTokenStore from './tokenStores/InMemoryTokenStore'
@@ -16,9 +17,7 @@ describe('AuthenticationClient', () => {
   const config: AuthConfig = {
     systemClientId: 'client_id',
     systemClientSecret: 'client_secret',
-    agent: {
-      timeout: 10000,
-    },
+    agent: new AgentConfig(10000),
     timeout: { deadline: 1000, response: 1000 },
     url: 'http://hmpps-auth.url/auth',
   }
