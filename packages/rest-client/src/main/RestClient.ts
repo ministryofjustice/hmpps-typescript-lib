@@ -119,7 +119,7 @@ export default abstract class RestClient {
    */
   private async requestWithBody<Response = unknown, ErrorData = unknown>(
     method: 'patch' | 'post' | 'put',
-    { path, query = {}, headers = {}, responseType = '', data = {}, raw = false, retry = false }: RequestWithBody,
+    { path, query = {}, headers = {}, responseType = '', data, raw = false, retry = false }: RequestWithBody,
     authOptions?: AuthOptions | string,
   ): Promise<Response> {
     this.logger.info(`${this.name} ${method.toUpperCase()}: ${path}`)
@@ -240,8 +240,7 @@ export default abstract class RestClient {
    * @param authOptions - (Optional) Either an AuthOptions object, a raw JWT string, or undefined for no auth.
    * @returns A Readable stream containing the response data.
    */
-  // eslint-disable-next-line default-param-last
-  async stream({ path, headers = {} }: StreamRequest = {}, authOptions?: AuthOptions | string): Promise<Readable> {
+  async stream({ path, headers = {} }: StreamRequest, authOptions?: AuthOptions | string): Promise<Readable> {
     this.logger.info(`${this.name} streaming: ${path}`)
 
     const token = await this.resolveToken(authOptions)

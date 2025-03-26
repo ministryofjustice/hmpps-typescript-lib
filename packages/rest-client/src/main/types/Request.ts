@@ -9,7 +9,7 @@ export interface Request {
 }
 
 export interface RequestWithBody extends Request {
-  data?: Record<string, unknown> | string
+  data?: Record<string, unknown> | string | Array<unknown> | undefined
   retry?: boolean
 }
 

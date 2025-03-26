@@ -54,7 +54,9 @@ export default class VerificationClient extends RestClient {
     this.logger.debug(`Token request for user "${user.username}"`)
 
     try {
-      const response = (await this.post({ path: `/token/verify` }, asUser(user.token))) as { active: boolean }
+      const response = (await this.post({ path: `/token/verify`, data: undefined }, asUser(user.token))) as {
+        active: boolean
+      }
       if (response && response.active) {
         request.verified = true
         return true
