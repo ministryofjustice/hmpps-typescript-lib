@@ -119,7 +119,7 @@ export default abstract class RestClient {
    */
   private async requestWithBody<Response = unknown, ErrorData = unknown>(
     method: 'patch' | 'post' | 'put',
-    { path, query = {}, headers = {}, responseType = '', data = {}, raw = false, retry = false }: RequestWithBody,
+    { path, query = {}, headers = {}, responseType = '', data, raw = false, retry = false }: RequestWithBody,
     authOptions?: AuthOptions | string,
   ): Promise<Response> {
     this.logger.info(`${this.name} ${method.toUpperCase()}: ${path}`)
