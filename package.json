@@ -18,21 +18,24 @@
   },
   "private": true,
   "workspaces": [
-    "packages/*"
-  ],
+ 	"/packages/rest-client",
+	"/packages/auth-clients",
+	"/packages/eslint-config-hmpps",
+  "/packages/monitoring"
+ ],
   "engines": {
     "node": "20 || 22"
   },
   "scripts": {
     "build": "npm run build --workspaces --if-present",
-    "clean": "npm run clean --workspaces --if-present",
+    "clean": "find . -name '.eslintcache' -delete && npm run clean --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "lint-fix": "npm run lint-fix --workspaces --if-present",
     "test": "npm run test --workspaces --if-present"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.2",
-    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-typescript": "^12.1.2",
     "@tsconfig/node22": "^22.0.0",
     "@types/jest": "^29.5.14",
