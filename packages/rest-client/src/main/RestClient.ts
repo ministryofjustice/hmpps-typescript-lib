@@ -5,8 +5,9 @@ import type Logger from 'bunyan'
 import sanitiseError from './helpers/sanitiseError'
 import { ApiConfig } from './types/ApiConfig'
 import { AuthOptions, TokenType } from './types/AuthOptions'
-import { Request, RequestWithBody, StreamRequest } from './types/Request'
+import { Call, Request, RequestWithBody, StreamRequest } from './types/Request'
 import AuthenticationClient from './types/AuthenticationClient'
+import { SanitisedError } from './types/Errors'
 
 /**
  * Abstract base class for REST API clients.
@@ -50,6 +51,20 @@ export default abstract class RestClient {
   }
 
   /**
+   * Provides a default mechanism for handling errors
+   *  @param path - path of current request
+   *  @param method - verb of HTTP request
+   *  @param error - the sanitised error
+   *
+   *  @returns an optional custom response
+   *  @throws an optional error
+   */
+  protected handleError<Response, ErrorData>(path: string, method: string, error: SanitisedError<ErrorData>): Response {
+    this.logger.warn({ ...error }, `Error calling ${this.name}, path: '${path}', verb: '${method}'`)
+    throw error
+  }
+
+  /**
    * Returns a retry handler function.
    *
    * @param retry - Indicates whether to retry the request.
@@ -76,7 +91,15 @@ export default abstract class RestClient {
    * @throws Sanitised error if the request fails.
    */
   async get<Response = unknown, ErrorData = unknown>(
-    { path, query = {}, headers = {}, responseType = '', raw = false }: Request,
+    {
+      path,
+      query = {},
+      headers = {},
+      responseType = '',
+      raw = false,
+      retries = 2,
+      errorHandler = this.handleError,
+    }: Request,
     authOptions?: AuthOptions | string,
   ): Promise<Response> {
     this.logger.info(`${this.name} GET: ${path}`)
@@ -90,7 +113,7 @@ export default abstract class RestClient {
         .get(`${this.apiUrl()}${path}`)
         .query(query)
         .agent(this.agent)
-        .retry(2, this.handleRetry())
+        .retry(retries, this.handleRetry())
         .set(headers)
         .responseType(responseType)
         .timeout(this.timeoutConfig())
@@ -103,8 +126,7 @@ export default abstract class RestClient {
       return raw ? (result as unknown as Response) : result.body
     } catch (error) {
       const sanitisedError = sanitiseError<ErrorData>(error as ResponseError)
-      this.logger.warn({ ...sanitisedError }, `Error calling ${this.name}, path: '${path}', verb: 'GET'`)
-      throw sanitisedError
+      return errorHandler.bind(this)<Response, ErrorData>(path, 'GET', sanitisedError)
     }
   }
 
@@ -119,7 +141,16 @@ export default abstract class RestClient {
    */
   private async requestWithBody<Response = unknown, ErrorData = unknown>(
     method: 'patch' | 'post' | 'put',
-    { path, query = {}, headers = {}, responseType = '', data, raw = false, retry = false }: RequestWithBody,
+    {
+      path,
+      query = {},
+      headers = {},
+      responseType = '',
+      data,
+      raw = false,
+      retry = false,
+      errorHandler = this.handleError,
+    }: RequestWithBody,
     authOptions?: AuthOptions | string,
   ): Promise<Response> {
     this.logger.info(`${this.name} ${method.toUpperCase()}: ${path}`)
@@ -144,11 +175,7 @@ export default abstract class RestClient {
       return raw ? (result as unknown as Response) : result.body
     } catch (error) {
       const sanitisedError = sanitiseError<ErrorData>(error as ResponseError)
-      this.logger.warn(
-        { ...sanitisedError },
-        `Error calling ${this.name}, path: '${path}', verb: '${method.toUpperCase()}'`,
-      )
-      throw sanitisedError
+      return errorHandler.bind(this)<Response, ErrorData>(path, method.toUpperCase(), sanitisedError)
     }
   }
 
@@ -203,7 +230,15 @@ export default abstract class RestClient {
    * @throws Sanitised error if the request fails.
    */
   async delete<Response = unknown, ErrorData = unknown>(
-    { path, query = {}, headers = {}, responseType = '', raw = false }: Request,
+    {
+      path,
+      query = {},
+      headers = {},
+      responseType = '',
+      raw = false,
+      retries = 2,
+      errorHandler = this.handleError,
+    }: Request,
     authOptions?: AuthOptions | string,
   ): Promise<Response> {
     this.logger.info(`${this.name} DELETE: ${path}`)
@@ -215,7 +250,7 @@ export default abstract class RestClient {
         .delete(`${this.apiUrl()}${path}`)
         .query(query)
         .agent(this.agent)
-        .retry(2, this.handleRetry())
+        .retry(retries, this.handleRetry())
         .set(headers)
         .responseType(responseType)
         .timeout(this.timeoutConfig())
@@ -228,8 +263,7 @@ export default abstract class RestClient {
       return raw ? (result as unknown as Response) : result.body
     } catch (error) {
       const sanitisedError = sanitiseError<ErrorData>(error as ResponseError)
-      this.logger.warn({ ...sanitisedError }, `Error calling ${this.name}, path: '${path}', verb: 'DELETE'`)
-      throw sanitisedError
+      return errorHandler.bind(this)<Response, ErrorData>(path, 'DELETE', sanitisedError)
     }
   }
 
@@ -272,6 +306,23 @@ export default abstract class RestClient {
         }
       })
     })
+  }
+
+  /**
+   * Make a request using underlying superagent instance, potentially getting a token.
+   *
+   * In an ideal world, this would rarely be used but provides an escape hatch to cater for bespoke usecases.
+   *
+   * @param call - A callback that provides the client a token and the underlying superagent instance.
+   * @param authOptions - The authentication options for this call.
+   * @returns The response body.
+   */
+  async makeRestClientCall<Response = unknown>(
+    authOptions: AuthOptions | string,
+    call: Call<Response>,
+  ): Promise<Response> {
+    const token = await this.resolveToken(authOptions)
+    return call({ superagent, token, agent: this.agent })
   }
 
   /**

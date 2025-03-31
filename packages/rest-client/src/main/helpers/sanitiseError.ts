@@ -4,7 +4,7 @@ import { SanitisedError, UnsanitisedError } from '../types/Errors'
  * Converts an UnsanitisedError (superagent.ResponseError) into a simpler Error object,
  * omitting request information (e.g. sensitive request headers)
  */
-export default function sanitiseError<ErrorData = unknown>(error: UnsanitisedError): SanitisedError {
+export default function sanitiseError<ErrorData = unknown>(error: UnsanitisedError): SanitisedError<ErrorData> {
   const e = new Error() as SanitisedError<ErrorData>
 
   e.message = error.message
