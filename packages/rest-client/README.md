@@ -22,9 +22,10 @@ Usage is best demonstrated by the [HMPPS typescript template](https://github.com
 New projects based on this template will automatically adopt this package.
 
 ### RestClient
+
 The package provides an abstract RestClient class that you can extend to create API clients tailored to your service needs.
 
-```
+```ts
 import RestClient from '@ministryofjustice/hmpps-rest-client'
 import { ApiConfig } from './types/ApiConfig'
 import { AuthOptions } from './types/AuthOptions'
@@ -56,14 +57,38 @@ class ExampleApiClient extends RestClient {
 export default new ExampleApiClient()
 ```
 
+When using `hmpps-auth-clients` and dependency injection this might look like:
+
+```ts
+import { AuthenticationClient, RestClient } from '@ministryofjustice/hmpps-rest-client'
+import config from '../config'
+import logger from '../../logger'
+
+export default class ExampleApiClient extends RestClient {
+  constructor(authenticationClient: AuthenticationClient) {
+    super('exampleApiClient', config.apis.exampleApi, logger, authenticationClient)
+  }
+  ...
+}
+```
+
+```ts
+// data/index.ts
+const tokenStore = config.redis.enabled ? new RedisTokenStore(createRedisClient()) : new InMemoryTokenStore()
+const authClient = new AuthenticationClient(config.apis.hmppsAuth, logger, tokenStore)
+const client = new ExampleApiClient(authClient)
+```
+
 ### Authentication
+
 This library accepts an optional `AuthenticationClient` provider which implements
 a `getToken` endpoint, used for return system tokens.
 
 Additionally, the library provides
-* `asSystem` - for generating authentication options for making a request with a system token.
-* `asUser` - for generating authentication options for making a request with a user token.
-* You may also use the raw JWT string by passing it in place of authOptions.
+
+- `asSystem` - for generating authentication options for making a request with a system token.
+- `asUser` - for generating authentication options for making a request with a user token.
+- You may also use the raw JWT string by passing it in place of authOptions.
 
 ## Developing this package
 
@@ -73,5 +98,5 @@ This module uses rollup, to build:
 
 ## Testing changes to this library
 
-* `cd` to this directory and then link this library: `npm link`
-* Utilise the in-development library within a project by using: `npm link @ministryofjustice/hmpps-rest-client`
+- `cd` to this directory and then link this library: `npm link`
+- Utilise the in-development library within a project by using: `npm link @ministryofjustice/hmpps-rest-client`
