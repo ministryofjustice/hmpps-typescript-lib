@@ -2,17 +2,17 @@ import type superagent from 'superagent'
 import type http from 'http'
 import { SanitisedError, UnsanitisedError } from './Errors'
 
-export interface Request {
+export interface Request<Response, ErrorData> {
   path: string
   query?: object | string
   headers?: Record<string, string>
   responseType?: string
   retries?: number
   raw?: boolean
-  errorHandler?: ErrorHandler
+  errorHandler?: ErrorHandler<Response, ErrorData>
 }
 
-export interface RequestWithBody extends Request {
+export interface RequestWithBody<Response, ErrorData> extends Request<Response, ErrorData> {
   data?: Record<string, unknown> | string | Array<unknown> | undefined
   retry?: boolean
 }
@@ -23,8 +23,8 @@ export interface StreamRequest {
   errorLogger?: (e: UnsanitisedError) => void
 }
 
-export interface ErrorHandler {
-  <Response, ErrorData>(path: string, method: string, error: SanitisedError<ErrorData>): Response
+export interface ErrorHandler<Response, ErrorData> {
+  (path: string, method: string, error: SanitisedError<ErrorData>): Response
 }
 
 export interface CallContext {

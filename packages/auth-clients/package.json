@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/hmpps-auth-clients",
-  "version": "0.0.1-alpha.2",
+  "version": "0.0.1-alpha.3",
   "description": "Clients for authenticating and verifying tokens using the HMPPS Authentication estate",
   "author": "hmpps-developers",
   "license": "MIT",

@@ -99,7 +99,7 @@ export default abstract class RestClient {
       raw = false,
       retries = 2,
       errorHandler = this.handleError,
-    }: Request,
+    }: Request<Response, ErrorData>,
     authOptions?: AuthOptions | string,
   ): Promise<Response> {
     this.logger.info(`${this.name} GET: ${path}`)
@@ -126,7 +126,7 @@ export default abstract class RestClient {
       return raw ? (result as unknown as Response) : result.body
     } catch (error) {
       const sanitisedError = sanitiseError<ErrorData>(error as ResponseError)
-      return errorHandler.bind(this)<Response, ErrorData>(path, 'GET', sanitisedError)
+      return errorHandler.bind(this)(path, 'GET', sanitisedError)
     }
   }
 
@@ -150,7 +150,7 @@ export default abstract class RestClient {
       raw = false,
       retry = false,
       errorHandler = this.handleError,
-    }: RequestWithBody,
+    }: RequestWithBody<Response, ErrorData>,
     authOptions?: AuthOptions | string,
   ): Promise<Response> {
     this.logger.info(`${this.name} ${method.toUpperCase()}: ${path}`)
@@ -175,7 +175,7 @@ export default abstract class RestClient {
       return raw ? (result as unknown as Response) : result.body
     } catch (error) {
       const sanitisedError = sanitiseError<ErrorData>(error as ResponseError)
-      return errorHandler.bind(this)<Response, ErrorData>(path, method.toUpperCase(), sanitisedError)
+      return errorHandler.bind(this)(path, method.toUpperCase(), sanitisedError)
     }
   }
 
@@ -187,7 +187,7 @@ export default abstract class RestClient {
    * @returns The response body.
    */
   async patch<Response = unknown, ErrorData = unknown>(
-    request: RequestWithBody,
+    request: RequestWithBody<Response, ErrorData>,
     authOptions?: AuthOptions | string,
   ): Promise<Response> {
     return this.requestWithBody<Response, ErrorData>('patch', request, authOptions)
@@ -201,7 +201,7 @@ export default abstract class RestClient {
    * @returns The response body.
    */
   async post<Response = unknown, ErrorData = unknown>(
-    request: RequestWithBody,
+    request: RequestWithBody<Response, ErrorData>,
     authOptions?: AuthOptions | string,
   ): Promise<Response> {
     return this.requestWithBody<Response, ErrorData>('post', request, authOptions)
@@ -215,7 +215,7 @@ export default abstract class RestClient {
    * @returns The response body.
    */
   async put<Response = unknown, ErrorData = unknown>(
-    request: RequestWithBody,
+    request: RequestWithBody<Response, ErrorData>,
     authOptions?: AuthOptions | string,
   ): Promise<Response> {
     return this.requestWithBody<Response, ErrorData>('put', request, authOptions)
@@ -238,7 +238,7 @@ export default abstract class RestClient {
       raw = false,
       retries = 2,
       errorHandler = this.handleError,
-    }: Request,
+    }: Request<Response, ErrorData>,
     authOptions?: AuthOptions | string,
   ): Promise<Response> {
     this.logger.info(`${this.name} DELETE: ${path}`)
@@ -263,7 +263,7 @@ export default abstract class RestClient {
       return raw ? (result as unknown as Response) : result.body
     } catch (error) {
       const sanitisedError = sanitiseError<ErrorData>(error as ResponseError)
-      return errorHandler.bind(this)<Response, ErrorData>(path, 'DELETE', sanitisedError)
+      return errorHandler.bind(this)(path, 'DELETE', sanitisedError)
     }
   }
 
