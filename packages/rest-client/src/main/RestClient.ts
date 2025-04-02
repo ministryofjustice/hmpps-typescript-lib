@@ -6,7 +6,7 @@ import sanitiseError from './helpers/sanitiseError'
 import { ApiConfig } from './types/ApiConfig'
 import { AuthOptions, TokenType } from './types/AuthOptions'
 import { Call, Request, RequestWithBody, StreamRequest } from './types/Request'
-import AuthenticationClient from './types/AuthenticationClient'
+import { AuthenticationClient } from './types/AuthenticationClient'
 import { SanitisedError } from './types/Errors'
 
 /**
