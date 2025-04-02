@@ -4,3 +4,4 @@ export { default as asSystem } from './helpers/asSystem'
 
 export type { ApiConfig, AgentConfig } from './types/ApiConfig'
 export type { SanitisedError } from './types/Errors'
+export type { AuthenticationClient } from './types/AuthenticationClient'
