@@ -60,13 +60,13 @@ export default new ExampleApiClient()
 When using `hmpps-auth-clients` and dependency injection this might look like:
 
 ```ts
-import { AuthenticationClient, RestClient } from '@ministryofjustice/hmpps-rest-client'
+import { ApiConfig, AuthenticationClient, RestClient } from '@ministryofjustice/hmpps-rest-client'
 import config from '../config'
 import logger from '../../logger'
 
 export default class ExampleApiClient extends RestClient {
   constructor(authenticationClient: AuthenticationClient) {
-    super('exampleApiClient', config.apis.exampleApi, logger, authenticationClient)
+    super('Example API Client', config.apis.exampleApi as ApiConfig, logger, authenticationClient)
   }
   ...
 }

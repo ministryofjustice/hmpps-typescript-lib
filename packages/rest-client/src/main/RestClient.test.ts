@@ -289,7 +289,7 @@ describe('RestClient', () => {
         reqheaders: { authorization: 'Bearer some_system_jwt' },
       })
         .get('/api/test-file')
-        .reply(200, 'this is some file content')
+        .reply(200, 'this is some file content', { 'Content-Type': 'application/x-zip-compressed' })
 
       const readable = await restClient.stream({ path: '/test-file' }, systemAuthOptions)
       const receivedData = await readAll(readable)
@@ -303,7 +303,7 @@ describe('RestClient', () => {
         reqheaders: { authorization: 'Bearer some_user_jwt' },
       })
         .get('/api/test-file')
-        .reply(200, 'some user file content')
+        .reply(200, 'some user file content', { 'Content-Type': 'application/x-zip-compressed' })
 
       const readable = await restClient.stream({ path: '/test-file' }, userAuthOptions)
       const receivedData = await readAll(readable)
@@ -316,7 +316,7 @@ describe('RestClient', () => {
       nock('http://localhost:8080')
         .matchHeader('authorization', val => val === undefined)
         .get('/api/test-file')
-        .reply(200, 'public file content')
+        .reply(200, 'public file content', { 'Content-Type': 'application/x-zip-compressed' })
 
       const readable = await restClient.stream({ path: '/test-file' }, undefined)
       const receivedData = await readAll(readable)
@@ -330,7 +330,7 @@ describe('RestClient', () => {
         reqheaders: { authorization: 'Bearer raw_stream_jwt' },
       })
         .get('/api/test-file')
-        .reply(200, 'stream content for raw token')
+        .reply(200, 'stream content for raw token', { 'Content-Type': 'application/x-zip-compressed' })
 
       const readable = await restClient.stream({ path: '/test-file' }, 'raw_stream_jwt')
       const receivedData = await readAll(readable)
@@ -347,7 +347,7 @@ describe('RestClient', () => {
         },
       })
         .get('/api/test-file')
-        .reply(200, 'content with custom header')
+        .reply(200, 'content with custom header', { 'Content-Type': 'application/x-zip-compressed' })
 
       const readable = await restClient.stream(
         {
@@ -383,7 +383,7 @@ describe('RestClient', () => {
       nock.cleanAll()
     })
 
-    it('should stream data successfully with a system token', async () => {
+    it('should get data successfully with a system token', async () => {
       nock('http://localhost:8080', {
         reqheaders: { authorization: 'Bearer some_system_jwt' },
       })

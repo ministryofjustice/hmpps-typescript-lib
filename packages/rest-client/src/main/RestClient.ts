@@ -300,7 +300,7 @@ export default abstract class RestClient {
           const s = new Readable()
           // eslint-disable-next-line no-underscore-dangle
           s._read = () => {}
-          s.push(response.text)
+          s.push(response.body)
           s.push(null)
           resolve(s)
         }
