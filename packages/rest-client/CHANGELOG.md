@@ -1,5 +1,9 @@
 # Change log
 
+## 0.0.1-alpha.7
+
+Add in `errorLogger` parameter to streaming to override default logger behaviour.
+
 ## 0.0.1-alpha.6
 
 Switch stream method to read the `response.body` instead of `response.text`. This is to allow clients to stream

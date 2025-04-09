@@ -1,6 +1,6 @@
 import type superagent from 'superagent'
 import type http from 'http'
-import { SanitisedError, UnsanitisedError } from './Errors'
+import { SanitisedError } from './Errors'
 
 export interface Request<Response, ErrorData> {
   path: string
@@ -17,14 +17,18 @@ export interface RequestWithBody<Response, ErrorData> extends Request<Response, 
   retry?: boolean
 }
 
-export interface StreamRequest {
-  path?: string
+export interface StreamRequest<ErrorData> {
+  path: string
   headers?: Record<string, string>
-  errorLogger?: (e: UnsanitisedError) => void
+  errorLogger?: ErrorLogger<ErrorData>
 }
 
 export interface ErrorHandler<Response, ErrorData> {
   (path: string, method: string, error: SanitisedError<ErrorData>): Response
+}
+
+export interface ErrorLogger<ErrorData> {
+  (path: string, method: string, error: SanitisedError<ErrorData>): void
 }
 
 export interface CallContext {
