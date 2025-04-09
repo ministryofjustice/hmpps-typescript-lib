@@ -65,6 +65,16 @@ export default abstract class RestClient {
   }
 
   /**
+   * Provides a default mechanism for logging errors
+   *  @param path - path of current request
+   *  @param method - verb of HTTP request
+   *  @param error - the sanitised error
+   */
+  protected logError<ErrorData>(path: string, method: string, error: SanitisedError<ErrorData>) {
+    this.logger.warn({ ...error }, `Error calling ${this.name}, path: '${path}', verb: '${method}'`)
+  }
+
+  /**
    * Returns a retry handler function.
    *
    * @param retry - Indicates whether to retry the request.
@@ -274,7 +284,10 @@ export default abstract class RestClient {
    * @param authOptions - (Optional) Either an AuthOptions object, a raw JWT string, or undefined for no auth.
    * @returns A Readable stream containing the response data.
    */
-  async stream({ path, headers = {} }: StreamRequest, authOptions?: AuthOptions | string): Promise<Readable> {
+  async stream<ErrorData = unknown>(
+    { path, headers = {}, errorLogger = this.logError }: StreamRequest<ErrorData>,
+    authOptions?: AuthOptions | string,
+  ): Promise<Readable> {
     this.logger.info(`${this.name} streaming: ${path}`)
 
     const token = await this.resolveToken(authOptions)
@@ -293,9 +306,9 @@ export default abstract class RestClient {
 
       req.end((error, response) => {
         if (error) {
-          const sanitised = sanitiseError(error)
-          this.logger.warn(sanitised, `Error calling ${this.name}`)
-          reject(sanitised)
+          const sanitisedError = sanitiseError<ErrorData>(error as ResponseError)
+          errorLogger.bind(this)(path, 'GET', sanitisedError)
+          reject(sanitisedError)
         } else if (response) {
           const s = new Readable()
           // eslint-disable-next-line no-underscore-dangle
