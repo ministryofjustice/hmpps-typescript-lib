@@ -3,7 +3,7 @@
 ## 0.0.1-alpha.8
 
 Rename `SanitisedError`status property to `responseStatus` and provide examples for use and document.
-Also export `AuthOptions` and `TokenType`.
+Also export `AuthOptions`.
 
 ## 0.0.1-alpha.7
 

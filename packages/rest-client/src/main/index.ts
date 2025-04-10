@@ -6,7 +6,6 @@ export type { ApiConfig } from './types/ApiConfig'
 export { AgentConfig } from './types/ApiConfig'
 
 export type { AuthOptions } from './types/AuthOptions'
-export { TokenType } from './types/AuthOptions'
 
 export type { SanitisedError } from './types/Errors'
 export type { AuthenticationClient } from './types/AuthenticationClient'
