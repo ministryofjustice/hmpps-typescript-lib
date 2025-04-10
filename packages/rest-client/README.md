@@ -26,9 +26,7 @@ New projects based on this template will automatically adopt this package.
 The package provides an abstract RestClient class that you can extend to create API clients tailored to your service needs.
 
 ```ts
-import RestClient from '@ministryofjustice/hmpps-rest-client'
-import { ApiConfig } from './types/ApiConfig'
-import { AuthOptions } from './types/AuthOptions'
+import RestClient, { ApiConfig } from '@ministryofjustice/hmpps-rest-client'
 
 class ExampleApiClient extends RestClient {
   constructor() {
@@ -49,8 +47,8 @@ class ExampleApiClient extends RestClient {
     )
   }
 
-  async getExampleData(authOptions: AuthOptions) {
-    return this.get({ path: '/example-data' }, authOptions)
+  async getExampleData(username: string) {
+    return this.get({ path: '/example-data' }, asSystem(username))
   }
 }
 
