@@ -90,6 +90,16 @@ Additionally, the library provides
 - `asUser` - for generating authentication options for making a request with a user token.
 - You may also use the raw JWT string by passing it in place of authOptions.
 
+### Error handling
+
+When an API call fails, the superagent `ResponseError` contains information about the request and response including errors that we would not want to be exposed to logs. The client library copies a subset of the available response properties onto a new error object and makes this available to an `ErrorHandler` (or `ErrorLogger` when processing streams) strategy.
+
+The default `ErrorHandler` strategy is to simply log the error at warning level and then rethrow but this can be overriden on a per call or per client basis. 
+
+The status code of the response is mapped to an `responseStatus` which can be used to conditionally alter the handling of errors.   
+
+There are examples in `RestClient.test.ts` on how to coerce 404 response into null return values and also how to propagate the api response status in a format that express and the default error handler understands. 
+
 ## Developing this package
 
 This module uses rollup, to build:

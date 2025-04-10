@@ -12,7 +12,7 @@ export default function sanitiseError<ErrorData = unknown>(error: UnsanitisedErr
 
   if (error.response) {
     e.text = error.response.text
-    e.status = error.response.status
+    e.responseStatus = error.response.status
     e.headers = error.response.headers
     e.data = error.response.body
   }

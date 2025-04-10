@@ -1,6 +1,7 @@
 import nock from 'nock'
 import express from 'express'
 import { PassThrough } from 'stream'
+import { NotFound } from 'http-errors'
 import RestClient from './RestClient'
 import { AgentConfig } from './types/ApiConfig'
 import { AuthOptions, TokenType } from './types/AuthOptions'
@@ -115,7 +116,7 @@ describe('RestClient', () => {
           headers: { header1: 'headerValue1' },
           raw: true,
           errorHandler: <RESPONSE, ERROR>(path: string, verb: string, error: SanitisedError<ERROR>) => {
-            if (error.status === 404) {
+            if (error.responseStatus === 404) {
               return error.data as RESPONSE
             }
             throw error
@@ -128,6 +129,68 @@ describe('RestClient', () => {
       expect(result).toMatchObject({
         message: 'some not found message',
       })
+    })
+
+    it('can coerce 404s to null', async () => {
+      nock('http://localhost:8080', {
+        reqheaders: { authorization: 'Bearer some_system_jwt' },
+      })
+        [method]('/api/test')
+        .reply(404, { message: 'some not found message' })
+
+      const response: string | null = await restClient[method]<string | null>(
+        {
+          path: '/test',
+          headers: { header1: 'headerValue1' },
+          raw: true,
+          errorHandler: <ERROR>(path: string, verb: string, error: SanitisedError<ERROR>) => {
+            if (error.responseStatus === 404) {
+              return null
+            }
+            throw error
+          },
+        },
+        systemAuthOptions,
+      )
+
+      await expect(response).toStrictEqual(null)
+
+      expect(nock.isDone()).toBe(true)
+    })
+
+    it('can propagate api response status when desired', async () => {
+      nock('http://localhost:8080', {
+        reqheaders: { authorization: 'Bearer some_system_jwt' },
+      })
+        [method]('/api/test')
+        .reply(404, { message: 'some not found message' })
+
+      const call = restClient[method](
+        {
+          path: '/test',
+          headers: { header1: 'headerValue1' },
+          raw: true,
+          errorHandler: <ERROR>(path: string, verb: string, error: SanitisedError<ERROR>) => {
+            if (error.responseStatus === 404) {
+              const notFound = NotFound(`Resource not found on '${verb.toLowerCase()}: ${path}'`)
+              notFound.cause = error
+              throw notFound
+            }
+            throw error
+          },
+        },
+        systemAuthOptions,
+      )
+
+      await expect(() => call).rejects.toStrictEqual(
+        expect.objectContaining({
+          message: `Resource not found on '${method.toLowerCase()}: /test'`,
+          status: 404,
+          cause: expect.any(Error),
+        }),
+      )
+
+      expect(nock.isDone()).toBe(true)
     })
 
     if (method === 'get' || method === 'delete') {
