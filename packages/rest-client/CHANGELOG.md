@@ -1,5 +1,9 @@
 # Change log
 
+## 0.0.1-alpha.8
+
+Rename `SanitisedError`status property to `responseStatus` and provide examples for use and document.
+
 ## 0.0.1-alpha.7
 
 Add in `errorLogger` parameter to streaming to override default logger behaviour.
