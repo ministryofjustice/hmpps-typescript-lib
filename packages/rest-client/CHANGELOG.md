@@ -2,7 +2,7 @@
 
 ## 0.0.1-alpha.9
 
-Improve javadoc for `RestClient` to document the throwing of `SanitisedError` by default.
+Improve JSDoc for `RestClient` to document the throwing of `SanitisedError` by default.
 
 ## 0.0.1-alpha.8
 

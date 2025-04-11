@@ -98,7 +98,7 @@ export default abstract class RestClient {
    * @param request - The request options including path, query, headers, responseType, and raw flag.
    * @param authOptions - (Optional) Either an AuthOptions object, a raw JWT string, or undefined for no auth.
    * @returns The response body or the full response if raw is true.
-   * @throws SanitisedError<ErrorData> if the request fails. Note that this is the default behaviour, but can be
+   * @throws {SanitisedError<ErrorData>} if the request fails. Note that this is the default behaviour, but can be
    *         changed to a different type by specifying a custom errorHandler.
    */
   async get<Response = unknown, ErrorData = unknown>(
@@ -148,7 +148,7 @@ export default abstract class RestClient {
    * @param request - The request options including path, query, headers, responseType, data, raw flag, and retry flag.
    * @param authOptions - (Optional) Either an AuthOptions object, a raw JWT string, or undefined for no auth.
    * @returns The response body or the full response if raw is true.
-   * @throws SanitisedError<ErrorData> if the request fails. Note that this is the default behaviour, but can be
+   * @throws {SanitisedError<ErrorData>} if the request fails. Note that this is the default behaviour, but can be
    *         changed to a different type by specifying a custom errorHandler.
    */
   private async requestWithBody<Response = unknown, ErrorData = unknown>(
@@ -197,7 +197,7 @@ export default abstract class RestClient {
    * @param request - The PATCH request options.
    * @param authOptions - The authentication options.
    * @returns The response body.
-   * @throws SanitisedError<ErrorData> if the request fails. Note that this is the default behaviour, but can be
+   * @throws {SanitisedError<ErrorData>} if the request fails. Note that this is the default behaviour, but can be
    *         changed to a different type by specifying a custom errorHandler.
    */
   async patch<Response = unknown, ErrorData = unknown>(
@@ -213,7 +213,7 @@ export default abstract class RestClient {
    * @param request - The POST request options.
    * @param authOptions - The authentication options.
    * @returns The response body.
-   * @throws SanitisedError<ErrorData> if the request fails. Note that this is the default behaviour, but can be
+   * @throws {SanitisedError<ErrorData>} if the request fails. Note that this is the default behaviour, but can be
    *         changed to a different type by specifying a custom errorHandler.
    */
   async post<Response = unknown, ErrorData = unknown>(
@@ -229,7 +229,7 @@ export default abstract class RestClient {
    * @param request - The PUT request options.
    * @param authOptions - The authentication options.
    * @returns The response body.
-   * @throws SanitisedError<ErrorData> if the request fails. Note that this is the default behaviour, but can be
+   * @throws {SanitisedError<ErrorData>} if the request fails. Note that this is the default behaviour, but can be
    *         changed to a different type by specifying a custom errorHandler.
    */
   async put<Response = unknown, ErrorData = unknown>(
@@ -245,7 +245,7 @@ export default abstract class RestClient {
    * @param request - The DELETE request options including path, query, headers, responseType, and raw flag.
    * @param authOptions - (Optional) Either an AuthOptions object, a raw JWT string, or undefined for no auth.
    * @returns The response body.
-   * @throws SanitisedError<ErrorData> if the request fails. Note that this is the default behaviour, but can be
+   * @throws {SanitisedError<ErrorData>} if the request fails. Note that this is the default behaviour, but can be
    *         changed to a different type by specifying a custom errorHandler.
    */
   async delete<Response = unknown, ErrorData = unknown>(
