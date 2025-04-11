@@ -1,8 +1,12 @@
 # Change log
 
+## 0.0.1-alpha.9
+
+Improve JSDoc for `RestClient` to document the throwing of `SanitisedError` by default.
+
 ## 0.0.1-alpha.8
 
-Rename `SanitisedError`status property to `responseStatus` and provide examples for use and document.
+Rename `SanitisedError` status property to `responseStatus` and provide examples for use and document.
 Also export `AuthOptions`.
 
 ## 0.0.1-alpha.7
