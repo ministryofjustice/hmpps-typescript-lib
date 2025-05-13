@@ -1,6 +1,6 @@
 import { HttpAgent, HttpsAgent } from 'agentkeepalive'
 import superagent, { ResponseError } from 'superagent'
-import { Readable } from 'node:stream'
+import { Readable } from 'stream'
 import type Logger from 'bunyan'
 import sanitiseError from './helpers/sanitiseError'
 import { ApiConfig } from './types/ApiConfig'
