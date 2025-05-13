@@ -1,5 +1,10 @@
 # Change log
 
+## 0.0.1-alpha.10
+
+Make `RestClient` non-abstract so that it can be instantiated directly in applications.
+Instantiate `SanitisedError` class directly instead of using it purely as a type interface.
+
 ## 0.0.1-alpha.9
 
 Improve JSDoc for `RestClient` to document the throwing of `SanitisedError` by default.
