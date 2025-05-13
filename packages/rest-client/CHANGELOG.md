@@ -1,5 +1,9 @@
 # Change log
 
+## 0.0.1-alpha.11
+
+Revert prefixing node standard library imports with “node:” because cypress is unhappy with them.
+
 ## 0.0.1-alpha.10
 
 Make `RestClient` non-abstract so that it can be instantiated directly in applications.
