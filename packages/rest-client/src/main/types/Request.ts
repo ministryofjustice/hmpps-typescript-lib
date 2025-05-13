@@ -1,5 +1,5 @@
 import type superagent from 'superagent'
-import type http from 'http'
+import type http from 'node:http'
 import { ErrorHandler, ErrorLogger } from './Errors'
 
 export interface Request<Response, ErrorData> {

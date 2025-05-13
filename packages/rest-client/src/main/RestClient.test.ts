@@ -1,6 +1,6 @@
 import nock from 'nock'
 import express from 'express'
-import { PassThrough } from 'stream'
+import { PassThrough } from 'node:stream'
 import { NotFound } from 'http-errors'
 import RestClient from './RestClient'
 import { AgentConfig } from './types/ApiConfig'
@@ -153,7 +153,7 @@ describe('RestClient', () => {
         systemAuthOptions,
       )
 
-      await expect(response).toStrictEqual(null)
+      expect(response).toStrictEqual(null)
 
       expect(nock.isDone()).toBe(true)
     })
