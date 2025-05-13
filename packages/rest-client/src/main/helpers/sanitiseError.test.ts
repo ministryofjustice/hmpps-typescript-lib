@@ -1,4 +1,4 @@
-import { SanitisedError, UnsanitisedError } from '../types/Errors'
+import { SanitisedError, type UnsanitisedError } from '../types/Errors'
 import sanitiseError from './sanitiseError'
 
 describe('sanitised error', () => {
@@ -19,14 +19,14 @@ describe('sanitised error', () => {
         },
         status: 404,
         statusText: 'Not found',
-        text: { details: 'details' },
+        text: 'details',
         body: { content: 'hello' },
       },
       message: 'Not Found',
       stack: 'stack description',
     } as unknown as UnsanitisedError
 
-    const e = new Error() as SanitisedError
+    const e = new SanitisedError()
     e.message = 'Not Found'
     e.text = 'details'
     e.responseStatus = 404
@@ -42,7 +42,7 @@ describe('sanitised error', () => {
       message: 'error description',
     } as unknown as UnsanitisedError
 
-    expect(sanitiseError(error)).toBeInstanceOf(Error)
+    expect(sanitiseError(error)).toBeInstanceOf(SanitisedError)
     expect(sanitiseError(error)).toHaveProperty('message', 'error description')
   })
 
@@ -51,7 +51,7 @@ describe('sanitised error', () => {
       property: 'unknown',
     } as unknown as UnsanitisedError
 
-    expect(sanitiseError(error)).toBeInstanceOf(Error)
+    expect(sanitiseError(error)).toBeInstanceOf(SanitisedError)
     expect(sanitiseError(error)).not.toHaveProperty('property')
   })
 })
