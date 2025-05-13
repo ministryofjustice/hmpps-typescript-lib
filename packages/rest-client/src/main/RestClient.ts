@@ -10,9 +10,9 @@ import { AuthenticationClient } from './types/AuthenticationClient'
 import { SanitisedError } from './types/Errors'
 
 /**
- * Abstract base class for REST API clients.
+ * Base class for REST API clients.
  */
-export default abstract class RestClient {
+export default class RestClient {
   private readonly agent: HttpAgent
 
   /**
@@ -23,7 +23,7 @@ export default abstract class RestClient {
    * @param logger - A logger instance for logging.
    * @param authenticationClient - (Optional) The client responsible for retrieving system authentication tokens.
    */
-  protected constructor(
+  constructor(
     protected readonly name: string,
     protected readonly config: ApiConfig,
     protected readonly logger: Logger | Console,
