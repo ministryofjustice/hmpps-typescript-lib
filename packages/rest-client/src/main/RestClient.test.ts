@@ -153,7 +153,7 @@ describe('RestClient', () => {
         systemAuthOptions,
       )
 
-      await expect(response).toStrictEqual(null)
+      expect(response).toStrictEqual(null)
 
       expect(nock.isDone()).toBe(true)
     })
