@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/hmpps-rest-client",
-  "version": "0.0.1-alpha.2",
+  "version": "0.0.1-alpha.11",
   "description": "Standardized, reusable REST client for use with HMPPS services",
   "author": "hmpps-developers",
   "license": "MIT",
@@ -23,7 +23,7 @@
   "scripts": {
     "build": "rollup -c rollup.config.ts --bundleConfigAsCjs",
     "clean": "rm -rf ./dist/",
-    "test": "tsc && jest",
+    "test": "jest",
     "lint": "eslint src --cache --max-warnings 0",
     "lint-fix": "eslint src --cache --max-warnings 0 --fix"
   },
@@ -31,6 +31,7 @@
     "@types/bunyan": "^1.8.11",
     "@types/express": "^4.17.21",
     "@types/superagent": "^8.1.9",
+    "http-errors": "^2.0.0",
     "nock": "^13.5.6"
   },
   "dependencies": {
