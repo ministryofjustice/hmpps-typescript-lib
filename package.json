@@ -18,13 +18,17 @@
   },
   "private": true,
   "workspaces": [
- 	"/packages/rest-client",
-	"/packages/auth-clients",
-	"/packages/eslint-config-hmpps",
-  "/packages/monitoring"
- ],
+    "/packages/rest-client",
+    "/packages/auth-clients",
+    "/packages/eslint-config-hmpps",
+    "/packages/monitoring",
+    "/packages/precommit-hooks"
+  ],
   "engines": {
     "node": "20 || 22"
+  },
+  "bin": {
+    "hmpps-precommit-hooks": "bin/hmpps-precommit-hooks.sh"
   },
   "scripts": {
     "build": "npm run build --workspaces --if-present",

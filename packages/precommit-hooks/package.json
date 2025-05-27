@@ -1,0 +1,27 @@
+{
+  "name": "@ministryofjustice/precommit-hooks",
+  "version": "0.0.1-alpha.1",
+  "description": "Precommit hooks for HMPPS typescript projects",
+  "keywords": ["precommit"],
+  "author": "hmpps-developers",
+  "license": "MIT",
+  "homepage": "https://github.com/ministryofjustice/hmpps-typescript-lib/tree/main/packages/precommit-hooks#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ministryofjustice/hmpps-typescript-lib.git"
+  },
+  "bin": "./bin/hmpps-precommit-hooks.sh",
+  "files": [
+    "*.md",
+    "bin/*.sh"
+  ],
+  "engines": {
+    "node": "20 || 22"
+  },
+  "scripts": {
+    "install": "./bin/hmpps-precommit-hooks.sh"
+  },
+  "dependencies": {
+    "husky": "^9.1.7"
+  }
+}
