@@ -29,6 +29,12 @@ startStage "  * Setting prepare script"
 npm pkg set --silent scripts.prepare="hmpps-precommit-hooks" 
 endStage "  ✅"
 
+if npm list husky > /dev/null 2>&1; then
+  startStage "  * Uninstalling husky"
+  npm uninstall husky
+  endStage " ✅"
+fi
+
 if ! npm list @ministryofjustice/precommit-hooks > /dev/null 2>&1; then
   startStage "  * Installing @ministryofjustice/precommit-hooks"
   npm install --save-dev @ministryofjustice/precommit-hooks
@@ -42,7 +48,7 @@ fi
 endStage "Installing precommit hooks..."
 
 startStage "  * Adding npm scripts"
-npm pkg --silent set scripts.precommit:secrets="gitleaks git --pre-commit --redact --staged --verbose" 
+npm pkg --silent set scripts.precommit:secrets="gitleaks git --pre-commit --redact --staged --verbose --config ./node_modules/@ministryofjustice/precommit-hooks/config.toml" 
 npm pkg --silent set scripts.precommit:lint="node_modules/.bin/lint-staged"
 npm pkg --silent set scripts.precommit:verify="npm run typecheck && npm test"
 endStage " ✅"

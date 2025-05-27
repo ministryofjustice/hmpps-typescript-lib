@@ -1,0 +1,11 @@
+title = "HMPPS Gitleaks configuration"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "token"
+description = "Possible token detected"
+regex = '''(?i)\b(.{50,70})(?:[\x60'"\s;]|\\[nr]|$)'''
+secretGroup = 1
+entropy = 5
