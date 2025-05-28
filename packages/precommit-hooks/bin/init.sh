@@ -1,0 +1,61 @@
+#!/bin/bash
+#
+# Used to install husky with gitleaks
+# 
+
+set -euo pipefail
+
+startStage() {
+  printf "\x1b[1;97m%s\x1b[0m" "$1"
+}
+
+endStage() {
+  printf "\x1b[1;97m%s\x1b[0m\n" "$1"
+}
+
+printError() {
+  printf "\x1b[1;31m%s\x1b[0m\n" "$1"
+}
+
+endStage "Setting up precommit hooks" 
+endStage "Checking prerequisites..." 
+
+if ! [ -f ./package.json ]; then
+  printError "Not a node project: $(pwd)! exiting!"
+  exit 1
+fi
+
+startStage "  * Setting prepare script"
+npm pkg set --silent scripts.prepare="hmpps-precommit-hooks" 
+endStage "  ✅"
+
+if ! npm list @ministryofjustice/precommit-hooks > /dev/null 2>&1; then
+  startStage "  * Installing @ministryofjustice/precommit-hooks"
+  npm install --save-dev @ministryofjustice/precommit-hooks
+  endStage " ✅"
+else
+  endStage "  * @ministryofjustice/precommit-hooks already installed ✅"
+  # Run npm install to trigger prepare script
+  npm install
+fi
+
+endStage "Installing precommit hooks..."
+
+startStage "  * Adding npm scripts"
+npm pkg --silent set scripts.precommit:secrets="gitleaks git --pre-commit --redact --staged --verbose" 
+npm pkg --silent set scripts.precommit:lint="node_modules/.bin/lint-staged"
+npm pkg --silent set scripts.precommit:verify="npm run typecheck && npm test"
+endStage " ✅"
+
+startStage "  * Setting precommit hook"
+mkdir -p .husky
+printf "%s\n" \
+     "#!/bin/bash" \
+     "NODE_ENV=dev \\" \
+     "npm run precommit:secrets \\" \
+     "&& npm run precommit:lint \\" \
+     "&& npm run precommit:verify" \
+       > .husky/pre-commit
+endStage " ✅"
+
+endStage "FIN!"
