@@ -44,7 +44,25 @@ The prepare script will trigger on any install and ensure that `gitleaks` is ins
 
 Note: `gitleaks` is installed by `brew`, if `brew` is not available then `prepare` will currently fail loudly and display a message.
 
-### Testing the hooks are configured correctly
+### Dealing with false positives
+
+When a secret is detected, gitleaks will create a fingerprint. If the secret is a false positive then this can be added to the `./gitleaks/.gitleaksignore` to exclude from future scans.
+
+Alternatively you can add a gitleaks:allow comment to a line to ignore a secret on it. Eg:
+
+```
+my_secret = 'some-secret'  #gitleaks:allow
+```
+
+### Adding custom rules
+
+HMPPS wide rules can be added to `.config.toml` in this project so that it can be picked up by teams when they upgrade to the next released version of this library.
+
+Repo specific rules can be added by teams in `.gitleaks/config.toml` in their individual repos.
+
+See the gitleaks documentation for how to create rules and [examples](https://github.com/gitleaks/gitleaks/blob/master/config/gitleaks.toml) or use the [online rule wizard](https://gitleaks.io/playground).
+
+### Testing that hooks are configured correctly
 
 Secret protection can be tested using the following command:
 
@@ -52,7 +70,7 @@ Secret protection can be tested using the following command:
 npx -p @ministryofjustice/precommit-hooks -c test-secret-protection
 ```
 
-This should fails similarly to:
+This should fail similarly to:
 
 ```bash
 > npx -p @ministryofjustice/precommit-hooks -c test-secret-protection

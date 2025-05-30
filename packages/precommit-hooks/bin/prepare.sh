@@ -23,7 +23,7 @@ node_modules/.bin/husky
 # Check brew exists
 if ! command -v brew &> /dev/null; then
   printError "Brew is not installed, WARNING: no precommit hook protection. exiting..."
-  exit 1
+  exit 0
 fi
 
 # Initialise gitleaks

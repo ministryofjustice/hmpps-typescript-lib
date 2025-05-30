@@ -19,7 +19,8 @@
   },
   "files": [
     "*.md",
-    "bin/*.sh"
+    "bin/*.sh",
+    "config.toml"
   ],
   "engines": {
     "node": "20 || 22"
