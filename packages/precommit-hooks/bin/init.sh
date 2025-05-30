@@ -31,24 +31,24 @@ endStage "  ✅"
 
 if npm list husky > /dev/null 2>&1; then
   startStage "  * Uninstalling husky"
-  npm uninstall husky
+  npm uninstall --silent husky
   endStage " ✅"
 fi
 
 if ! npm list @ministryofjustice/precommit-hooks > /dev/null 2>&1; then
   startStage "  * Installing @ministryofjustice/precommit-hooks"
-  npm install --save-dev @ministryofjustice/precommit-hooks
+  npm install --silent --save-dev @ministryofjustice/precommit-hooks
   endStage " ✅"
 else
   endStage "  * @ministryofjustice/precommit-hooks already installed ✅"
   # Run npm install to trigger prepare script
-  npm install
+  npm --silent  install
 fi
 
 endStage "Installing precommit hooks..."
 
 startStage "  * Adding npm scripts"
-npm pkg --silent set scripts.precommit:secrets="gitleaks git --pre-commit --redact --staged --verbose --config ./node_modules/@ministryofjustice/precommit-hooks/config.toml" 
+npm pkg --silent set scripts.precommit:secrets="gitleaks git --pre-commit --redact --staged --verbose --config .gitleaks/config.toml" 
 npm pkg --silent set scripts.precommit:lint="node_modules/.bin/lint-staged"
 npm pkg --silent set scripts.precommit:verify="npm run typecheck && npm test"
 endStage " ✅"
@@ -62,6 +62,19 @@ printf "%s\n" \
      "&& npm run precommit:lint \\" \
      "&& npm run precommit:verify" \
        > .husky/pre-commit
+endStage " ✅"
+
+startStage "  * Creating .gitleaksignore "
+mkdir -p .gitleaks
+echo "# The Fingerprint of false positive alerts can be added here to be excluded from future scans." >  .gitleaks/.gitleaksignore
+endStage " ✅"
+
+startStage "  * Creating project gitleaks config"
+printf "%s\n" \
+     "title = \"HMPPS Gitleaks configuration\"" \
+     "[extend]" \
+     "path = \"./node_modules/@ministryofjustice/precommit-hooks/config.toml\"" \
+       > .gitleaks/config.toml
 endStage " ✅"
 
 endStage "FIN!"
