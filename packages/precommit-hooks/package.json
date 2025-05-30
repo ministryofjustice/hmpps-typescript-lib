@@ -1,5 +1,5 @@
 {
-  "name": "@ministryofjustice/precommit-hooks",
+  "name": "@ministryofjustice/hmpps-precommit-hooks",
   "version": "0.0.1-alpha.1",
   "description": "Precommit hooks for HMPPS typescript projects",
   "keywords": [
