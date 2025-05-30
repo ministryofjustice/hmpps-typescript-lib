@@ -3,7 +3,7 @@
 # This runs as part of any `npm install` via `prepare`
 # 
 
-set -euo pipefail
+set -eo pipefail
 
 startStage() {
   printf "\x1b[1;97m%s\x1b[0m" "$1"
@@ -16,6 +16,11 @@ endStage() {
 printError() {
   printf "\x1b[1;31m%s\x1b[0m\n" "$1"
 }
+
+if [ "$CI" = "true" ]; then
+  endStage "Not initialising precommit hooks in CI..."
+  exit 0
+fi 
 
 # Initialise husky
 node_modules/.bin/husky
