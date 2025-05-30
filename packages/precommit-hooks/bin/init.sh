@@ -35,12 +35,12 @@ if npm list husky > /dev/null 2>&1; then
   endStage " ✅"
 fi
 
-if ! npm list @ministryofjustice/precommit-hooks > /dev/null 2>&1; then
-  startStage "  * Installing @ministryofjustice/precommit-hooks"
-  npm install --silent --save-dev @ministryofjustice/precommit-hooks
+if ! npm list @ministryofjustice/hmpps-precommit-hooks > /dev/null 2>&1; then
+  startStage "  * Installing @ministryofjustice/hmpps-precommit-hooks"
+  npm install --silent --save-dev @ministryofjustice/hmpps-precommit-hooks
   endStage " ✅"
 else
-  endStage "  * @ministryofjustice/precommit-hooks already installed ✅"
+  endStage "  * @ministryofjustice/hmpps-precommit-hooks already installed ✅"
   # Run npm install to trigger prepare script
   npm --silent  install
 fi
@@ -73,7 +73,7 @@ startStage "  * Creating project gitleaks config"
 printf "%s\n" \
      "title = \"HMPPS Gitleaks configuration\"" \
      "[extend]" \
-     "path = \"./node_modules/@ministryofjustice/precommit-hooks/config.toml\"" \
+     "path = \"./node_modules/@ministryofjustice/hmpps-precommit-hooks/config.toml\"" \
        > .gitleaks/config.toml
 endStage " ✅"
 

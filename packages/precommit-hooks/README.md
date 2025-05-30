@@ -1,4 +1,4 @@
-# @ministryofjustice/precommit-hooks
+# @ministryofjustice/hmpps-precommit-hooks
 
 This package aims to automatically install and configure husky with gitleaks to help catch potential secrets before committing them to github.
 
@@ -11,7 +11,7 @@ This library is in alpha. Teams are free to use this library but further breakin
 #### Automatically installing the library
 
 The package will self install and initialised by running via npx:
-`npx @ministryofjustice/precommit-hooks`
+`npx @ministryofjustice/hmpps-precommit-hooks`
 
 Note: The project needs to be initialised before use - solely adding the library will make no difference.
 Once the project has been initialised, other developers should be able to develop against it without further configuration.
@@ -67,13 +67,13 @@ See the gitleaks documentation for how to create rules and [examples](https://gi
 Secret protection can be tested using the following command:
 
 ```bash
-npx -p @ministryofjustice/precommit-hooks -c test-secret-protection
+npx -p @ministryofjustice/hmpps-precommit-hooks -c test-secret-protection
 ```
 
 This should fail similarly to:
 
 ```bash
-> npx -p @ministryofjustice/precommit-hooks -c test-secret-protection
+> npx -p @ministryofjustice/hmpps-precommit-hooks -c test-secret-protection
 Creating test file containing dummy AWS_KEY=AKIA<SOME-VALUE>ASD
 Attempting to commit file containing secret
 
