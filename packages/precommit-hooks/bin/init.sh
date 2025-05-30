@@ -26,7 +26,7 @@ if ! [ -f ./package.json ]; then
 fi
 
 startStage "  * Setting prepare script"
-npm pkg set --silent scripts.prepare="hmpps-precommit-hooks" 
+npm pkg set --silent scripts.prepare="hmpps-precommit-hooks-prepare" 
 endStage "  ✅"
 
 if npm list husky > /dev/null 2>&1; then
