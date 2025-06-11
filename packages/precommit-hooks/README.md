@@ -45,6 +45,10 @@ The prepare script will trigger on any install and ensure that `gitleaks` is ins
 
 Note: `gitleaks` is installed by `brew`, if `brew` is not available then `prepare` will currently fail loudly and display a message.
 
+### Prevent precommit script initialising on prepare
+
+To disable the tool running on `npm install` and initialising husky and installing gitleaks, you can pass the `SKIP_PRECOMMIT_INIT=true` env var.
+
 ### Dealing with false positives
 
 When a secret is detected, gitleaks will create a fingerprint. If the secret is a false positive then this can be added to the `./gitleaks/.gitleaksignore` to exclude from future scans.
