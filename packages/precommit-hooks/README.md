@@ -4,7 +4,8 @@ This package aims to automatically install and configure husky with gitleaks to 
 
 ## Status
 
-This library is in alpha. Teams are free to use this library but further breaking changes may occur.
+**This library is currently: ready to adopt.**
+Teams are welcome to use this library. Please provide feedback via slack to the `#typescript` channel.
 
 ## Migrating existing projects
 

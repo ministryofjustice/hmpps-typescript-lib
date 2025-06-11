@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/hmpps-precommit-hooks",
-  "version": "0.0.1-alpha.4",
+  "version": "0.0.1",
   "description": "Precommit hooks for HMPPS typescript projects",
   "keywords": [
     "precommit"
@@ -16,6 +16,9 @@
     "@ministryofjustice/hmpps-precommit-hooks": "./bin/init.sh",
     "hmpps-precommit-hooks-prepare": "./bin/prepare.sh",
     "test-secret-protection": "./bin/test.sh"
+  },
+  "scripts": {
+    "check-for-updates": "npx npm-check-updates -u"
   },
   "files": [
     "*.md",
