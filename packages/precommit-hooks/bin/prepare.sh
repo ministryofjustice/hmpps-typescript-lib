@@ -6,11 +6,11 @@
 set -eo pipefail
 
 startStage() {
-  printf "\x1b[1;97m%s\x1b[0m" "$1"
+  printf "%s" "$1"
 }
 
 endStage() {
-  printf "\x1b[1;97m%s\x1b[0m\n" "$1"
+  printf "%s\n" "$1"
 }
 
 printError() {
@@ -27,7 +27,7 @@ node_modules/.bin/husky
 
 # Check brew exists
 if ! command -v brew &> /dev/null; then
-  printError "Brew is not installed, WARNING: no precommit hook protection. exiting..."
+  printError "Brew is not installed. You will need to install gitleaks separately and ensure it's on your PATH. exiting..."
   exit 0
 fi
 

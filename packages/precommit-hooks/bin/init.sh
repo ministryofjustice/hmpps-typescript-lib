@@ -6,11 +6,11 @@
 set -euo pipefail
 
 startStage() {
-  printf "\x1b[1;97m%s\x1b[0m" "$1"
+  printf "%s" "$1"
 }
 
 endStage() {
-  printf "\x1b[1;97m%s\x1b[0m\n" "$1"
+  printf "%s\n" "$1"
 }
 
 printError() {
@@ -18,7 +18,6 @@ printError() {
 }
 
 endStage "Setting up precommit hooks" 
-endStage "Checking prerequisites..." 
 
 if ! [ -f ./package.json ]; then
   printError "Not a node project: $(pwd)! exiting!"
@@ -44,8 +43,6 @@ else
   # Run npm install to trigger prepare script
   npm --silent  install
 fi
-
-endStage "Installing precommit hooks..."
 
 startStage "  * Adding npm scripts"
 npm pkg --silent set scripts.precommit:secrets="gitleaks git --pre-commit --redact --staged --verbose --config .gitleaks/config.toml" 

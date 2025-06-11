@@ -32,7 +32,8 @@
     "clean": "find . -name '.eslintcache' -delete && npm run clean --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "lint-fix": "npm run lint-fix --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present"
+    "test": "npm run test --workspaces --if-present",
+    "check-for-updates": "npm run --workspaces check-for-updates"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.2",
