@@ -10,7 +10,9 @@ It includes:
 
 ## Status
 
-This library is now in beta. Teams are free to use this library, but further breaking changes may occur.
+**This library is currently: ready to adopt.**
+
+Teams are encouraged to use this library. Please provide feedback via slack to the #typescript channel.
 
 ## Usage
 
@@ -29,14 +31,14 @@ How successful this will be is dependent on how similar the codebase is to the c
 
 The final step of the installation script prints instructions on how to manually apply a few changes:
 
-* Decorating `config.ts` to add `healthPath` declarations to each api definition.
-  * Spring boot applications usually expose their health endpoints on `/health/ping` but this may vary and you will need to check this for each api.  
-* Ensure that this has not removed any existing health checks
-  * This migration only attempts to ensure you have coverage for configured APIs
-* Ensure that you have integration test coverage for any newly added health checks
-  * Stubs will need to be added for any previously missing endpoints
+- Decorating `config.ts` to add `healthPath` declarations to each api definition.
+  - Spring boot applications usually expose their health endpoints on `/health/ping` but this may vary and you will need to check this for each api.
+- Ensure that this has not removed any existing health checks
+  - This migration only attempts to ensure you have coverage for configured APIs
+- Ensure that you have integration test coverage for any newly added health checks
+  - Stubs will need to be added for any previously missing endpoints
 
-The generated changes will need to be reviewed carefully! 
+The generated changes will need to be reviewed carefully!
 
 #### Manually installing the library
 
@@ -67,7 +69,7 @@ Reflecting dependency health via the /health endpoint will ensure that pingdom a
 
 ### EndpointHealthComponents
 
-The library provides an implementation of `HealthComponent`, `EndpointHealthComponent`, which is used to track the health of APIs that this service relies on. 
+The library provides an implementation of `HealthComponent`, `EndpointHealthComponent`, which is used to track the health of APIs that this service relies on.
 
 These require:
 
@@ -86,7 +88,8 @@ const middleware = monitoringMiddleware({
 })
 ```
 
-Once the middleware component is instantiated, then individual endpoints can be registered: 
+Once the middleware component is instantiated, then individual endpoints can be registered:
+
 ```ts
 router.get('/health', middleware.health)
 router.get('/info', middleware.info)
@@ -96,7 +99,6 @@ router.get('/ping', middleware.ping)
 ## Implementing custom health components
 
 Custom health components can be implemented by implementing the `HealthComponent` interface and passing an instance of this when hooking up the middleware.
-
 
 ## Developing this package
 
@@ -108,5 +110,6 @@ This module uses rollup, to build:
 
 `cd` to this directory and then pack this library to home directory: `npm pack --pack-destination ~`
 Inside the project of choice then:
-* uninstall the existing library: `npm uninstall @ministryofjustice/hmpps-monitoring`
-* install from the packed file: `npm install -D ~/ministryofjustice-hmpps-monitoring-<some-version>.tgz`
+
+- uninstall the existing library: `npm uninstall @ministryofjustice/hmpps-monitoring`
+- install from the packed file: `npm install -D ~/ministryofjustice-hmpps-monitoring-<some-version>.tgz`
