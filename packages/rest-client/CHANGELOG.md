@@ -1,5 +1,12 @@
 # Change log
 
+# 0.0.1
+
+Initial release 
+
+ @types/express  ^4.17.21 →  ^5.0.3
+ nock            ^13.5.6" →  ^14.0.5
+
 ## 0.0.1-alpha.11
 
 Revert prefixing node standard library imports with “node:” because cypress is unhappy with them.
