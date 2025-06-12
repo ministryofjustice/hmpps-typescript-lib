@@ -3,7 +3,7 @@
 # This runs as part of any `npm install` via `prepare`
 # 
 
-set -eo pipefail
+set -e
 
 startStage() {
   printf "%s" "$1"

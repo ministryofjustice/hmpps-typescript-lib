@@ -1,5 +1,9 @@
 # Change log
 
+## 0.0.3
+
+Remove pipefail from prepare script
+
 ## 0.0.2
 
 Fix issue with alpine not having bash installed.
