@@ -35,6 +35,11 @@ npm test --workspace packages/monitoring
 cd packages/monitoring && npm test
 ```
 
+To verify the build run:
+```
+npm run clean && npm run build && npm run lint && npm test
+```
+
 TODO: document adding a new sub-package
 
 ### Publishing process
