@@ -18,11 +18,12 @@
   },
   "private": true,
   "workspaces": [
- 	"/packages/rest-client",
-	"/packages/auth-clients",
-	"/packages/eslint-config-hmpps",
-  "/packages/monitoring"
- ],
+    "/packages/rest-client",
+    "/packages/auth-clients",
+    "/packages/eslint-config-hmpps",
+    "/packages/monitoring",
+    "/packages/precommit-hooks"
+  ],
   "engines": {
     "node": "20 || 22"
   },
@@ -31,7 +32,11 @@
     "clean": "find . -name '.eslintcache' -delete && npm run clean --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "lint-fix": "npm run lint-fix --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present"
+    "test": "npm run test --workspaces --if-present",
+    "check-for-updates": "npm run --workspaces check-for-updates",
+    "prepare": "hmpps-precommit-hooks-prepare",
+    "precommit:secrets": "gitleaks git --pre-commit --redact --staged --verbose --config .gitleaks/config.toml",
+    "precommit:verify": "npm run clean && npm run build && npm run lint && npm test"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.2",
@@ -43,6 +48,7 @@
     "rollup": "^4.29.1",
     "rollup-plugin-dts": "^6.1.1",
     "ts-jest": "^29.2.5",
+    "tslib": "^2.8.1",
     "typescript": "^5.7.2"
   }
 }
