@@ -1,6 +1,7 @@
 # hmpps-auth-clients
 
 This package provides reusable clients for interacting with [HMPPS Auth](https://github.com/ministryofjustice/hmpps-auth) and the HMPPS Token Verification API. It abstracts the logic for:
+
 - Acquiring tokens for system or user-based authentication
 - Verifying the validity of tokens
 - Storing and retrieving tokens from various backends (e.g., Redis, in-memory)
@@ -14,8 +15,9 @@ This package provides reusable clients for interacting with [HMPPS Auth](https:/
 
 ## Status
 
-**This library is currently in alpha.**
-Teams are welcome to use this library, but please note that breaking changes may occur as we refine and improve the package.
+**This library is currently: ready to adopt.**
+
+ Teams are encouraged to use this library. Please provide feedback via slack to the #typescript channel.
 
 ## Installation
 
@@ -24,6 +26,7 @@ npm install hmpps-auth-clients
 ```
 
 ## Usage
+
 ### AuthenticationClient
 
 An example of using AuthenticationClient to retrieve a system token or a user token from HMPPS Auth:
@@ -111,5 +114,5 @@ This module uses rollup, to build:
 
 ## Testing changes to this library
 
-* `cd` to this directory and then link this library: `npm link`
-* Utilise the in-development library within a project by using: `npm link @ministryofjustice/hmpps-auth-clients`
+- `cd` to this directory and then link this library: `npm link`
+- Utilise the in-development library within a project by using: `npm link @ministryofjustice/hmpps-auth-clients`
