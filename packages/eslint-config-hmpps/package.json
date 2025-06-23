@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/eslint-config-hmpps",
-  "version": "0.0.1-beta.2",
+  "version": "0.0.1",
   "description": "ESLint rules for HMPPS typescript projects",
   "keywords": [
     "eslint",
@@ -27,23 +27,24 @@
   },
   "scripts": {
     "lint": "eslint . --cache --max-warnings 0",
-    "lint-fix": "eslint . --cache --max-warnings 0 --fix"
+    "lint-fix": "eslint . --cache --max-warnings 0 --fix",
+    "check-for-updates": "npx npm-check-updates -u"
   },
   "dependencies": {
-    "@eslint/eslintrc": "3.2.0",
-    "@eslint/js": "^9.18.0",
-    "@typescript-eslint/eslint-plugin": "^8.20.0",
-    "@typescript-eslint/parser": "^8.20.0",
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.29.0",
+    "@typescript-eslint/eslint-plugin": "^8.34.1",
+    "@typescript-eslint/parser": "^8.34.1",
     "confusing-browser-globals": "^1.0.11",
-    "eslint": "^9.18.0",
-    "eslint-config-prettier": "^10.0.1",
-    "eslint-import-resolver-typescript": "^3.7.0",
-    "eslint-plugin-cypress": "^4.1.0",
+    "eslint": "^9.29.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-import-resolver-typescript": "^4.4.3",
+    "eslint-plugin-cypress": "^5.1.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-no-only-tests": "^3.3.0",
-    "eslint-plugin-prettier": "^5.2.2",
-    "globals": "15.14.0",
-    "semver": "^7.6.3"
+    "eslint-plugin-prettier": "^5.5.0",
+    "globals": "16.2.0",
+    "semver": "^7.7.2"
   },
   "devDependencies": {
     "@types/confusing-browser-globals": "^1.0.3",

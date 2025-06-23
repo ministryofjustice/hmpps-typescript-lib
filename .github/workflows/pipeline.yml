@@ -26,6 +26,7 @@ jobs:
     strategy:
       matrix:
         node: [20, 22]
+    needs: lint
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -52,6 +53,8 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm install
+      - name: Clean build step
+        run: npm run clean
       - name: Test build step
         run: npm run build
       - name: Run linting checks
