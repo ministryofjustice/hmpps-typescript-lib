@@ -1,5 +1,24 @@
 # Change log
 
+## 0.0.1
+
+Initial release
+
+ @eslint/eslintrc                     3.2.0  →    3.3.1
+ @eslint/js                         ^9.18.0  →  ^9.29.0
+ @types/eslint__eslintrc             ^2.1.2  →   ^3.3.0
+ @types/eslint__js                  ^8.42.3  →  ^9.14.0
+ @types/semver                       ^7.5.8  →   ^7.7.0
+ @typescript-eslint/eslint-plugin   ^8.20.0  →  ^8.34.1
+ @typescript-eslint/parser          ^8.20.0  →  ^8.34.1
+ eslint                             ^9.18.0  →  ^9.29.0
+ eslint-config-prettier             ^10.0.1  →  ^10.1.5
+ eslint-import-resolver-typescript   ^3.7.0  →   ^4.4.3
+ eslint-plugin-cypress               ^4.1.0  →   ^5.1.0
+ eslint-plugin-prettier              ^5.2.2  →   ^5.5.0
+ globals                            15.14.0  →   16.2.0
+ semver                              ^7.6.3  →   ^7.7.2
+
 ## 0.0.1-beta.2
 
 Patching:

@@ -13,8 +13,9 @@ This package aims to standardize the way HMPPS TypeScript applications interact 
 
 ## Status
 
-**This library is currently in alpha.**
-Teams are free to use this library, but further breaking changes may occur as we refine and improve the package.
+**This library is currently: ready to adopt.**
+
+ Teams are encouraged to use this library. Please provide feedback via slack to the #typescript channel.
 
 ## Usage
 
