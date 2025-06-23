@@ -9,7 +9,9 @@ It should include all:
 
 ## Status
 
-This library is now in beta. Teams are free to use this library, but further breaking changes may occur.
+**This library is currently: ready to adopt.**
+
+ Teams are encouraged to use this library. Please provide feedback via slack to the #typescript channel.
 
 ## Usage
 

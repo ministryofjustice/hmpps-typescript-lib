@@ -6,7 +6,9 @@
     "outDir": "./dist",
     "declarationDir": "./dist",
     "resolveJsonModule": true,
-    "sourceMap": true
+    "declaration": true,
+    "module": "ESNext",
+    "moduleResolution": "node"
   },
   "include": ["./src/**/*.ts"],
 }

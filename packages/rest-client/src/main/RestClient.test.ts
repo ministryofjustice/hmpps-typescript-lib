@@ -1,9 +1,12 @@
 import nock from 'nock'
 import express from 'express'
 import { PassThrough } from 'stream'
+import { NotFound } from 'http-errors'
 import RestClient from './RestClient'
 import { AgentConfig } from './types/ApiConfig'
 import { AuthOptions, TokenType } from './types/AuthOptions'
+import { SanitisedError } from './types/Errors'
+import { CallContext } from './types/Request'
 
 class TestRestClient extends RestClient {
   constructor() {
@@ -98,6 +101,96 @@ describe('RestClient', () => {
         status: 200,
         text: '{"success":true}',
       })
+    })
+
+    it('should support custom error handling when provided', async () => {
+      nock('http://localhost:8080', {
+        reqheaders: { authorization: 'Bearer some_system_jwt' },
+      })
+        [method]('/api/test')
+        .reply(404, { message: 'some not found message' })
+
+      const result = await restClient[method](
+        {
+          path: '/test',
+          headers: { header1: 'headerValue1' },
+          raw: true,
+          errorHandler: <RESPONSE, ERROR>(path: string, verb: string, error: SanitisedError<ERROR>) => {
+            if (error.responseStatus === 404) {
+              return error.data as RESPONSE
+            }
+            throw error
+          },
+        },
+        systemAuthOptions,
+      )
+
+      expect(nock.isDone()).toBe(true)
+      expect(result).toMatchObject({
+        message: 'some not found message',
+      })
+    })
+
+    it('can coerce 404s to null', async () => {
+      nock('http://localhost:8080', {
+        reqheaders: { authorization: 'Bearer some_system_jwt' },
+      })
+        [method]('/api/test')
+        .reply(404, { message: 'some not found message' })
+
+      const response: string | null = await restClient[method]<string | null>(
+        {
+          path: '/test',
+          headers: { header1: 'headerValue1' },
+          raw: true,
+          errorHandler: <ERROR>(path: string, verb: string, error: SanitisedError<ERROR>) => {
+            if (error.responseStatus === 404) {
+              return null
+            }
+            throw error
+          },
+        },
+        systemAuthOptions,
+      )
+
+      expect(response).toStrictEqual(null)
+
+      expect(nock.isDone()).toBe(true)
+    })
+
+    it('can propagate api response status when desired', async () => {
+      nock('http://localhost:8080', {
+        reqheaders: { authorization: 'Bearer some_system_jwt' },
+      })
+        [method]('/api/test')
+        .reply(404, { message: 'some not found message' })
+
+      const call = restClient[method](
+        {
+          path: '/test',
+          headers: { header1: 'headerValue1' },
+          raw: true,
+          errorHandler: <ERROR>(path: string, verb: string, error: SanitisedError<ERROR>) => {
+            if (error.responseStatus === 404) {
+              const notFound = NotFound(`Resource not found on '${verb.toLowerCase()}: ${path}'`)
+              notFound.cause = error
+              throw notFound
+            }
+            throw error
+          },
+        },
+        systemAuthOptions,
+      )
+
+      await expect(() => call).rejects.toStrictEqual(
+        expect.objectContaining({
+          message: `Resource not found on '${method.toLowerCase()}: /test'`,
+          status: 404,
+          cause: expect.any(Error),
+        }),
+      )
+
+      expect(nock.isDone()).toBe(true)
     })
 
     if (method === 'get' || method === 'delete') {
@@ -259,7 +352,7 @@ describe('RestClient', () => {
         reqheaders: { authorization: 'Bearer some_system_jwt' },
       })
         .get('/api/test-file')
-        .reply(200, 'this is some file content')
+        .reply(200, 'this is some file content', { 'Content-Type': 'application/x-zip-compressed' })
 
       const readable = await restClient.stream({ path: '/test-file' }, systemAuthOptions)
       const receivedData = await readAll(readable)
@@ -273,7 +366,7 @@ describe('RestClient', () => {
         reqheaders: { authorization: 'Bearer some_user_jwt' },
       })
         .get('/api/test-file')
-        .reply(200, 'some user file content')
+        .reply(200, 'some user file content', { 'Content-Type': 'application/x-zip-compressed' })
 
       const readable = await restClient.stream({ path: '/test-file' }, userAuthOptions)
       const receivedData = await readAll(readable)
@@ -286,7 +379,7 @@ describe('RestClient', () => {
       nock('http://localhost:8080')
         .matchHeader('authorization', val => val === undefined)
         .get('/api/test-file')
-        .reply(200, 'public file content')
+        .reply(200, 'public file content', { 'Content-Type': 'application/x-zip-compressed' })
 
       const readable = await restClient.stream({ path: '/test-file' }, undefined)
       const receivedData = await readAll(readable)
@@ -300,7 +393,7 @@ describe('RestClient', () => {
         reqheaders: { authorization: 'Bearer raw_stream_jwt' },
       })
         .get('/api/test-file')
-        .reply(200, 'stream content for raw token')
+        .reply(200, 'stream content for raw token', { 'Content-Type': 'application/x-zip-compressed' })
 
       const readable = await restClient.stream({ path: '/test-file' }, 'raw_stream_jwt')
       const receivedData = await readAll(readable)
@@ -317,7 +410,7 @@ describe('RestClient', () => {
         },
       })
         .get('/api/test-file')
-        .reply(200, 'content with custom header')
+        .reply(200, 'content with custom header', { 'Content-Type': 'application/x-zip-compressed' })
 
       const readable = await restClient.stream(
         {
@@ -344,6 +437,35 @@ describe('RestClient', () => {
 
       await expect(restClient.stream({ path: '/test-file' }, systemAuthOptions)).rejects.toThrow()
 
+      expect(nock.isDone()).toBe(true)
+    })
+  })
+
+  describe('make bespoke rest call', () => {
+    afterEach(() => {
+      nock.cleanAll()
+    })
+
+    it('should get data successfully with a system token', async () => {
+      nock('http://localhost:8080', {
+        reqheaders: { authorization: 'Bearer some_system_jwt' },
+      })
+        .get('/api/some-path')
+        .reply(200, { message: 'some response' })
+
+      const receivedData = await restClient.makeRestClientCall<string>(
+        systemAuthOptions,
+        async ({ superagent, token, agent }: CallContext): Promise<string> => {
+          const result = await superagent
+            .get(`http://localhost:8080/api/some-path`)
+            .auth(token as string, { type: 'bearer' })
+            .agent(agent)
+
+          return result.body.message
+        },
+      )
+
+      expect(receivedData).toEqual('some response')
       expect(nock.isDone()).toBe(true)
     })
   })
