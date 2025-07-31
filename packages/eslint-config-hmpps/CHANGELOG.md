@@ -1,5 +1,19 @@
 # Change log
 
+## 0.0.2
+
+Patching:
+ @eslint/js                         ^9.29.0  →  ^9.32.0
+ @types/eslint__js                  ^9.14.0  →  removed
+ @typescript-eslint/eslint-plugin   ^8.34.1  →  ^8.38.0
+ @typescript-eslint/parser          ^8.34.1  →  ^8.38.0
+ eslint                             ^9.29.0  →  ^9.32.0
+ eslint-config-prettier             ^10.1.5  →  ^10.1.8
+ eslint-import-resolver-typescript   ^4.4.3  →   ^4.4.4
+ eslint-plugin-import               ^2.31.0  →  ^2.32.0
+ eslint-plugin-prettier              ^5.5.0  →   ^5.5.3
+ globals                             16.2.0  →   16.3.0
+
 ## 0.0.1
 
 Initial release
