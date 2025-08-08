@@ -1,5 +1,12 @@
 # Change log
 
+## 0.0.3
+
+Patching:
+ @typescript-eslint/eslint-plugin   ^8.38.0  →  ^8.39.0
+ @typescript-eslint/parser          ^8.38.0  →  ^8.39.0
+ eslint-plugin-prettier              ^5.5.3  →   ^5.5.4
+
 ## 0.0.2
 
 Patching:
