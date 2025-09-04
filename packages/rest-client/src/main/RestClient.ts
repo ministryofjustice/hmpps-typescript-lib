@@ -110,6 +110,7 @@ export default class RestClient {
       raw = false,
       retries = 2,
       errorHandler = this.handleError,
+      retryHandler = this.handleRetry,
     }: Request<Response, ErrorData>,
     authOptions?: AuthOptions | string,
   ): Promise<Response> {
@@ -124,7 +125,7 @@ export default class RestClient {
         .get(`${this.apiUrl()}${path}`)
         .query(query)
         .agent(this.agent)
-        .retry(retries, this.handleRetry())
+        .retry(retries, retryHandler())
         .set(headers)
         .responseType(responseType)
         .timeout(this.timeoutConfig())
@@ -162,6 +163,7 @@ export default class RestClient {
       raw = false,
       retry = false,
       errorHandler = this.handleError,
+      retryHandler = this.handleRetry,
     }: RequestWithBody<Response, ErrorData>,
     authOptions?: AuthOptions | string,
   ): Promise<Response> {
@@ -174,7 +176,7 @@ export default class RestClient {
         .query(query)
         .send(data)
         .agent(this.agent)
-        .retry(2, this.handleRetry(retry))
+        .retry(2, retryHandler(retry))
         .set(headers)
         .responseType(responseType)
         .timeout(this.timeoutConfig())
@@ -257,6 +259,7 @@ export default class RestClient {
       raw = false,
       retries = 2,
       errorHandler = this.handleError,
+      retryHandler = this.handleRetry,
     }: Request<Response, ErrorData>,
     authOptions?: AuthOptions | string,
   ): Promise<Response> {
@@ -269,7 +272,7 @@ export default class RestClient {
         .delete(`${this.apiUrl()}${path}`)
         .query(query)
         .agent(this.agent)
-        .retry(retries, this.handleRetry())
+        .retry(retries, retryHandler())
         .set(headers)
         .responseType(responseType)
         .timeout(this.timeoutConfig())
