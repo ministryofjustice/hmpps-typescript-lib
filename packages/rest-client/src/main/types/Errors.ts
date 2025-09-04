@@ -22,3 +22,8 @@ export interface ErrorHandler<Response, ErrorData> {
 export interface ErrorLogger<ErrorData> {
   (path: string, method: string, error: SanitisedError<ErrorData>): void
 }
+
+export interface RetryError extends ResponseError {
+  code?: string
+  crossDomain?: boolean
+}
