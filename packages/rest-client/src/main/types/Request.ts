@@ -1,5 +1,6 @@
 import type superagent from 'superagent'
 import type http from 'http'
+import { Response as SuperAgentResponse } from 'superagent'
 import { ErrorHandler, ErrorLogger } from './Errors'
 
 export interface Request<Response, ErrorData> {
@@ -10,6 +11,7 @@ export interface Request<Response, ErrorData> {
   retries?: number
   raw?: boolean
   errorHandler?: ErrorHandler<Response, ErrorData>
+  retryHandler?: (retry?: boolean) => (err: Error, res: SuperAgentResponse) => boolean | undefined
 }
 
 export interface RequestWithBody<Response, ErrorData> extends Request<Response, ErrorData> {

@@ -1,5 +1,6 @@
 import nock from 'nock'
 import express from 'express'
+import { Response } from 'superagent'
 import { PassThrough } from 'stream'
 import { NotFound } from 'http-errors'
 import RestClient from './RestClient'
@@ -214,6 +215,35 @@ describe('RestClient', () => {
             systemAuthOptions,
           ),
         ).rejects.toThrow('Internal Server Error')
+
+        expect(nock.isDone()).toBe(true)
+      })
+
+      it('should accept custom retry handler', async () => {
+        nock('http://localhost:8080', {
+          reqheaders: { authorization: 'Bearer some_system_jwt' },
+        })
+          [method]('/api/test')
+          .reply(500)
+          [method]('/api/test')
+          .reply(404)
+
+        await expect(
+          restClient[method](
+            {
+              path: '/test',
+              headers: { header1: 'headerValue1' },
+              retryHandler: () => (err: Error, res: Response) => {
+                if (err) return true
+                if (res?.statusCode) {
+                  return res.statusCode >= 500
+                }
+                return undefined
+              },
+            },
+            systemAuthOptions,
+          ),
+        ).rejects.toThrow('Not Found')
 
         expect(nock.isDone()).toBe(true)
       })
