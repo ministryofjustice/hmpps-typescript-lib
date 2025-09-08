@@ -1,5 +1,19 @@
 # Change log
 
+## 0.0.4
+
+Adding `test_results` to ignore paths and `playwright.config.ts` to paths allowing dev dependencies
+
+Patching
+  @eslint/js.                       ^9.32.0  →  ^9.35.0
+  @typescript-eslint/eslint-plugin. ^8.39.0  →  ^8.42.0
+  @typescript-eslint/parser.        ^8.39.0  →  ^8.42.0
+
+
+  eslint                            ^9.32.0  →  ^9.35.0
+  eslint-plugin-cypress              ^5.1.0  →  ^5.1.1
+  @types/semver.                     ^7.7.0  →  ^7.7.1
+
 ## 0.0.3
 
 Patching:

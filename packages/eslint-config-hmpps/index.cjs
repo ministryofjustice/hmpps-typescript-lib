@@ -93,7 +93,7 @@ function hmppsConfig({
   return [
     // ignore dependencies and build artefacts
     {
-      ignores: ['**/node_modules', 'dist/', ...extraIgnorePaths],
+      ignores: ['**/node_modules', 'dist/', 'test_results', ...extraIgnorePaths],
     },
     // warn when an eslint-disable comment does nothing
     {
@@ -172,6 +172,7 @@ function hmppsConfig({
               // tooling config
               'cypress.config.ts',
               'eslint.config.mjs',
+              'playwright.config.ts',
               // build tools
               'esbuild/**',
               ...extraPathsAllowingDevDependencies,
