@@ -1,5 +1,10 @@
 # Change log
 
+# 0.0.3
+
+ superagent     ^10.2.1 →  ^10.2.3
+
+
 # 0.0.2
 - Add support for providing a custom retryHandler function which overrides built-in retry handler [PR-89](https://github.com/ministryofjustice/hmpps-typescript-lib/pull/89)
 - Updated built-in retry handler to match SuperAgent's default retry behaviours [PR-90](https://github.com/ministryofjustice/hmpps-typescript-lib/pull/90)

@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/hmpps-rest-client",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Standardized, reusable REST client for use with HMPPS services",
   "author": "hmpps-developers",
   "license": "MIT",
@@ -33,10 +33,10 @@
     "@types/express": "^5.0.3",
     "@types/superagent": "^8.1.9",
     "http-errors": "^2.0.0",
-    "nock": "^14.0.5"
+    "nock": "^14.0.10"
   },
   "dependencies": {
     "agentkeepalive": "^4.6.0",
-    "superagent": "^10.2.1"
+    "superagent": "^10.2.3"
   }
 }

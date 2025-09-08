@@ -1,5 +1,10 @@
 # Change log
 
+## 0.0.3
+
+  nock:   ^14.0.5   →   ^14.0.10
+  redis"   ^5.5.6   →     ^5.8.2
+
 ## 0.0.1
 
 Initial release
