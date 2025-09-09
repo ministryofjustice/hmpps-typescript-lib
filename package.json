@@ -35,7 +35,7 @@
     "test": "npm run test --workspaces --if-present",
     "check-for-updates": "npm run --workspaces check-for-updates",
     "prepare": "hmpps-precommit-hooks-prepare",
-    "precommit:secrets": "gitleaks git --pre-commit --redact --staged --verbose --config .gitleaks/config.toml",
+    "precommit:secrets": "gitleaks git --pre-commit --redact --staged --verbose --config .gitleaks/config.toml --gitleaks-ignore-path .gitleaks/.gitleaksignore",
     "precommit:verify": "npm run clean && npm run build && npm run lint && npm test"
   },
   "devDependencies": {
