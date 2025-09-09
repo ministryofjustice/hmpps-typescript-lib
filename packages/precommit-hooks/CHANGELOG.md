@@ -1,5 +1,10 @@
 # Change log
 
+## 0.0.4
+
+Reading `.gitleaksignore` from the correct location.
+Previously it was assuming `.gitleaksignore` would be in the project root directory rather than in the `.gitleaks` directory.  
+
 ## 0.0.3
 
 Remove pipefail from prepare script
