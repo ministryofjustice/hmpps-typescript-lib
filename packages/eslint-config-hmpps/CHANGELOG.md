@@ -1,5 +1,9 @@
 # Change log
 
+## 0.0.5
+
+No functional change - testing trusted publishing
+
 ## 0.0.4
 
 Adding `test_results` to ignore paths and `playwright.config.ts` to paths allowing dev dependencies
