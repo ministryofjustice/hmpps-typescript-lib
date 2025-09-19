@@ -1,5 +1,9 @@
 # Change log
 
+## 0.0.2
+
+No functional change - testing trusted publishing
+
 ## 0.0.1
 
 Initial release 
