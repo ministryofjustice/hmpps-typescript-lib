@@ -22,7 +22,8 @@
     "/packages/auth-clients",
     "/packages/eslint-config-hmpps",
     "/packages/monitoring",
-    "/packages/precommit-hooks"
+    "/packages/precommit-hooks",
+    "/packages/npm-script-allowlist"
   ],
   "engines": {
     "node": "20 || 22"
