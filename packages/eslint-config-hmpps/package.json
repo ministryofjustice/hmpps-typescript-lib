@@ -12,9 +12,15 @@
   "homepage": "https://github.com/ministryofjustice/hmpps-typescript-lib/tree/main/packages/eslint-config-hmpps#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ministryofjustice/hmpps-typescript-lib.git"
+    "url": "git+https://github.com/ministryofjustice/hmpps-typescript-lib.git"
   },
-  "bin": "./bin/migrate.sh",
+  "publishConfig": {
+    "access": "public",
+    "tag": "latest"
+  },
+  "bin": {
+    "eslint-config-hmpps": "bin/migrate.sh"
+  },
   "main": "index.cjs",
   "files": [
     "*.md",

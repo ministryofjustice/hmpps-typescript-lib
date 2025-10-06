@@ -11,12 +11,16 @@
   "homepage": "https://github.com/ministryofjustice/hmpps-typescript-lib/tree/main/packages/npm-scripts-allowlist#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ministryofjustice/hmpps-typescript-lib.git"
+    "url": "git+https://github.com/ministryofjustice/hmpps-typescript-lib.git"
+  },
+  "publishConfig": {
+    "access": "public",
+    "tag": "alpha"
   },
   "main": "index.mjs",
   "bin": {
-    "@ministryofjustice/hmpps-npm-script-allowlist": "./bin/init.sh",
-    "hmpps-npm-script-run-allowlist": "./bin/hmpps-allow-scripts"
+    "hmpps-npm-script-run-allowlist": "bin/hmpps-allow-scripts",
+    "hmpps-npm-script-allowlist": "bin/init.sh"
   },
   "scripts": {
     "lint": "eslint . --cache --max-warnings 0",

@@ -7,9 +7,15 @@
   "homepage": "https://github.com/ministryofjustice/hmpps-typescript-lib#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ministryofjustice/hmpps-typescript-lib.git"
+    "url": "git+https://github.com/ministryofjustice/hmpps-typescript-lib.git"
   },
-  "bin": "./bin/migrate.sh",
+  "publishConfig": {
+    "access": "public",
+    "tag": "latest"
+  },
+  "bin": {
+    "hmpps-monitoring": "bin/migrate.sh"
+  },
   "main": "./dist/index.cjs.js",
   "module": "./dist/index.esm.js",
   "types": "./dist/index.d.ts",
