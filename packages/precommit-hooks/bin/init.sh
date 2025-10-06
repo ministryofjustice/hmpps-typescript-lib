@@ -45,7 +45,7 @@ else
 fi
 
 startStage "  * Adding npm scripts"
-npm pkg --silent set scripts.precommit:secrets="gitleaks git --pre-commit --redact --staged --verbose --config .gitleaks/config.toml  --gitleaks-ignore-path .gitleaks/.gitleaksignore" 
+npm pkg --silent set scripts.precommit:secrets="gitleaks git --pre-commit --redact --staged --verbose --config .gitleaks/config.toml --gitleaks-ignore-path .gitleaks/.gitleaksignore" 
 npm pkg --silent set scripts.precommit:lint="node_modules/.bin/lint-staged"
 npm pkg --silent set scripts.precommit:verify="npm run typecheck && npm test"
 endStage " ✅"
