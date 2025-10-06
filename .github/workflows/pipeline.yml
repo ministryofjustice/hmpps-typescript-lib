@@ -122,7 +122,7 @@ jobs:
               gh release upload ${{ github.event.release.tag_name }} "${package_name}"
 
               echo "→ Publishing package ${name} v${version} to npmjs.com"
-              npm publish --provenance --access public
+              npm publish
             fi
           done
         env:

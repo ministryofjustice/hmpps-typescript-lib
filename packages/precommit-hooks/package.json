@@ -10,12 +10,16 @@
   "homepage": "https://github.com/ministryofjustice/hmpps-typescript-lib/tree/main/packages/precommit-hooks#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ministryofjustice/hmpps-typescript-lib.git"
+    "url": "git+https://github.com/ministryofjustice/hmpps-typescript-lib.git"
+  },
+  "publishConfig": {
+    "access": "public",
+    "tag": "latest"
   },
   "bin": {
-    "@ministryofjustice/hmpps-precommit-hooks": "./bin/init.sh",
-    "hmpps-precommit-hooks-prepare": "./bin/prepare.sh",
-    "test-secret-protection": "./bin/test.sh"
+    "hmpps-precommit-hooks-prepare": "bin/prepare.sh",
+    "test-secret-protection": "bin/test.sh",
+    "hmpps-precommit-hooks": "bin/init.sh"
   },
   "scripts": {
     "check-for-updates": "npx npm-check-updates -u"
