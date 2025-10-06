@@ -39,6 +39,6 @@
     "redis": "^5.8.2"
   },
   "dependencies": {
-    "@ministryofjustice/hmpps-rest-client": "^0.0.2"
+    "@ministryofjustice/hmpps-rest-client": "^0.0.3"
   }
 }
