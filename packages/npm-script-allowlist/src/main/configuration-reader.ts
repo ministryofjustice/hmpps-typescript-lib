@@ -10,11 +10,16 @@ export const readConfiguration: ConfigurationReader = (config: Config, packageLo
   const packagesWithScripts = Object.entries(packageLock.packages)
     .map(([name, { version, hasInstallScript }]) => ({ name, version, hasInstallScript }))
     .filter(pkg => pkg.hasInstallScript)
-    .map(pkg => ({ ...pkg, nameWithVersion: `${pkg.name}@${pkg.version}` }))
     .map(pkg => {
-      const configuredPackage = configuredAllowlist.find(([name]) => pkg.nameWithVersion === name)
+      const nameWithVersion = `${pkg.name}@${pkg.version}`
+      const configuredPackage = configuredAllowlist.find(([name]) => nameWithVersion === name)
       const isConfigured = Boolean(configuredPackage)
-      return { ...pkg, configured: isConfigured, status: configuredPackage ? configuredPackage[1] : '<MISSING>' }
+      return {
+        ...pkg,
+        nameWithVersion,
+        configured: isConfigured,
+        status: configuredPackage ? configuredPackage[1] : '<MISSING>',
+      }
     })
 
   const installedPackagesWithScripts = packagesWithScripts.map(pkg => pkg.nameWithVersion)
