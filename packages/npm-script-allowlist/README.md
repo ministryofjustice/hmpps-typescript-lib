@@ -20,3 +20,17 @@ Once the project has been initialised, other developers should be able to develo
 ### How this works
 
 ...
+
+### Testing
+
+Export a local package:
+`npm run lint && npm run build && npm run test && npm pack --pack-destination ~`
+
+cd to the project you want to test it on, and install:
+`npm install --ignore-scripts -D ~/ministryofjustice-hmpps-npm-script-allowlist-xxx.tgz`
+
+To test the init script:
+`npx -p ~/ministryofjustice-hmpps-npm-script-allowlist-0.0.1-alpha.2.tgz hmpps-npm-script-allowlist`
+
+To test the command directly:
+`./node_modules/.bin/hmpps-npm-script-run-allowlist`
