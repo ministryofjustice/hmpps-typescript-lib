@@ -1,7 +1,4 @@
-export enum ScriptRunMode {
-  ALLOW = 'ALLOW',
-  FORBID = 'FORBID',
-}
+export type ScriptRunMode = 'ALLOW' | 'FORBID'
 
 export type Config = {
   localScriptsToRun?: string[]

@@ -1,4 +1,4 @@
-import { Config } from './types/configuration-loading'
+import type { Config } from './types/configuration-loading'
 
 /**
  * Provides information as to whether a script should be enabled or not.
