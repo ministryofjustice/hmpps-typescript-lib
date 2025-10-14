@@ -5,7 +5,7 @@ import { readConfiguration } from './configuration-reader'
 import { fetchPackageInfo } from './fetch-package-info'
 import { Runner } from './runner'
 
-export { configureAllowedScripts } from './project-configuration'
+export { configureAllowedScripts, type Config } from './project-configuration'
 
 export async function run() {
   await new Runner({

@@ -1,13 +1,13 @@
-import { PackageLock, ScriptRunMode } from './types/configuration-loading'
+import { PackageLock } from './types/configuration-loading'
 import { Config } from './project-configuration'
 import { readConfiguration } from './configuration-reader'
 
 describe('readConfiguration', () => {
   const baseConfig: Config = {
     allowlist: {
-      'package-a@1.0.0': ScriptRunMode.ALLOW,
-      'package-b@2.0.0': ScriptRunMode.FORBID,
-      'package-c@1.9.0': ScriptRunMode.ALLOW,
+      'package-a@1.0.0': 'ALLOW',
+      'package-b@2.0.0': 'FORBID',
+      'package-c@1.9.0': 'ALLOW',
     },
     dependencyScriptsToRun: ['install'],
     localScriptsToRun: ['postinstall'],
@@ -56,7 +56,7 @@ describe('readConfiguration', () => {
   it('should use default scripts if none are provided', () => {
     const configWithoutScripts: Config = {
       allowlist: {
-        'package-a@1.0.0': ScriptRunMode.ALLOW,
+        'package-a@1.0.0': 'ALLOW',
       },
     }
 

@@ -1,5 +1,5 @@
 import { Runner } from './runner'
-import { ScriptRunMode, Config } from './types/configuration-loading'
+import { Config } from './types/configuration-loading'
 
 describe('run()', () => {
   const mockReadFile = jest.fn()
@@ -35,7 +35,7 @@ describe('run()', () => {
 
   const mockConfig: Config = {
     allowlist: {
-      'package-a@1.0.0': ScriptRunMode.ALLOW,
+      'package-a@1.0.0': 'ALLOW',
     },
     dependencyScriptsToRun: ['install'],
     localScriptsToRun: ['postinstall'],
