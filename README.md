@@ -15,7 +15,7 @@ and would be adopted automatically by new projects.
 
 ## Development
 
-Sub-packages in this projects are build on node 22 and tested on node 20 and 22.
+Sub-packages in this projects are build on node 24 and tested on node 20, 22 and 24.
 
 npm scripts from the root all delegate to sub-packages:
 

@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/hmpps-precommit-hooks",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "description": "Precommit hooks for HMPPS typescript projects",
   "keywords": [
     "precommit"
@@ -30,7 +30,7 @@
     "config.toml"
   ],
   "engines": {
-    "node": "20 || 22"
+    "node": "20 || 22 || 24"
   },
   "dependencies": {
     "husky": "^9.1.7"
