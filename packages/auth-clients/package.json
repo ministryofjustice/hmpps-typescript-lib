@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/hmpps-auth-clients",
-  "version": "0.0.3",
+  "version": "1.0.0",
   "description": "Clients for authenticating and verifying tokens using the HMPPS Authentication estate",
   "author": "hmpps-developers",
   "license": "MIT",
@@ -21,7 +21,7 @@
     "dist/**/*"
   ],
   "engines": {
-    "node": "20 || 22"
+    "node": "20 || 22 || 24"
   },
   "scripts": {
     "build": "rollup -c rollup.config.ts --bundleConfigAsCjs",
@@ -33,12 +33,12 @@
   },
   "devDependencies": {
     "@types/bunyan": "^1.8.11",
-    "@types/express": "^5.0.3",
+    "@types/express": "^5.0.5",
     "@types/superagent": "^8.1.9",
     "nock": "^14.0.10",
-    "redis": "^5.8.2"
+    "redis": "^5.9.0"
   },
   "dependencies": {
-    "@ministryofjustice/hmpps-rest-client": "^0.0.2"
+    "@ministryofjustice/hmpps-rest-client": "^1.0.0"
   }
 }

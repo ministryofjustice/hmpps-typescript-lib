@@ -1,9 +1,13 @@
 # Change log
 
+## 1.0.0
+
+Move to node 24
+
 ## 0.0.4
 
 Reading `.gitleaksignore` from the correct location.
-Previously it was assuming `.gitleaksignore` would be in the project root directory rather than in the `.gitleaks` directory.  
+Previously it was assuming `.gitleaksignore` would be in the project root directory rather than in the `.gitleaks` directory.
 
 ## 0.0.3
 
