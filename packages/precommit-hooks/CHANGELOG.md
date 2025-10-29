@@ -1,6 +1,10 @@
 # Change log
 
-## 1.0.0
+## 1.0.1
+
+Fix versions, accidentally mixed 1.0.0 and 0.1.0
+
+## 0.1.0
 
 Move to node 24
 
