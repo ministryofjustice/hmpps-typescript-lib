@@ -30,7 +30,7 @@ This:
 * Runs the tool, which will likely fail allowing the developer to complete configuration
 
 Developers would then: 
-`npm install` to install packages but doesn't not execute any scripts
+`npm install` to install packages but does not execute any scripts
 `npm run setup` runs `npm ci` (without scripts) and then executes scripts in this package to execute only those allowlisted scripts 
 
 A manual step is required to move CI over to use `npm run setup` instead of `npm ci`
