@@ -52,9 +52,11 @@ startStage "  * Adding set up script"
 npm pkg set --silent scripts.setup="npm ci && hmpps-npm-script-run-allowlist" 
 endStage "  ✅"
 
-if ! npm list @ministryofjustice/hmpps-npm-script-allowlist > /dev/null 2>&1; then
-  startStage "  * Installing @ministryofjustice/hmpps-npm-script-allowlist"
-  npm install --silent --save-dev @ministryofjustice/hmpps-npm-script-allowlist
+VERSION=$(npm show --json  @ministryofjustice/hmpps-npm-script-allowlist | jq -r '.version')
+
+if ! npm list "@ministryofjustice/hmpps-npm-script-allowlist@$VERSION" > /dev/null 2>&1; then
+  startStage "  * Installing @ministryofjustice/hmpps-npm-script-allowlist@$VERSION"
+  npm install --save-dev "@ministryofjustice/hmpps-npm-script-allowlist@$VERSION"
   endStage " ✅"
 else
   endStage "  * @ministryofjustice/hmpps-npm-script-allowlist already installed ✅"
