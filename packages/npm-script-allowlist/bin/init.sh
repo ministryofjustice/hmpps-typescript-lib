@@ -13,10 +13,6 @@ endStage() {
   printf "%s\n" "$1"
 }
 
-printError() {
-  printf "\x1b[1;31m%s\x1b[0m\n" "$1"
-}
-
 endStage "Setting up hmpps npm script locker" 
 
 startStage "  * Adding/overwriting .npmrc script"
@@ -54,16 +50,14 @@ endStage "  ✅"
 
 VERSION=$(npm show --json  @ministryofjustice/hmpps-npm-script-allowlist | jq -r '.version')
 
-if ! npm list "@ministryofjustice/hmpps-npm-script-allowlist@$VERSION" > /dev/null 2>&1; then
-  startStage "  * Installing @ministryofjustice/hmpps-npm-script-allowlist@$VERSION"
-  npm install --save-dev "@ministryofjustice/hmpps-npm-script-allowlist@$VERSION"
-  endStage " ✅"
-else
-  endStage "  * @ministryofjustice/hmpps-npm-script-allowlist already installed ✅"
-fi
+startStage "  * Installing @ministryofjustice/hmpps-npm-script-allowlist@$VERSION"
+npm install --save-dev "@ministryofjustice/hmpps-npm-script-allowlist@$VERSION"
+endStage " ✅"
 
-startStage "  * Running allow scripts"
-npm run setup
+startStage "  * Performing initial run of hmpps-npm-script-run-allowlist"
+./node_modules/.bin/hmpps-npm-script-run-allowlist
 endStage "  ✅"
+
+endStage "NOTE: You will need to manually update your Dockerfile and CI to run \"npm run setup\" rather than \"npm ci\" 🚧"
 
 endStage "FIN!"

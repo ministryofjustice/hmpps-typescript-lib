@@ -1,6 +1,6 @@
 # @ministryofjustice/hmpps-npm-allow-scripts
 
-This package aims to restrict npm scripts from running unless as part of a predefined allowlist
+This package aims to restrict npm scripts from running unless as part of a predefined allowlist. 
 
 ## Status
 
@@ -14,30 +14,33 @@ Teams are welcome to trial this library. Please provide feedback via slack to th
 The package will self install and initialised by running via npx:
 `npx @ministryofjustice/hmpps-npm-allow-scripts`
 
-Note: The project needs to be initialised before use - solely adding the library will make no difference.
-Once the project has been initialised, other developers should be able to develop against it without further configuration.
+Note: The project needs to be initialised before use - solely adding the library will not apply the required changes.
+Once the project has been initialised and changes commited, other developers should be able to benefit from the library without further local initialisation.
 
 ### How this works
 
+The library can be applied to a service by running `npx @ministryofjustice/hmpps-npm-script-allowlist`
 
-A developer would configure a frontend service by running `npx @ministryofjustice/hmpps-npm-script-allowlist`
+This will:
 
-This:
-* Sets some sensible defaults in .npmrc to prevent execution of scripts 
-* Installs the package 
-* Adds a default configuration file
-* Adds a new script called `setup`
-* Runs the tool, which will likely fail allowing the developer to complete configuration
+- Set some sensible defaults in `.npmrc` to prevent execution of scripts
+- Install the package
+- Add a default configuration file
+- Add a new npm script called `setup`
+- Run the tool, which will likely fail allowing the developer to complete configuration
 
-Developers would then: 
-`npm install` to install packages but doesn't not execute any scripts
-`npm run setup` runs `npm ci` (without scripts) and then executes scripts in this package to execute only those allowlisted scripts 
+The tool can then be configured with a list of packages and their associated versions that should run be allowed to run scripts post install.
 
-A manual step is required to move CI over to use `npm run setup` instead of `npm ci`
+To work with the project after that: 
+- `npm install` will install packages but no longer executes any scripts due to the defaults set in `.npmrc`
+- `npm run setup` runs `npm ci` (without scripts) and then executes only those scripts that have been explicitly allowed.
+
+A manual step is required to move CI and docker over to use `npm run setup` instead of `npm ci`
 
 ## Configuration
 
-Configuring the tool consist of altering `./allowed-scripts.mjs` and setting `ALLOW `or `FORBID` entries in the `allowed-scripts.mjs`:
+To configure the tool update `./allowed-scripts.mjs` and set `ALLOW `or `FORBID` to each entry in `allowed-scripts.mjs`, e.g::
+
 ```
 import configureAllowedScripts from '@ministryofjustice/hmpps-npm-script-allowlist/index.mjs'
 
@@ -52,17 +55,33 @@ export default configureAllowedScripts({
 })
 ```
 
-(The tool will play back the configuration and highlight versions which need to be added.) 
+(The tool will play back the configuration and highlight versions which need to be added so an initial version can easily be copy/pasted in.)
+
+By default hmpps-npm-script-allowlist will only manage and run the following scripts:
+
+- `preinstall`
+- `install`
+- `prepare`
+- `postinstall`
+
+Scripts bound to other lifecycles will not be executed. 
+This list can be expand by specifying the following options in `./allowed-scripts.mjs`:
+
+- `localScriptsToRun`: The list of the current service's scripts to run post install
+- `dependencyScriptsToRun`: The list of script's belonging to dependencies, that should be allowed to run post install
 
 ## Doesn't lavamoat do the same thing?
 
 This is heavily inspired by [lavamoat's allowscripts](https://github.com/LavaMoat/LavaMoat/tree/main/packages/allow-scripts).
 
-This works slightly differently: 
-* Scripts need to be explicitly configured either to be included or not or the script will fail
-* This uses the explicit version in the package-lock.json to key whether a script should run or not, rather than just the name of the package
+This works slightly differently:
 
-Example output:
+- Scripts need to be explicitly configured either to be included or not or the script will fail
+- This uses the explicit version in the package-lock.json to key whether a script should run or not, rather than just the name of the package
+- It provides some extra contextual information about the packages that need to be allowlisted - details about the script and when the package was published. 
+
+## Example output:
+
 ```
 Reading configuration from some-project/.allowed-scripts.mjs
 
@@ -94,7 +113,7 @@ Remove configuration for the following packages as they are no longer present:
 Copy the "Current Configuration" from above and use it to update: some-project/.allowed-scripts.mjs.
  * Remove any entries that are <REMOVED>
  * Evaluate any entries marked <MISSING>. ALLOW or FORBID depending on whether these entries have scripts that are safe and required to run.
- ```
+```
 
 ### Testing
 
