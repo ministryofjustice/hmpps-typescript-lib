@@ -1,6 +1,6 @@
 # Change log
 
-## 0.0.1-alpha.4
+## 0.0.1-alpha.5
 
 Move to node 24
 
@@ -9,3 +9,7 @@ Move to node 24
 ## 0.0.1-alpha.1
 
 Pre-releases which should not be used in projects.
+
+## 0.0.1
+
+Initial release

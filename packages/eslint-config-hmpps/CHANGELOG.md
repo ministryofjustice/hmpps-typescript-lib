@@ -1,5 +1,13 @@
 # Change log
 
+## 1.0.1
+
+Minor change to match `prettier` formatting to that included in the `.prettierrc.json` file commonly included in HMPPS' typescript projects.
+* Adding `arrowParens: 'avoid'` to `prettier` rules
+
+Patching
+  globals                           16.4.0  →  16.5.0
+
 ## 1.0.0
 
 Move to node 24
