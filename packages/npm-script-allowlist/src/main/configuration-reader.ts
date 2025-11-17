@@ -1,11 +1,11 @@
 import { ConfigurationReader, PackageLock, Config } from './types/configuration-loading'
 
-const DEFAULT_ALLOWED_SCRIPTS = ['preinstall', 'install', 'postinstall']
+const ALL_INSTALL_SCRIPTS = ['preinstall', 'install', 'prepare', 'postinstall']
 
 export const readConfiguration: ConfigurationReader = (config: Config, packageLock: PackageLock) => {
   const configuredAllowlist = Object.entries(config.allowlist)
-  const dependencyScriptsToRun = config.dependencyScriptsToRun || DEFAULT_ALLOWED_SCRIPTS
-  const localScriptsToRun = config.localScriptsToRun || DEFAULT_ALLOWED_SCRIPTS
+  const dependencyScriptsToRun = config.dependencyScriptsToRun || ALL_INSTALL_SCRIPTS
+  const localScriptsToRun = config.localScriptsToRun || ALL_INSTALL_SCRIPTS
 
   const packagesWithScripts = Object.entries(packageLock.packages)
     .map(([name, { version, hasInstallScript }]) => ({ name, version, hasInstallScript }))
@@ -45,6 +45,7 @@ export const readConfiguration: ConfigurationReader = (config: Config, packageLo
     scripts: {
       dependencyScriptsToRun,
       localScriptsToRun,
+      allInstallScripts: ALL_INSTALL_SCRIPTS,
     },
   }
 }

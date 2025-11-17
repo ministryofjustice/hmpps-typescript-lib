@@ -64,8 +64,4 @@ startStage "  * Running allow scripts"
 npm run setup
 endStage "  ✅"
 
-# Could also add...
-# * add preinstall script which always fails if scripts are called as part of the npm lifecycle 
-#     - pkg set --silent  scripts.preinstall:"echo \"Run npm run setup to install run allowed lifecycle scripts\" && exit 1", 
-
 endStage "FIN!"
