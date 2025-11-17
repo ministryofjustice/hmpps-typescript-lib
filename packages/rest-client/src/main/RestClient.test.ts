@@ -1,5 +1,6 @@
 import nock from 'nock'
 import express from 'express'
+import { Response } from 'superagent'
 import { PassThrough } from 'stream'
 import { NotFound } from 'http-errors'
 import RestClient from './RestClient'
@@ -15,10 +16,10 @@ class TestRestClient extends RestClient {
       {
         url: 'http://localhost:8080/api',
         timeout: {
-          response: 1000,
-          deadline: 1000,
+          response: 200,
+          deadline: 200,
         },
-        agent: new AgentConfig(1000),
+        agent: new AgentConfig(200),
       },
       console,
       {
@@ -217,6 +218,35 @@ describe('RestClient', () => {
 
         expect(nock.isDone()).toBe(true)
       })
+
+      it('should accept custom retry handler', async () => {
+        nock('http://localhost:8080', {
+          reqheaders: { authorization: 'Bearer some_system_jwt' },
+        })
+          [method]('/api/test')
+          .reply(500)
+          [method]('/api/test')
+          .reply(404)
+
+        await expect(
+          restClient[method](
+            {
+              path: '/test',
+              headers: { header1: 'headerValue1' },
+              retryHandler: () => (err: Error, res: Response) => {
+                if (err) return true
+                if (res?.statusCode) {
+                  return res.statusCode >= 500
+                }
+                return undefined
+              },
+            },
+            systemAuthOptions,
+          ),
+        ).rejects.toThrow('Not Found')
+
+        expect(nock.isDone()).toBe(true)
+      })
     } else {
       it('should not retry by default', async () => {
         nock('http://localhost:8080', {
@@ -263,6 +293,79 @@ describe('RestClient', () => {
         expect(nock.isDone()).toBe(true)
       })
     }
+
+    it('retries on retryable network error code (ECONNRESET)', async () => {
+      nock('http://localhost:8080', {
+        reqheaders: { authorization: 'Bearer some_system_jwt' },
+      })
+        [method]('/api/test')
+        .delay(300)
+        .reply(200, {})
+        [method]('/api/test')
+        .delay(300)
+        .reply(200, {})
+        [method]('/api/test')
+        .delay(300)
+        .reply(200, {})
+
+      await expect(
+        restClient[method](
+          {
+            path: '/test',
+            headers: { header1: 'headerValue1' },
+            retry: method !== 'get' && method !== 'delete',
+          },
+          systemAuthOptions,
+        ),
+      ).rejects.toThrow()
+
+      expect(nock.isDone()).toBe(true)
+    })
+
+    it('should NOT retry on non-retryable status codes', async () => {
+      nock('http://localhost:8080', {
+        reqheaders: { authorization: 'Bearer some_system_jwt' },
+      })
+        [method]('/api/test')
+        .reply(401, { message: 'Unauthorized' })
+
+      await expect(
+        restClient[method](
+          {
+            path: '/test',
+            headers: { header1: 'headerValue1' },
+            retry: true,
+          },
+          systemAuthOptions,
+        ),
+      ).rejects.toThrow('Unauthorized')
+
+      expect(nock.isDone()).toBe(true)
+    })
+
+    it('should retry on retryable status codes', async () => {
+      nock('http://localhost:8080', {
+        reqheaders: { authorization: 'Bearer some_system_jwt' },
+      })
+        [method]('/api/test')
+        .reply(502)
+        [method]('/api/test')
+        .reply(502)
+        [method]('/api/test')
+        .reply(200, { success: true })
+
+      const result = await restClient[method](
+        {
+          path: '/test',
+          headers: { header1: 'headerValue1' },
+          retry: true,
+        },
+        systemAuthOptions,
+      )
+
+      expect(result).toStrictEqual({ success: true })
+      expect(nock.isDone()).toBe(true)
+    })
 
     it('can recover through retries', async () => {
       nock('http://localhost:8080', {

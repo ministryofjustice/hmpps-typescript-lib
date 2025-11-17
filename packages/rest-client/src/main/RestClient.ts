@@ -1,5 +1,5 @@
 import { HttpAgent, HttpsAgent } from 'agentkeepalive'
-import superagent, { ResponseError } from 'superagent'
+import superagent, { Response, ResponseError } from 'superagent'
 import { Readable } from 'stream'
 import type Logger from 'bunyan'
 import sanitiseError from './helpers/sanitiseError'
@@ -7,7 +7,7 @@ import { ApiConfig } from './types/ApiConfig'
 import { AuthOptions, TokenType } from './types/AuthOptions'
 import { Call, Request, RequestWithBody, StreamRequest } from './types/Request'
 import { AuthenticationClient } from './types/AuthenticationClient'
-import { SanitisedError } from './types/Errors'
+import { RetryError, SanitisedError } from './types/Errors'
 
 /**
  * Base class for REST API clients.
@@ -74,6 +74,19 @@ export default class RestClient {
     this.logger.warn({ ...error }, `Error calling ${this.name}, path: '${path}', verb: '${method}'`)
   }
 
+  private readonly ERROR_CODES = new Set([
+    'ETIMEDOUT',
+    'ECONNRESET',
+    'EADDRINUSE',
+    'ECONNREFUSED',
+    'EPIPE',
+    'ENOTFOUND',
+    'ENETUNREACH',
+    'EAI_AGAIN',
+  ])
+
+  private readonly STATUS_CODES = new Set([408, 413, 429, 500, 502, 503, 504, 521, 522, 524])
+
   /**
    * Returns a retry handler function.
    *
@@ -81,14 +94,28 @@ export default class RestClient {
    * @returns A function that handles retries.
    */
   private handleRetry(retry: boolean = true) {
-    return (err: Error) => {
+    return (error: RetryError, res?: Response) => {
       if (!retry) {
         return false
       }
-      if (err) {
-        this.logger.info(`Retry handler found API error with ${err.name} - ${err.message}`)
+
+      if (res && this.STATUS_CODES.has(res.status)) {
+        this.logger.info(`Retry handler found API error with status code ${res.status}`)
+        return true
       }
-      return undefined
+
+      if (error) {
+        this.logger.info(`Retry handler found API error with ${error.name} - ${error.message}`)
+        if (
+          (error?.code && this.ERROR_CODES.has(error.code)) ||
+          (error.timeout && error?.code === 'ECONNABORTED') ||
+          error.crossDomain
+        ) {
+          return true
+        }
+      }
+
+      return false
     }
   }
 
@@ -110,6 +137,7 @@ export default class RestClient {
       raw = false,
       retries = 2,
       errorHandler = this.handleError,
+      retryHandler = this.handleRetry,
     }: Request<Response, ErrorData>,
     authOptions?: AuthOptions | string,
   ): Promise<Response> {
@@ -124,7 +152,7 @@ export default class RestClient {
         .get(`${this.apiUrl()}${path}`)
         .query(query)
         .agent(this.agent)
-        .retry(retries, this.handleRetry())
+        .retry(retries, retryHandler.bind(this)())
         .set(headers)
         .responseType(responseType)
         .timeout(this.timeoutConfig())
@@ -162,6 +190,7 @@ export default class RestClient {
       raw = false,
       retry = false,
       errorHandler = this.handleError,
+      retryHandler = this.handleRetry,
     }: RequestWithBody<Response, ErrorData>,
     authOptions?: AuthOptions | string,
   ): Promise<Response> {
@@ -174,7 +203,7 @@ export default class RestClient {
         .query(query)
         .send(data)
         .agent(this.agent)
-        .retry(2, this.handleRetry(retry))
+        .retry(2, retryHandler.bind(this)(retry))
         .set(headers)
         .responseType(responseType)
         .timeout(this.timeoutConfig())
@@ -257,6 +286,7 @@ export default class RestClient {
       raw = false,
       retries = 2,
       errorHandler = this.handleError,
+      retryHandler = this.handleRetry,
     }: Request<Response, ErrorData>,
     authOptions?: AuthOptions | string,
   ): Promise<Response> {
@@ -269,7 +299,7 @@ export default class RestClient {
         .delete(`${this.apiUrl()}${path}`)
         .query(query)
         .agent(this.agent)
-        .retry(retries, this.handleRetry())
+        .retry(retries, retryHandler.bind(this)())
         .set(headers)
         .responseType(responseType)
         .timeout(this.timeoutConfig())

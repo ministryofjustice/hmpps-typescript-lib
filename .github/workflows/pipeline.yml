@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [20, 22]
+        node: [20, 22, 24]
     needs: lint
     steps:
       - name: Checkout repository
@@ -34,6 +34,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
+      - name: Update npm
+        run: npm install -g npm@latest
       - name: Install dependencies
         run: npm install
       - name: Test build step
@@ -50,7 +52,9 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
+      - name: Update npm
+        run: npm install -g npm@latest
       - name: Install dependencies
         run: npm install
       - name: Clean build step
@@ -76,9 +80,11 @@ jobs:
       - name: Setup node with public npmjs.com registry
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           registry-url: 'https://registry.npmjs.org'
           scope: '@ministryofjustice'
+      - name: Update npm
+        run: npm install -g npm@latest
       - name: Install dependencies
         run: npm install
       - name: Build all packages
@@ -116,9 +122,8 @@ jobs:
               gh release upload ${{ github.event.release.tag_name }} "${package_name}"
 
               echo "→ Publishing package ${name} v${version} to npmjs.com"
-              npm publish --provenance --access public
+              npm publish
             fi
           done
         env:
           GH_TOKEN: ${{ github.token }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

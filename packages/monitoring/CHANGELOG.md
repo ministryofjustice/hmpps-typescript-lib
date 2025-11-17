@@ -1,5 +1,15 @@
 # Change log
 
+## 1.0.0
+
+Move to node 24
+
+ @types/express  ^5.0.3 →  ^5.0.5
+
+## 0.0.2
+
+No functional change - testing trusted publishing
+
 ## 0.0.1
 
 Initial release 

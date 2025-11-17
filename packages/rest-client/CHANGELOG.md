@@ -1,5 +1,20 @@
 # Change log
 
+# 1.0.0
+
+Move to node 24
+
+ @types/express  ^5.0.3 →  ^5.0.5
+
+# 0.0.3
+
+ superagent     ^10.2.1 →  ^10.2.3
+
+
+# 0.0.2
+- Add support for providing a custom retryHandler function which overrides built-in retry handler [PR-89](https://github.com/ministryofjustice/hmpps-typescript-lib/pull/89)
+- Updated built-in retry handler to match SuperAgent's default retry behaviours [PR-90](https://github.com/ministryofjustice/hmpps-typescript-lib/pull/90)
+
 # 0.0.1
 
 Initial release 
