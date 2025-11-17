@@ -1,5 +1,26 @@
 # Change log
 
+## 1.0.1
+
+Minor change to match `prettier` formatting to that included in the `.prettierrc.json` file commonly included in HMPPS' typescript projects.
+* Adding `arrowParens: 'avoid'` to `prettier` rules
+
+Patching
+  globals                           16.4.0  →  16.5.0
+
+## 1.0.0
+
+Move to node 24
+
+Patching
+  @eslint/js                        ^9.35.0  →  ^9.38.0
+  @typescript-eslint/eslint-plugin  ^8.42.0  →  ^8.46.2
+  @typescript-eslint/parser         ^8.42.0  →  ^8.46.2
+  eslint                            ^9.35.0  →  ^9.38.0
+  eslint-plugin-cypress             ^5.1.1   →  ^5.2.0
+  globals                           ^16.3.0  →  ^16.4.0
+  semver                            ^7.7.2   →  ^7.7.3
+
 ## 0.0.5
 
 No functional change - testing trusted publishing
@@ -9,14 +30,12 @@ No functional change - testing trusted publishing
 Adding `test_results` to ignore paths and `playwright.config.ts` to paths allowing dev dependencies
 
 Patching
-  @eslint/js.                       ^9.32.0  →  ^9.35.0
-  @typescript-eslint/eslint-plugin. ^8.39.0  →  ^8.42.0
-  @typescript-eslint/parser.        ^8.39.0  →  ^8.42.0
-
-
+  @eslint/js                        ^9.32.0  →  ^9.35.0
+  @typescript-eslint/eslint-plugin  ^8.39.0  →  ^8.42.0
+  @typescript-eslint/parser         ^8.39.0  →  ^8.42.0
   eslint                            ^9.32.0  →  ^9.35.0
   eslint-plugin-cypress              ^5.1.0  →  ^5.1.1
-  @types/semver.                     ^7.7.0  →  ^7.7.1
+  @types/semver                      ^7.7.0  →  ^7.7.1
 
 ## 0.0.3
 

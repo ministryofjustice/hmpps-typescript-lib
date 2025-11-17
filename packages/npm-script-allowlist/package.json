@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/hmpps-npm-script-allowlist",
-  "version": "0.0.1-alpha.1",
+  "version": "0.0.1",
   "description": "A tool to restrict npm scripts from running unless as part of an allowlist",
   "keywords": [
     "npm",
@@ -15,27 +15,32 @@
   },
   "publishConfig": {
     "access": "public",
-    "tag": "alpha"
+    "tag": "latest"
   },
-  "main": "index.mjs",
+  "main": "./dist/index.cjs.js",
+  "module": "./dist/index.esm.js",
+  "types": "./dist/index.d.ts",
   "bin": {
     "hmpps-npm-script-run-allowlist": "bin/hmpps-allow-scripts",
     "hmpps-npm-script-allowlist": "bin/init.sh"
   },
   "scripts": {
+    "clean": "rm -rf ./dist/",
+    "build": "rollup -c rollup.config.ts --bundleConfigAsCjs",
     "lint": "eslint . --cache --max-warnings 0",
     "lint-fix": "eslint . --cache --max-warnings 0 --fix",
+    "test": "jest",
     "check-for-updates": "npx npm-check-updates -u"
   },
   "files": [
     "*.md",
     "bin/*",
-    "index.mjs"
+    "dist/**/*"
   ],
   "engines": {
-    "node": "20 || 22"
+    "node": "20 || 22 || 24"
   },
   "dependencies": {
-    "@npmcli/run-script": "10.0.0"
+    "@npmcli/run-script": "10.0.2"
   }
 }

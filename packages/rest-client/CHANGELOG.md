@@ -1,5 +1,11 @@
 # Change log
 
+# 1.0.0
+
+Move to node 24
+
+ @types/express  ^5.0.3 →  ^5.0.5
+
 # 0.0.3
 
  superagent     ^10.2.1 →  ^10.2.3
