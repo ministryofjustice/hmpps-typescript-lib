@@ -1,17 +1,18 @@
 import { HttpAgent, HttpsAgent } from 'agentkeepalive'
-import superagent, { ResponseError } from 'superagent'
+import superagent, { Response, ResponseError } from 'superagent'
 import { Readable } from 'stream'
 import type Logger from 'bunyan'
 import sanitiseError from './helpers/sanitiseError'
 import { ApiConfig } from './types/ApiConfig'
 import { AuthOptions, TokenType } from './types/AuthOptions'
-import { Request, RequestWithBody, StreamRequest } from './types/Request'
-import AuthenticationClient from './types/AuthenticationClient'
+import { Call, Request, RequestWithBody, StreamRequest } from './types/Request'
+import { AuthenticationClient } from './types/AuthenticationClient'
+import { RetryError, SanitisedError } from './types/Errors'
 
 /**
- * Abstract base class for REST API clients.
+ * Base class for REST API clients.
  */
-export default abstract class RestClient {
+export default class RestClient {
   private readonly agent: HttpAgent
 
   /**
@@ -22,7 +23,7 @@ export default abstract class RestClient {
    * @param logger - A logger instance for logging.
    * @param authenticationClient - (Optional) The client responsible for retrieving system authentication tokens.
    */
-  protected constructor(
+  constructor(
     protected readonly name: string,
     protected readonly config: ApiConfig,
     protected readonly logger: Logger | Console,
@@ -50,20 +51,71 @@ export default abstract class RestClient {
   }
 
   /**
+   * Provides a default mechanism for handling errors
+   *  @param path - path of current request
+   *  @param method - verb of HTTP request
+   *  @param error - the sanitised error
+   *
+   *  @returns an optional custom response
+   *  @throws an optional error
+   */
+  protected handleError<Response, ErrorData>(path: string, method: string, error: SanitisedError<ErrorData>): Response {
+    this.logger.warn({ ...error }, `Error calling ${this.name}, path: '${path}', verb: '${method}'`)
+    throw error
+  }
+
+  /**
+   * Provides a default mechanism for logging errors
+   *  @param path - path of current request
+   *  @param method - verb of HTTP request
+   *  @param error - the sanitised error
+   */
+  protected logError<ErrorData>(path: string, method: string, error: SanitisedError<ErrorData>) {
+    this.logger.warn({ ...error }, `Error calling ${this.name}, path: '${path}', verb: '${method}'`)
+  }
+
+  private readonly ERROR_CODES = new Set([
+    'ETIMEDOUT',
+    'ECONNRESET',
+    'EADDRINUSE',
+    'ECONNREFUSED',
+    'EPIPE',
+    'ENOTFOUND',
+    'ENETUNREACH',
+    'EAI_AGAIN',
+  ])
+
+  private readonly STATUS_CODES = new Set([408, 413, 429, 500, 502, 503, 504, 521, 522, 524])
+
+  /**
    * Returns a retry handler function.
    *
    * @param retry - Indicates whether to retry the request.
    * @returns A function that handles retries.
    */
   private handleRetry(retry: boolean = true) {
-    return (err: Error) => {
+    return (error: RetryError, res?: Response) => {
       if (!retry) {
         return false
       }
-      if (err) {
-        this.logger.info(`Retry handler found API error with ${err.name} - ${err.message}`)
+
+      if (res && this.STATUS_CODES.has(res.status)) {
+        this.logger.info(`Retry handler found API error with status code ${res.status}`)
+        return true
       }
-      return undefined
+
+      if (error) {
+        this.logger.info(`Retry handler found API error with ${error.name} - ${error.message}`)
+        if (
+          (error?.code && this.ERROR_CODES.has(error.code)) ||
+          (error.timeout && error?.code === 'ECONNABORTED') ||
+          error.crossDomain
+        ) {
+          return true
+        }
+      }
+
+      return false
     }
   }
 
@@ -73,10 +125,20 @@ export default abstract class RestClient {
    * @param request - The request options including path, query, headers, responseType, and raw flag.
    * @param authOptions - (Optional) Either an AuthOptions object, a raw JWT string, or undefined for no auth.
    * @returns The response body or the full response if raw is true.
-   * @throws Sanitised error if the request fails.
+   * @throws {SanitisedError<ErrorData>} if the request fails. Note that this is the default behaviour, but can be
+   *         changed to a different type by specifying a custom errorHandler.
    */
   async get<Response = unknown, ErrorData = unknown>(
-    { path, query = {}, headers = {}, responseType = '', raw = false }: Request,
+    {
+      path,
+      query = {},
+      headers = {},
+      responseType = '',
+      raw = false,
+      retries = 2,
+      errorHandler = this.handleError,
+      retryHandler = this.handleRetry,
+    }: Request<Response, ErrorData>,
     authOptions?: AuthOptions | string,
   ): Promise<Response> {
     this.logger.info(`${this.name} GET: ${path}`)
@@ -90,7 +152,7 @@ export default abstract class RestClient {
         .get(`${this.apiUrl()}${path}`)
         .query(query)
         .agent(this.agent)
-        .retry(2, this.handleRetry())
+        .retry(retries, retryHandler.bind(this)())
         .set(headers)
         .responseType(responseType)
         .timeout(this.timeoutConfig())
@@ -103,8 +165,7 @@ export default abstract class RestClient {
       return raw ? (result as unknown as Response) : result.body
     } catch (error) {
       const sanitisedError = sanitiseError<ErrorData>(error as ResponseError)
-      this.logger.warn({ ...sanitisedError }, `Error calling ${this.name}, path: '${path}', verb: 'GET'`)
-      throw sanitisedError
+      return errorHandler.bind(this)(path, 'GET', sanitisedError)
     }
   }
 
@@ -115,11 +176,22 @@ export default abstract class RestClient {
    * @param request - The request options including path, query, headers, responseType, data, raw flag, and retry flag.
    * @param authOptions - (Optional) Either an AuthOptions object, a raw JWT string, or undefined for no auth.
    * @returns The response body or the full response if raw is true.
-   * @throws Sanitised error if the request fails.
+   * @throws {SanitisedError<ErrorData>} if the request fails. Note that this is the default behaviour, but can be
+   *         changed to a different type by specifying a custom errorHandler.
    */
   private async requestWithBody<Response = unknown, ErrorData = unknown>(
     method: 'patch' | 'post' | 'put',
-    { path, query = {}, headers = {}, responseType = '', data = {}, raw = false, retry = false }: RequestWithBody,
+    {
+      path,
+      query = {},
+      headers = {},
+      responseType = '',
+      data,
+      raw = false,
+      retry = false,
+      errorHandler = this.handleError,
+      retryHandler = this.handleRetry,
+    }: RequestWithBody<Response, ErrorData>,
     authOptions?: AuthOptions | string,
   ): Promise<Response> {
     this.logger.info(`${this.name} ${method.toUpperCase()}: ${path}`)
@@ -131,7 +203,7 @@ export default abstract class RestClient {
         .query(query)
         .send(data)
         .agent(this.agent)
-        .retry(2, this.handleRetry(retry))
+        .retry(2, retryHandler.bind(this)(retry))
         .set(headers)
         .responseType(responseType)
         .timeout(this.timeoutConfig())
@@ -144,11 +216,7 @@ export default abstract class RestClient {
       return raw ? (result as unknown as Response) : result.body
     } catch (error) {
       const sanitisedError = sanitiseError<ErrorData>(error as ResponseError)
-      this.logger.warn(
-        { ...sanitisedError },
-        `Error calling ${this.name}, path: '${path}', verb: '${method.toUpperCase()}'`,
-      )
-      throw sanitisedError
+      return errorHandler.bind(this)(path, method.toUpperCase(), sanitisedError)
     }
   }
 
@@ -158,9 +226,11 @@ export default abstract class RestClient {
    * @param request - The PATCH request options.
    * @param authOptions - The authentication options.
    * @returns The response body.
+   * @throws {SanitisedError<ErrorData>} if the request fails. Note that this is the default behaviour, but can be
+   *         changed to a different type by specifying a custom errorHandler.
    */
   async patch<Response = unknown, ErrorData = unknown>(
-    request: RequestWithBody,
+    request: RequestWithBody<Response, ErrorData>,
     authOptions?: AuthOptions | string,
   ): Promise<Response> {
     return this.requestWithBody<Response, ErrorData>('patch', request, authOptions)
@@ -172,9 +242,11 @@ export default abstract class RestClient {
    * @param request - The POST request options.
    * @param authOptions - The authentication options.
    * @returns The response body.
+   * @throws {SanitisedError<ErrorData>} if the request fails. Note that this is the default behaviour, but can be
+   *         changed to a different type by specifying a custom errorHandler.
    */
   async post<Response = unknown, ErrorData = unknown>(
-    request: RequestWithBody,
+    request: RequestWithBody<Response, ErrorData>,
     authOptions?: AuthOptions | string,
   ): Promise<Response> {
     return this.requestWithBody<Response, ErrorData>('post', request, authOptions)
@@ -186,9 +258,11 @@ export default abstract class RestClient {
    * @param request - The PUT request options.
    * @param authOptions - The authentication options.
    * @returns The response body.
+   * @throws {SanitisedError<ErrorData>} if the request fails. Note that this is the default behaviour, but can be
+   *         changed to a different type by specifying a custom errorHandler.
    */
   async put<Response = unknown, ErrorData = unknown>(
-    request: RequestWithBody,
+    request: RequestWithBody<Response, ErrorData>,
     authOptions?: AuthOptions | string,
   ): Promise<Response> {
     return this.requestWithBody<Response, ErrorData>('put', request, authOptions)
@@ -200,10 +274,20 @@ export default abstract class RestClient {
    * @param request - The DELETE request options including path, query, headers, responseType, and raw flag.
    * @param authOptions - (Optional) Either an AuthOptions object, a raw JWT string, or undefined for no auth.
    * @returns The response body.
-   * @throws Sanitised error if the request fails.
+   * @throws {SanitisedError<ErrorData>} if the request fails. Note that this is the default behaviour, but can be
+   *         changed to a different type by specifying a custom errorHandler.
    */
   async delete<Response = unknown, ErrorData = unknown>(
-    { path, query = {}, headers = {}, responseType = '', raw = false }: Request,
+    {
+      path,
+      query = {},
+      headers = {},
+      responseType = '',
+      raw = false,
+      retries = 2,
+      errorHandler = this.handleError,
+      retryHandler = this.handleRetry,
+    }: Request<Response, ErrorData>,
     authOptions?: AuthOptions | string,
   ): Promise<Response> {
     this.logger.info(`${this.name} DELETE: ${path}`)
@@ -215,7 +299,7 @@ export default abstract class RestClient {
         .delete(`${this.apiUrl()}${path}`)
         .query(query)
         .agent(this.agent)
-        .retry(2, this.handleRetry())
+        .retry(retries, retryHandler.bind(this)())
         .set(headers)
         .responseType(responseType)
         .timeout(this.timeoutConfig())
@@ -228,8 +312,7 @@ export default abstract class RestClient {
       return raw ? (result as unknown as Response) : result.body
     } catch (error) {
       const sanitisedError = sanitiseError<ErrorData>(error as ResponseError)
-      this.logger.warn({ ...sanitisedError }, `Error calling ${this.name}, path: '${path}', verb: 'DELETE'`)
-      throw sanitisedError
+      return errorHandler.bind(this)(path, 'DELETE', sanitisedError)
     }
   }
 
@@ -238,10 +321,13 @@ export default abstract class RestClient {
    *
    * @param request - The stream request options including path and headers.
    * @param authOptions - (Optional) Either an AuthOptions object, a raw JWT string, or undefined for no auth.
-   * @returns A Readable stream containing the response data.
+   * @returns A Readable stream containing the response data. If this request fails then the promise is rejected with
+   *          type SanitisedError<ErrorData>.
    */
-  // eslint-disable-next-line default-param-last
-  async stream({ path, headers = {} }: StreamRequest = {}, authOptions?: AuthOptions | string): Promise<Readable> {
+  async stream<ErrorData = unknown>(
+    { path, headers = {}, errorLogger = this.logError }: StreamRequest<ErrorData>,
+    authOptions?: AuthOptions | string,
+  ): Promise<Readable> {
     this.logger.info(`${this.name} streaming: ${path}`)
 
     const token = await this.resolveToken(authOptions)
@@ -260,19 +346,36 @@ export default abstract class RestClient {
 
       req.end((error, response) => {
         if (error) {
-          const sanitised = sanitiseError(error)
-          this.logger.warn(sanitised, `Error calling ${this.name}`)
-          reject(sanitised)
+          const sanitisedError = sanitiseError<ErrorData>(error as ResponseError)
+          errorLogger.bind(this)(path, 'GET', sanitisedError)
+          reject(sanitisedError)
         } else if (response) {
           const s = new Readable()
           // eslint-disable-next-line no-underscore-dangle
           s._read = () => {}
-          s.push(response.text)
+          s.push(response.body)
           s.push(null)
           resolve(s)
         }
       })
     })
+  }
+
+  /**
+   * Make a request using underlying superagent instance, potentially getting a token.
+   *
+   * In an ideal world, this would rarely be used but provides an escape hatch to cater for bespoke usecases.
+   *
+   * @param call - A callback that provides the client a token and the underlying superagent instance.
+   * @param authOptions - The authentication options for this call.
+   * @returns The response body.
+   */
+  async makeRestClientCall<Response = unknown>(
+    authOptions: AuthOptions | string,
+    call: Call<Response>,
+  ): Promise<Response> {
+    const token = await this.resolveToken(authOptions)
+    return call({ superagent, token, agent: this.agent })
   }
 
   /**

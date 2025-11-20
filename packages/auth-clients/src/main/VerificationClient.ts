@@ -1,7 +1,11 @@
 import type Logger from 'bunyan'
-import { RestClient, asUser } from '@ministryofjustice/hmpps-rest-client'
+import { RestClient, asUser, SanitisedError } from '@ministryofjustice/hmpps-rest-client'
 import { AuthenticatedRequest } from './types/AuthenticatedRequest'
 import VerifyConfig from './types/VerifyConfig'
+
+type VerificationResponse = {
+  active: boolean
+}
 
 /**
  * A client for verifying tokens using the HMPPS Token Verification API.
@@ -53,17 +57,23 @@ export default class VerificationClient extends RestClient {
 
     this.logger.debug(`Token request for user "${user.username}"`)
 
-    try {
-      const response = (await this.post({ path: `/token/verify` }, asUser(user.token))) as { active: boolean }
-      if (response && response.active) {
-        request.verified = true
-        return true
-      }
+    const response = await this.post<VerificationResponse, unknown>(
+      {
+        path: `/token/verify`,
+        data: undefined,
+        errorHandler: (path: string, method: string, error: SanitisedError<unknown>) => {
+          this.logger.error(error, `Error calling tokenVerificationApi ${method} ${path}`)
+          return { active: false }
+        },
+      },
+      asUser(user.token),
+    )
 
-      return false
-    } catch (error) {
-      this.logger.warn(`Token verification failed for user "${user.username}", ${error}`)
-      return false
+    if (response.active) {
+      request.verified = true
+      return true
     }
+
+    return false
   }
 }

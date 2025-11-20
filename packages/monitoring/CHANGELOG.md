@@ -1,5 +1,23 @@
 # Change log
 
+## 1.0.0
+
+Move to node 24
+
+ @types/express  ^5.0.3 →  ^5.0.5
+
+## 0.0.2
+
+No functional change - testing trusted publishing
+
+## 0.0.1
+
+Initial release 
+
+ @types/express  ^4.17.21 →  ^5.0.3
+ nock            ^13.5.6" →  ^14.0.5
+
+
 ## 0.0.1-beta.2
 
 Fix issue with script to rename reference to retries to attempts in cypress test to represent new structure

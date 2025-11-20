@@ -1,0 +1,7 @@
+#!/usr/bin/env node
+
+const { run } = require('@ministryofjustice/hmpps-npm-script-allowlist/dist/index.cjs.js')
+
+run().catch(error => {
+  console.error(`An error occurred: ${error}`)
+})

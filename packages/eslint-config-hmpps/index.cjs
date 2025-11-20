@@ -93,7 +93,7 @@ function hmppsConfig({
   return [
     // ignore dependencies and build artefacts
     {
-      ignores: ['**/node_modules', 'dist/', ...extraIgnorePaths],
+      ignores: ['**/node_modules', 'dist/', 'test_results', ...extraIgnorePaths],
     },
     // warn when an eslint-disable comment does nothing
     {
@@ -102,11 +102,13 @@ function hmppsConfig({
         reportUnusedDisableDirectives: true,
       },
     },
+
     // Airbnb best-practice rules
     {
       name: 'airbnb-rules',
       rules: airbnbRules,
     },
+
     // `import` plugin rules
     {
       settings: {
@@ -124,6 +126,7 @@ function hmppsConfig({
       },
       ...importPlugin.flatConfigs.recommended,
     },
+
     // `prettier` rules
     ...makeCompat(['plugin:prettier/recommended']),
     // general plugins and rule overrides
@@ -172,6 +175,7 @@ function hmppsConfig({
               // tooling config
               'cypress.config.ts',
               'eslint.config.mjs',
+              'playwright.config.ts',
               // build tools
               'esbuild/**',
               ...extraPathsAllowingDevDependencies,
@@ -187,6 +191,7 @@ function hmppsConfig({
             singleQuote: true,
             printWidth: 120,
             semi: false,
+            arrowParens: 'avoid',
           },
         ],
         'no-empty-function': [
@@ -197,6 +202,7 @@ function hmppsConfig({
         ],
       },
     },
+
     // typescript-specific plugins and rule overrides
     ...makeCompat(
       [
@@ -242,15 +248,18 @@ function hmppsConfig({
             singleQuote: true,
             printWidth: 120,
             semi: false,
+            arrowParens: 'avoid',
           },
         ],
       },
     },
+
     // cypress integration tests
     {
       files: [`integration_tests/**/*.${scriptExtensionsGlob}`],
       ...cypressPlugin.configs.recommended,
     },
+
     // non-frontend globals
     {
       name: 'hmpps-globals',
@@ -263,6 +272,7 @@ function hmppsConfig({
         },
       },
     },
+
     // unit test globals
     {
       name: 'hmpps-unit-test-globals',
@@ -274,6 +284,7 @@ function hmppsConfig({
         },
       },
     },
+
     // integration test globals
     {
       name: 'hmpps-integration-test-globals',
@@ -285,6 +296,7 @@ function hmppsConfig({
         },
       },
     },
+
     // frontend globals
     {
       name: 'hmpps-frontend-globals',

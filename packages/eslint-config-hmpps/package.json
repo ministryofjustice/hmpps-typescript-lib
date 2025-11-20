@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/eslint-config-hmpps",
-  "version": "0.0.1-beta.2",
+  "version": "1.0.1",
   "description": "ESLint rules for HMPPS typescript projects",
   "keywords": [
     "eslint",
@@ -12,9 +12,15 @@
   "homepage": "https://github.com/ministryofjustice/hmpps-typescript-lib/tree/main/packages/eslint-config-hmpps#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ministryofjustice/hmpps-typescript-lib.git"
+    "url": "git+https://github.com/ministryofjustice/hmpps-typescript-lib.git"
   },
-  "bin": "./bin/migrate.sh",
+  "publishConfig": {
+    "access": "public",
+    "tag": "latest"
+  },
+  "bin": {
+    "eslint-config-hmpps": "bin/migrate.sh"
+  },
   "main": "index.cjs",
   "files": [
     "*.md",
@@ -23,32 +29,31 @@
     "airbnbRules/"
   ],
   "engines": {
-    "node": "20 || 22"
+    "node": "20 || 22 || 24"
   },
   "scripts": {
     "lint": "eslint . --cache --max-warnings 0",
-    "lint-fix": "eslint . --cache --max-warnings 0 --fix"
+    "lint-fix": "eslint . --cache --max-warnings 0 --fix",
+    "check-for-updates": "npx npm-check-updates -u"
   },
   "dependencies": {
-    "@eslint/eslintrc": "3.2.0",
-    "@eslint/js": "^9.18.0",
-    "@typescript-eslint/eslint-plugin": "^8.20.0",
-    "@typescript-eslint/parser": "^8.20.0",
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.38.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
     "confusing-browser-globals": "^1.0.11",
-    "eslint": "^9.18.0",
-    "eslint-config-prettier": "^10.0.1",
-    "eslint-import-resolver-typescript": "^3.7.0",
-    "eslint-plugin-cypress": "^4.1.0",
-    "eslint-plugin-import": "^2.31.0",
+    "eslint": "^9.38.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-cypress": "^5.2.0",
+    "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-no-only-tests": "^3.3.0",
-    "eslint-plugin-prettier": "^5.2.2",
-    "globals": "15.14.0",
-    "semver": "^7.6.3"
+    "eslint-plugin-prettier": "^5.5.4",
+    "globals": "16.5.0",
+    "semver": "^7.7.3"
   },
   "devDependencies": {
     "@types/confusing-browser-globals": "^1.0.3",
-    "@types/eslint__eslintrc": "^2.1.2",
-    "@types/eslint__js": "^8.42.3",
-    "@types/semver": "^7.5.8"
+    "@types/semver": "^7.7.1"
   }
 }

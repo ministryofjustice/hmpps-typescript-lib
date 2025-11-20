@@ -1,15 +1,18 @@
 {
   "name": "@ministryofjustice/hmpps-rest-client",
-  "version": "0.0.1-alpha.1",
+  "version": "1.0.0",
   "description": "Standardized, reusable REST client for use with HMPPS services",
   "author": "hmpps-developers",
   "license": "MIT",
   "homepage": "https://github.com/ministryofjustice/hmpps-typescript-lib#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ministryofjustice/hmpps-typescript-lib.git"
+    "url": "git+https://github.com/ministryofjustice/hmpps-typescript-lib.git"
   },
-  "bin": "./bin/migrate.sh",
+  "publishConfig": {
+    "access": "public",
+    "tag": "latest"
+  },
   "main": "./dist/index.cjs.js",
   "module": "./dist/index.esm.js",
   "types": "./dist/index.d.ts",
@@ -18,23 +21,25 @@
     "dist/**/*"
   ],
   "engines": {
-    "node": "20 || 22"
+    "node": "20 || 22 || 24"
   },
   "scripts": {
     "build": "rollup -c rollup.config.ts --bundleConfigAsCjs",
     "clean": "rm -rf ./dist/",
-    "test": "tsc && jest",
+    "test": "jest",
     "lint": "eslint src --cache --max-warnings 0",
-    "lint-fix": "eslint src --cache --max-warnings 0 --fix"
+    "lint-fix": "eslint src --cache --max-warnings 0 --fix",
+    "check-for-updates": "npx npm-check-updates -u"
   },
   "devDependencies": {
     "@types/bunyan": "^1.8.11",
-    "@types/express": "^4.17.21",
+    "@types/express": "^5.0.5",
     "@types/superagent": "^8.1.9",
-    "nock": "^13.5.6"
+    "http-errors": "^2.0.0",
+    "nock": "^14.0.10"
   },
   "dependencies": {
     "agentkeepalive": "^4.6.0",
-    "superagent": "^10.1.1"
+    "superagent": "^10.2.3"
   }
 }

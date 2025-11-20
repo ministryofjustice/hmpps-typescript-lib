@@ -6,11 +6,24 @@ import type { ResponseError } from 'superagent'
 export class SanitisedError<ErrorData = unknown> extends Error {
   text?: string
 
-  status?: number
+  responseStatus?: number
 
-  headers?: unknown
+  headers?: Record<string, string>
 
   data?: ErrorData
 }
 
 export type UnsanitisedError = ResponseError
+
+export interface ErrorHandler<Response, ErrorData> {
+  (path: string, method: string, error: SanitisedError<ErrorData>): Response
+}
+
+export interface ErrorLogger<ErrorData> {
+  (path: string, method: string, error: SanitisedError<ErrorData>): void
+}
+
+export interface RetryError extends ResponseError {
+  code?: string
+  crossDomain?: boolean
+}

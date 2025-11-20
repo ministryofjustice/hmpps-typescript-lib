@@ -1,5 +1,82 @@
 # Change log
 
+## 1.0.1
+
+Minor change to match `prettier` formatting to that included in the `.prettierrc.json` file commonly included in HMPPS' typescript projects.
+* Adding `arrowParens: 'avoid'` to `prettier` rules
+
+Patching
+  globals                           16.4.0  →  16.5.0
+
+## 1.0.0
+
+Move to node 24
+
+Patching
+  @eslint/js                        ^9.35.0  →  ^9.38.0
+  @typescript-eslint/eslint-plugin  ^8.42.0  →  ^8.46.2
+  @typescript-eslint/parser         ^8.42.0  →  ^8.46.2
+  eslint                            ^9.35.0  →  ^9.38.0
+  eslint-plugin-cypress             ^5.1.1   →  ^5.2.0
+  globals                           ^16.3.0  →  ^16.4.0
+  semver                            ^7.7.2   →  ^7.7.3
+
+## 0.0.5
+
+No functional change - testing trusted publishing
+
+## 0.0.4
+
+Adding `test_results` to ignore paths and `playwright.config.ts` to paths allowing dev dependencies
+
+Patching
+  @eslint/js                        ^9.32.0  →  ^9.35.0
+  @typescript-eslint/eslint-plugin  ^8.39.0  →  ^8.42.0
+  @typescript-eslint/parser         ^8.39.0  →  ^8.42.0
+  eslint                            ^9.32.0  →  ^9.35.0
+  eslint-plugin-cypress              ^5.1.0  →  ^5.1.1
+  @types/semver                      ^7.7.0  →  ^7.7.1
+
+## 0.0.3
+
+Patching:
+ @typescript-eslint/eslint-plugin   ^8.38.0  →  ^8.39.0
+ @typescript-eslint/parser          ^8.38.0  →  ^8.39.0
+ eslint-plugin-prettier              ^5.5.3  →   ^5.5.4
+
+## 0.0.2
+
+Patching:
+ @eslint/js                         ^9.29.0  →  ^9.32.0
+ @types/eslint__js                  ^9.14.0  →  removed
+ @typescript-eslint/eslint-plugin   ^8.34.1  →  ^8.38.0
+ @typescript-eslint/parser          ^8.34.1  →  ^8.38.0
+ eslint                             ^9.29.0  →  ^9.32.0
+ eslint-config-prettier             ^10.1.5  →  ^10.1.8
+ eslint-import-resolver-typescript   ^4.4.3  →   ^4.4.4
+ eslint-plugin-import               ^2.31.0  →  ^2.32.0
+ eslint-plugin-prettier              ^5.5.0  →   ^5.5.3
+ globals                             16.2.0  →   16.3.0
+
+## 0.0.1
+
+Initial release
+
+ @eslint/eslintrc                     3.2.0  →    3.3.1
+ @eslint/js                         ^9.18.0  →  ^9.29.0
+ @types/eslint__eslintrc             ^2.1.2  →   ^3.3.0
+ @types/eslint__js                  ^8.42.3  →  ^9.14.0
+ @types/semver                       ^7.5.8  →   ^7.7.0
+ @typescript-eslint/eslint-plugin   ^8.20.0  →  ^8.34.1
+ @typescript-eslint/parser          ^8.20.0  →  ^8.34.1
+ eslint                             ^9.18.0  →  ^9.29.0
+ eslint-config-prettier             ^10.0.1  →  ^10.1.5
+ eslint-import-resolver-typescript   ^3.7.0  →   ^4.4.3
+ eslint-plugin-cypress               ^4.1.0  →   ^5.1.0
+ eslint-plugin-prettier              ^5.2.2  →   ^5.5.0
+ globals                            15.14.0  →   16.2.0
+ semver                              ^7.6.3  →   ^7.7.2
+
 ## 0.0.1-beta.2
 
 Patching:

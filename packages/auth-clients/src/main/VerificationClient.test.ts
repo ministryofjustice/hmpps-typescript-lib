@@ -16,7 +16,7 @@ describe('VerificationClient', () => {
   }
 
   beforeEach(() => {
-    fakeApi = nock(config.url)
+    fakeApi = nock(config.url, { badheaders: ['Content-Type'] })
     tokenVerificationClient = new VerificationClient(config, console)
   })
 
@@ -46,7 +46,7 @@ describe('VerificationClient', () => {
       })
 
       it('Calls verify endpoint and parses active response', async () => {
-        fakeApi.post('/token/verify').reply(200, { active: true })
+        fakeApi.post('/token/verify', '').reply(200, { active: true })
 
         const data = await tokenVerificationClient.verifyToken({
           user: { token: 'some_token', username: 'john.doe' },
@@ -58,7 +58,7 @@ describe('VerificationClient', () => {
       })
 
       it('Calls verify endpoint and parses inactive response', async () => {
-        fakeApi.post('/token/verify').reply(200, { active: false })
+        fakeApi.post('/token/verify', '').reply(200, { active: false })
 
         const data = await tokenVerificationClient.verifyToken({
           user: { token: 'some_token' },
