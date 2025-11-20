@@ -1,4 +1,4 @@
-import fs from 'fs'
+import { readFileSync } from 'node:fs'
 import npmRunScript from '@npmcli/run-script'
 
 import { readConfiguration } from './configuration-reader'
@@ -9,7 +9,7 @@ export { configureAllowedScripts, type Config } from './project-configuration'
 
 export async function run() {
   await new Runner({
-    readFile: path => fs.readFileSync(path, 'utf-8'),
+    readFile: path => readFileSync(path, 'utf-8'),
     dynamicImport: path => import(path),
     log: console.log,
     error: console.error,
