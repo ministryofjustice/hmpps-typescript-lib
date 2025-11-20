@@ -36,6 +36,7 @@ export type DerivedConfiguration = {
   scripts: {
     dependencyScriptsToRun: string[]
     localScriptsToRun: string[]
+    allInstallScripts: string[]
   }
 }
 

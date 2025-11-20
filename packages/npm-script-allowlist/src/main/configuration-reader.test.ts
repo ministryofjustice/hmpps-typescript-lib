@@ -62,8 +62,8 @@ describe('readConfiguration', () => {
 
     const result = readConfiguration(configWithoutScripts, basePackageLock)
 
-    expect(result.scripts.dependencyScriptsToRun).toEqual(['preinstall', 'install', 'postinstall'])
-    expect(result.scripts.localScriptsToRun).toEqual(['preinstall', 'install', 'postinstall'])
+    expect(result.scripts.dependencyScriptsToRun).toEqual(['preinstall', 'install', 'prepare', 'postinstall'])
+    expect(result.scripts.localScriptsToRun).toEqual(['preinstall', 'install', 'prepare', 'postinstall'])
   })
 
   it('should handle empty packageLock gracefully', () => {

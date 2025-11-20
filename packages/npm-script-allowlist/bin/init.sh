@@ -13,10 +13,6 @@ endStage() {
   printf "%s\n" "$1"
 }
 
-printError() {
-  printf "\x1b[1;31m%s\x1b[0m\n" "$1"
-}
-
 endStage "Setting up hmpps npm script locker" 
 
 startStage "  * Adding/overwriting .npmrc script"
@@ -52,20 +48,16 @@ startStage "  * Adding set up script"
 npm pkg set --silent scripts.setup="npm ci && hmpps-npm-script-run-allowlist" 
 endStage "  ✅"
 
-if ! npm list @ministryofjustice/hmpps-npm-script-allowlist > /dev/null 2>&1; then
-  startStage "  * Installing @ministryofjustice/hmpps-npm-script-allowlist"
-  npm install --silent --save-dev @ministryofjustice/hmpps-npm-script-allowlist
-  endStage " ✅"
-else
-  endStage "  * @ministryofjustice/hmpps-npm-script-allowlist already installed ✅"
-fi
+VERSION=$(npm show --json  @ministryofjustice/hmpps-npm-script-allowlist | jq -r '.version')
 
-startStage "  * Running allow scripts"
-npm run setup
+startStage "  * Installing @ministryofjustice/hmpps-npm-script-allowlist@$VERSION"
+npm install --save-dev "@ministryofjustice/hmpps-npm-script-allowlist@$VERSION"
+endStage " ✅"
+
+startStage "  * Performing initial run of hmpps-npm-script-run-allowlist"
+./node_modules/.bin/hmpps-npm-script-run-allowlist
 endStage "  ✅"
 
-# Could also add...
-# * add preinstall script which always fails if scripts are called as part of the npm lifecycle 
-#     - pkg set --silent  scripts.preinstall:"echo \"Run npm run setup to install run allowed lifecycle scripts\" && exit 1", 
+endStage "NOTE: You will need to manually update your Dockerfile and CI to run \"npm run setup\" rather than \"npm ci\" 🚧"
 
 endStage "FIN!"
