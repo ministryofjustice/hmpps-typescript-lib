@@ -1,7 +1,7 @@
 import { exec } from 'child_process'
-import util from 'util'
+import { promisify } from 'node:util'
 
-const execAsync = util.promisify(exec)
+const execAsync = promisify(exec)
 
 export const batches = <T>(arr: T[], size: number): T[][] =>
   arr.length === 0 ? [] : [arr.slice(0, size), ...batches(arr.slice(size), size)]

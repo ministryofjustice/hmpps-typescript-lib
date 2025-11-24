@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/hmpps-npm-script-allowlist",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A tool to restrict npm scripts from running unless as part of an allowlist",
   "keywords": [
     "npm",
