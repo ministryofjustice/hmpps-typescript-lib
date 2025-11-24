@@ -30,7 +30,7 @@ export class Runner {
     if (packages.toConfigure.length) {
       const result = await fetchPackageInfo(
         packages.toConfigure.map(pkg => [pkg.name.replace('node_modules/', ''), pkg.version]),
-        ['preinstall', 'install', 'postinstall'],
+        scripts.allInstallScripts,
       )
 
       const format = (pkg: ConfiguredPackage) => {
