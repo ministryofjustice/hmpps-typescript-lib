@@ -17,7 +17,8 @@ export const fetchPackageInfo: PackageFetcher = async (packages: Package[], allo
   return Object.fromEntries(allResults)
 }
 async function fetchInfo(name: string, version: string, allowedScripts: string[]): Promise<PackageInfoEntry> {
-  const output = await runCommand(`npm show ${name}@${version} --json`)
+  const nameToLookup = name.replace(/.*\/node_modules\//, '')
+  const output = await runCommand(`npm show ${nameToLookup}@${version} --json`)
   const payload = JSON.parse(output) as NpmShowOutput
   return [
     `node_modules/${name}`,

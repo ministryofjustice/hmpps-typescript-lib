@@ -18,3 +18,8 @@ Initial release
 
 Adding prepare script to default allowed scripts - this required locally for husky precommit hooks
  
+ ## 0.0.3
+
+Fixing issue where it errored when trying to retrieve info for nested packages
+
+ 

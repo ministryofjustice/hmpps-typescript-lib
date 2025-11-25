@@ -26,6 +26,8 @@ describe('fetchPackageInfo', () => {
   const packages: [string, string][] = [
     ['package-a', '1.0.0'],
     ['package-b', '2.0.0'],
+    ['package-b/node_modules/package-c', '3.0.0'],
+    ['package-b/node_modules/package-c/node_modules/package-c', '4.0.0'],
   ]
 
   const allowedScripts = ['install', 'postinstall']
@@ -50,7 +52,28 @@ describe('fetchPackageInfo', () => {
           install: 'do install',
         },
       },
+      'node_modules/package-b/node_modules/package-c': {
+        published: '2023-01-01 00:00',
+        scripts: {
+          install: 'do install',
+        },
+      },
+      'node_modules/package-b/node_modules/package-c/node_modules/package-c': {
+        published: '2023-01-01 00:00',
+        scripts: {
+          install: 'do install',
+        },
+      },
     })
+  })
+
+  it('should look up packages by real name including for nested packages', async () => {
+    await fetchPackageInfo(packages, allowedScripts)
+
+    expect(mockRunCommand).toHaveBeenCalledWith('npm show package-a@1.0.0 --json')
+    expect(mockRunCommand).toHaveBeenCalledWith('npm show package-b@2.0.0 --json')
+    expect(mockRunCommand).toHaveBeenCalledWith('npm show package-c@3.0.0 --json')
+    expect(mockRunCommand).toHaveBeenCalledWith('npm show package-c@4.0.0 --json')
   })
 
   it('should filter out scripts not in allowed list', async () => {
