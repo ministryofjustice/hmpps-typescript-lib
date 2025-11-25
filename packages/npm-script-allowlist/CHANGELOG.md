@@ -13,3 +13,8 @@ Pre-releases which should not be used in projects.
 ## 0.0.1
 
 Initial release
+
+## 0.0.2
+
+Adding prepare script to default allowed scripts - this required locally for husky precommit hooks
+ 
