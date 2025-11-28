@@ -1,4 +1,4 @@
-# @ministryofjustice/hmpps-npm-allow-scripts
+# @ministryofjustice/hmpps-npm-script-allowlist
 
 This package aims to restrict npm scripts from running unless as part of a predefined allowlist. 
 
@@ -12,7 +12,7 @@ Teams are welcome to trial this library. Please provide feedback via slack to th
 #### Automatically installing the library
 
 The package will self install and initialised by running via npx:
-`npx @ministryofjustice/hmpps-npm-allow-scripts`
+`npx @ministryofjustice/hmpps-npm-script-allowlist`
 
 Note: The project needs to be initialised before use - solely adding the library will not apply the required changes.
 Once the project has been initialised and changes commited, other developers should be able to benefit from the library without further local initialisation.
