@@ -1,5 +1,10 @@
 # Change log
 
+## 1.0.1
+
+RedisTokenStore defaults Redis key prefix as `systemToken:`, optional constructor arg to override this to allow setting
+a custom prefix.
+
 ## 1.0.0
 
 Move to node 24
