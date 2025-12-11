@@ -1,5 +1,9 @@
 # Change log
 
+## 1.0.2
+
+Marking `.allowed-scripts.mjs` as allowing dev dependencies.
+
 ## 1.0.1
 
 Minor change to match `prettier` formatting to that included in the `.prettierrc.json` file commonly included in HMPPS' typescript projects.
