@@ -176,6 +176,7 @@ function hmppsConfig({
               'cypress.config.ts',
               'eslint.config.mjs',
               'playwright.config.ts',
+              '.allowed-scripts.mjs',
               // build tools
               'esbuild/**',
               ...extraPathsAllowingDevDependencies,

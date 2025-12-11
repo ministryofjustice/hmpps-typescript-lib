@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/eslint-config-hmpps",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "ESLint rules for HMPPS typescript projects",
   "keywords": [
     "eslint",
