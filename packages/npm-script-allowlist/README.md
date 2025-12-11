@@ -115,6 +115,15 @@ Copy the "Current Configuration" from above and use it to update: some-project/.
  * Evaluate any entries marked <MISSING>. ALLOW or FORBID depending on whether these entries have scripts that are safe and required to run.
 ```
 
+### How can I tell whether a script is safe to allow/forbid?
+
+This generally requires a bit of investigation!
+
+* There's a list of common vetted packages at specific versions in the hmpps-template-typescript project [here](https://github.com/ministryofjustice/hmpps-template-typescript/blob/main/.allowed-scripts.mjs).
+* One of the developers of lavamoat has curated a list of scripts which you likely can forbid [here](https://github.com/naugtur/can-i-ignore-scripts)
+* Otherwise you really need to determine what the specific flagged `preinstall`, `install`, `prepare` or `postinstall` scripts are doing.
+* If in doubt please ask the #typescript channel for help
+
 ### Testing
 
 Export a local package:
