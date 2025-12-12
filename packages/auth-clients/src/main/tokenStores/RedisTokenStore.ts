@@ -3,10 +3,12 @@ import { RedisClient } from '../types/RedisClient'
 
 /**
  * A token store implementation using Redis as the backend.
+ * The default Redis key prefix is `systemToken`. This can be customised using the optional constructor arg.
+
  * @class
  * @implements {TokenStore}
  *
- * @example
+ * @example using the default prefix
  * import RedisTokenStore from './tokenStores/RedisTokenStore'
  * import { createClient } from 'redis'
  *
@@ -14,15 +16,32 @@ import { RedisClient } from '../types/RedisClient'
  * const tokenStore = new RedisTokenStore(redisClient)
  * await tokenStore.setToken('some-key', 'abc123', 3600)
  * const token = await tokenStore.getToken('some-key')
+ *
+ * // Redis will have stored the token with the key `systemToken:some-key`
+ *
+ *
+ * @example using a custom prefix
+ * import RedisTokenStore from './tokenStores/RedisTokenStore'
+ * import { createClient } from 'redis'
+ *
+ * const redisClient = createClient() // Use the redis library
+ * const tokenStore = new RedisTokenStore(redisClient, 'otherTokens')
+ * await tokenStore.setToken('some-key', 'abc123', 3600)
+ * const token = await tokenStore.getToken('some-key')
+ *
+ * // Redis will have stored the token with the key `otherTokens:some-key`
  */
 export default class RedisTokenStore implements TokenStore {
-  private readonly prefix = 'systemToken:'
-
   /**
    * Creates an instance of RedisTokenStore.
    * @param {RedisClient} client - A Redis client instance.
+   * @param {string} prefix - An optional prefix that will be used for all keys set and retrieved via this token store.
+   *                          Default is `systemToken`
    */
-  constructor(private readonly client: RedisClient) {}
+  constructor(
+    private readonly client: RedisClient,
+    private readonly prefix = 'systemToken',
+  ) {}
 
   /**
    * Ensures the Redis client is connected.
@@ -44,7 +63,7 @@ export default class RedisTokenStore implements TokenStore {
    */
   public async setToken(key: string, token: string, durationSeconds: number): Promise<void> {
     await this.ensureConnected()
-    await this.client.set(`${this.prefix}${key}`, token, { EX: durationSeconds })
+    await this.client.set(`${this.prefix}:${key}`, token, { EX: durationSeconds })
   }
 
   /**
@@ -55,6 +74,6 @@ export default class RedisTokenStore implements TokenStore {
   public async getToken(key: string): Promise<string | null> {
     await this.ensureConnected()
 
-    return this.client.get(`${this.prefix}${key}`)
+    return this.client.get(`${this.prefix}:${key}`)
   }
 }
