@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Used to install husky with gitleaks
+# Used to install prek with gitleaks
 # 
 
 set -euo pipefail
@@ -44,22 +44,13 @@ else
   npm --silent  install
 fi
 
-startStage "  * Adding npm scripts"
-npm pkg --silent set scripts.precommit:secrets="gitleaks git --pre-commit --redact --staged --verbose --config .gitleaks/config.toml --gitleaks-ignore-path .gitleaks/.gitleaksignore" 
-npm pkg --silent set scripts.precommit:lint="node_modules/.bin/lint-staged"
-npm pkg --silent set scripts.precommit:verify="npm run typecheck && npm test"
-endStage " ✅"
+# Copy default-hooks.yaml to target location
+SOURCE_HOOKS="./node_modules/@ministryofjustice/hmpps-precommit-hooks/default-hooks.yaml"
+TARGET_HOOKS=".pre-commit-config.yaml"
 
-startStage "  * Setting precommit hook"
-mkdir -p .husky
-printf "%s\n" \
-     "#!/bin/bash" \
-     "NODE_ENV=dev \\" \
-     "npm run precommit:secrets \\" \
-     "&& npm run precommit:lint \\" \
-     "&& npm run precommit:verify" \
-       > .husky/pre-commit
-endStage " ✅"
+startStage "Creating .pre-commit-config.yaml"
+cp "$SOURCE_HOOKS" "$TARGET_HOOKS"
+endStage " ✅ "
 
 startStage "  * Creating .gitleaksignore "
 mkdir -p .gitleaks

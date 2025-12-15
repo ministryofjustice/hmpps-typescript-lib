@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/hmpps-precommit-hooks",
-  "version": "1.0.2",
+  "version": "2.0.0-beta.1",
   "description": "Precommit hooks for HMPPS typescript projects",
   "keywords": [
     "precommit"
@@ -14,7 +14,7 @@
   },
   "publishConfig": {
     "access": "public",
-    "tag": "latest"
+    "tag": "beta"
   },
   "bin": {
     "hmpps-precommit-hooks-prepare": "bin/prepare.sh",
@@ -27,7 +27,8 @@
   "files": [
     "*.md",
     "bin/*.sh",
-    "config.toml"
+    "config.toml",
+    "default-hooks.yaml"
   ],
   "engines": {
     "node": "20 || 22 || 24"
