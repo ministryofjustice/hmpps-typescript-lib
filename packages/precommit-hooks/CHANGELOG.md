@@ -1,5 +1,25 @@
 # Change log
 
+## 2.0.0
+
+### Breaking Changes
+
+- **Migrated from Husky to prek (pre-commit)** for managing git hooks
+  - Husky is automatically uninstalled during `npm install` if present
+  - Existing husky hooks are automatically removed
+  - prek is installed via Homebrew
+  
+### New Features
+
+- Added `.pre-commit-config.yaml` configuration file with default hooks
+- Configuration file is only created if it doesn't exist, preserving custom configurations
+- Added automatic cleanup of legacy precommit scripts (`precommit:secrets`, `precommit:lint`, `precommit:verify`) from package.json
+
+### Changes
+
+- `prepare` script now installs prek instead of configuring husky
+- Hooks are now managed through `.pre-commit-config.yaml` instead of husky scripts
+
 ## 1.0.2
 
 Fix versions, accidentally mixed 1.0.0 and 0.1.0
