@@ -30,8 +30,8 @@ if [ -f "node_modules/.bin/husky" ]; then
   endStage " ✅ "
 
   if [ -f ".husky/pre-commit" ]; then
-    startStage "Deleting existing husky pre-commit hook"
-    rm .husky/pre-commit
+    startStage "Deleting existing husky pre-commit hooks"
+    rm -Rf .husky
     endStage " ✅ "
   fi
 fi
@@ -42,13 +42,6 @@ if ! command -v brew > /dev/null 2> /dev/null; then
   exit 0
 fi
 
-# Install gitleaks if not present - this will be used by prek for secret scanning until we move over to devsecops hooks
-if ! command -v gitleaks > /dev/null 2> /dev/null; then
-  startStage "Installing gitleaks"
-  brew install gitleaks
-  endStage " ✅ "
-fi
-
 # Install prek
 if ! command -v prek > /dev/null 2> /dev/null; then
   startStage "Installing prek"
@@ -56,11 +49,10 @@ if ! command -v prek > /dev/null 2> /dev/null; then
   endStage " ✅ "
 fi
 
-# Copy default-hooks.yaml to target location
 SOURCE_HOOKS="./node_modules/@ministryofjustice/hmpps-precommit-hooks/default-hooks.yaml"
 TARGET_HOOKS=".pre-commit-config.yaml"
 
-
+# Copy default-hooks.yaml to target location for first time initialisation only
 if [ ! -f "$TARGET_HOOKS" ]; then
   startStage "Creating .pre-commit-config.yaml"
   cp "$SOURCE_HOOKS" "$TARGET_HOOKS"
