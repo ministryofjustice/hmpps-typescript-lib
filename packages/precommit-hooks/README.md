@@ -9,7 +9,7 @@ Teams are welcome to use this library. Please provide feedback via slack to the 
 
 ## Migration from Husky
 
-This package has migrated from using Husky to using [prek](https://github.com/pre-commit/pre-commit) (pre-commit) for managing git hooks. The migration will happen automatically during `npm install`:
+This package has migrated from using Husky to using [prek](https://github.com/pre-commit/pre-commit) (pre-commit) for managing git hooks. The migration will happen automatically during `npm install` via a prepare hook:
 
 - Husky will be uninstalled if present
 - Existing husky hooks will be removed
@@ -45,10 +45,10 @@ HMPPS_HOOKS_VERSION: 1
 repos:
   - repo: local
     hooks:
-      - id: gitleaks
-        name: Scan commit for secrets
-        language: system
-        entry: gitleaks git --pre-commit --redact --staged --verbose --config .gitleaks/config.toml --gitleaks-ignore-path .gitleaks/.gitleaksignore
+      - repo: https://github.com/ministryofjustice/devsecops-hooks
+        rev: v1.x.x
+    hooks:
+      - id: baseline
       - id: lint
         name: linting code
         language: system
@@ -108,6 +108,19 @@ HMPPS wide rules can be added to `.config.toml` in this project so that it can b
 Repo specific rules can be added by teams in `.gitleaks/config.toml` in their individual repos.
 
 See the gitleaks documentation for how to create rules and [examples](https://github.com/gitleaks/gitleaks/blob/master/config/gitleaks.toml) or use the [online rule wizard](https://gitleaks.io/playground).
+
+### Keeping up to date
+
+`prek auto-update` can be used to pull in later versions of hooks including the devsecops-hooks.
+
+Also, a manager can be added to your renovate.json config to allow renovate to raise PRs to keep hooks up to date:
+
+```json
+  {
+    "matchManagers": ["pre-commit"],
+    "groupName": "all pre-commit dependencies"
+  }
+```
 
 ### Running hooks manually
 
