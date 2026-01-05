@@ -113,7 +113,7 @@ See the gitleaks documentation for how to create rules and [examples](https://gi
 
 `prek auto-update` can be used to pull in later versions of hooks including the devsecops-hooks.
 
-A manager to your renovate config to allow renovate to raise PRs to keep it up to date also:
+Also, a manager can be added to your renovate.json config to allow renovate to raise PRs to keep hooks up to date:
 
 ```json
   {
