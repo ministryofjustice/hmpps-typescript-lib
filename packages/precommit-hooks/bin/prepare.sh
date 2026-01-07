@@ -24,16 +24,14 @@ fi
 
 
 # Remove husky if installed
-if [ -f "node_modules/.bin/husky" ]; then
+if [ -f ".husky/pre-commit" ]; then
   startStage "Removing husky"
   npm uninstall husky
   endStage " ✅ "
 
-  if [ -f ".husky/pre-commit" ]; then
-    startStage "Deleting existing husky pre-commit hooks"
-    rm -Rf .husky
-    endStage " ✅ "
-  fi
+  startStage "Deleting existing husky pre-commit hooks"
+  rm -Rf .husky
+  endStage " ✅ "
 fi
 
 # Check brew exists
