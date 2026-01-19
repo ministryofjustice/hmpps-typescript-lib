@@ -45,10 +45,10 @@ HMPPS_HOOKS_VERSION: 1
 repos:
   - repo: local
     hooks:
-      - repo: https://github.com/ministryofjustice/devsecops-hooks
-        rev: v1.x.x
-    hooks:
-      - id: baseline
+      - id: gitleaks
+        name: Scan commit for secrets
+        language: system
+        entry: gitleaks git --pre-commit --redact --staged --verbose --config .gitleaks/config.toml --gitleaks-ignore-path .gitleaks/.gitleaksignore
       - id: lint
         name: linting code
         language: system
@@ -111,7 +111,7 @@ See the gitleaks documentation for how to create rules and [examples](https://gi
 
 ### Keeping up to date
 
-`prek auto-update` can be used to pull in later versions of hooks including the devsecops-hooks.
+`prek auto-update` can be used to pull in later versions of hooks.
 
 Also, a manager can be added to your renovate.json config to allow renovate to raise PRs to keep hooks up to date:
 
