@@ -22,7 +22,7 @@ This package provides reusable clients for interacting with [HMPPS Auth](https:/
 ## Installation
 
 ```bash
-npm install hmpps-auth-clients
+npm install @ministryofjustice/hmpps-auth-clients
 ```
 
 ## Usage
