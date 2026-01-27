@@ -1,5 +1,9 @@
 # Change log
 
+## 1.0.1
+
+Allow all 2xx response codes to be successful for endpoint health components
+
 ## 1.0.0
 
 Move to node 24

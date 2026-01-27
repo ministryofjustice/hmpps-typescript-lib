@@ -81,7 +81,7 @@ export default class EndpointHealthComponent implements HealthComponent {
 
       return {
         name,
-        status: response.status === 200 ? 'UP' : 'DOWN',
+        status: response.status >= 200 && response.status <= 299 ? 'UP' : 'DOWN',
       }
     } catch (error: unknown) {
       this.logger.warn(`Failed getting health of external service '${name}'`, (error as superagent.ResponseError).stack)
