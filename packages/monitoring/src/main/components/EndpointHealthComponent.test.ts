@@ -29,19 +29,22 @@ describe('EndpointHealthComponent', () => {
     nock.done()
   })
 
-  it('should return UP status if the external service responds successfully', async () => {
-    nock.scope.reply(200)
-    const endpointHealthComponent = new EndpointHealthComponent(logger, componentName, endpointHealthComponentOptions)
+  it.each([[200], [201], [204]])(
+    'should return UP status if the external service responds successfully (%s)',
+    async (status: number) => {
+      nock.scope.reply(status)
+      const endpointHealthComponent = new EndpointHealthComponent(logger, componentName, endpointHealthComponentOptions)
 
-    const result = await endpointHealthComponent.health()
+      const result = await endpointHealthComponent.health()
 
-    const expectedResult = {
-      name: componentName,
-      status: 'UP',
-    }
+      const expectedResult = {
+        name: componentName,
+        status: 'UP',
+      }
 
-    expect(result).toEqual(expectedResult)
-  })
+      expect(result).toEqual(expectedResult)
+    },
+  )
 
   it('should return DOWN status if the external service fails all retries', async () => {
     let connectionAttempts = 0
