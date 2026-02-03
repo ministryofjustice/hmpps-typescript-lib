@@ -5,8 +5,9 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "declaration": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true
+    "sourceMap": true,
+    "isolatedModules": true,
+    "esModuleInterop": true
   },
   "files": [],
 }
