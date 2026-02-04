@@ -44,8 +44,6 @@ TODO: document adding a new sub-package
 
 ### Publishing process
 
-TODO: document this better once we have trialled it
-
 There is a Github actions pipeline to publish new releases of sub-packages.
 When a new version needs to be released, these steps should be followed as part of the usual pull request process…
 
