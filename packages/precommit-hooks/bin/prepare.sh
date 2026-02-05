@@ -40,13 +40,6 @@ if ! command -v brew > /dev/null 2> /dev/null; then
   exit 0
 fi
 
-# Install gitleaks if not present - this will be used by prek for secret scanning until we move over to devsecops hooks
-if ! command -v gitleaks > /dev/null 2> /dev/null; then
-  startStage "Installing gitleaks"
-  brew install gitleaks
-  endStage " ✅ "
-fi
-
 # Install prek
 if ! command -v prek > /dev/null 2> /dev/null; then
   startStage "Installing prek"
