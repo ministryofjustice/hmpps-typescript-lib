@@ -8,6 +8,7 @@
   - Husky is automatically uninstalled during `npm install` if present
   - Existing husky hooks are automatically removed
   - prek is installed via Homebrew
+  - installs and configures [devsecops-hooks](https://github.com/ministryofjustice/devsecops-hooks) by default 
   
 ### New Features
 
