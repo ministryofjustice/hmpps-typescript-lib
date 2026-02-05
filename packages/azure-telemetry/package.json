@@ -11,7 +11,7 @@
   },
   "publishConfig": {
     "access": "public",
-    "tag": "latest"
+    "tag": "alpha"
   },
   "main": "./dist/index.cjs.js",
   "module": "./dist/index.esm.js",
