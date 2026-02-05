@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/hmpps-precommit-hooks",
-  "version": "2.0.0-beta.6",
+  "version": "2.0.0",
   "description": "Precommit hooks for HMPPS typescript projects",
   "keywords": [
     "precommit"
@@ -14,7 +14,7 @@
   },
   "publishConfig": {
     "access": "public",
-    "tag": "beta"
+    "tag": "latest"
   },
   "bin": {
     "hmpps-precommit-hooks-prepare": "bin/prepare.sh",
