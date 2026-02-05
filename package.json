@@ -23,7 +23,8 @@
     "/packages/eslint-config-hmpps",
     "/packages/monitoring",
     "/packages/precommit-hooks",
-    "/packages/npm-script-allowlist"
+    "/packages/npm-script-allowlist",
+    "/packages/azure-telemetry"
   ],
   "engines": {
     "node": "20 || 22 || 24"

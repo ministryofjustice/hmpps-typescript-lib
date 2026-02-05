@@ -1,0 +1,46 @@
+{
+  "name": "@ministryofjustice/hmpps-azure-telemetry",
+  "version": "0.0.1",
+  "description": "Azure Application Insights telemetry using OpenTelemetry",
+  "author": "hmpps-developers",
+  "license": "MIT",
+  "homepage": "https://github.com/ministryofjustice/hmpps-typescript-lib#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ministryofjustice/hmpps-typescript-lib.git"
+  },
+  "publishConfig": {
+    "access": "public",
+    "tag": "latest"
+  },
+  "main": "./dist/index.cjs.js",
+  "module": "./dist/index.esm.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "*.md",
+    "dist/**/*",
+    "src/**/*"
+  ],
+  "engines": {
+    "node": "20 || 22 || 24"
+  },
+  "scripts": {
+    "build": "rollup -c rollup.config.ts --bundleConfigAsCjs",
+    "clean": "rm -rf ./dist/",
+    "test": "jest",
+    "lint": "eslint . --cache --max-warnings 0",
+    "lint-fix": "eslint . --cache --max-warnings 0 --fix",
+    "check-for-updates": "npx npm-check-updates -u"
+  },
+  "peerDependencies": {
+    "@azure/monitor-opentelemetry-exporter": "1.0.0-beta.38",
+    "@opentelemetry/api": "1.x",
+    "@opentelemetry/instrumentation": ">=0.200.0",
+    "@opentelemetry/instrumentation-express": ">=0.50.0",
+    "@opentelemetry/instrumentation-http": ">=0.200.0",
+    "@opentelemetry/resources": "2.x",
+    "@opentelemetry/sdk-trace-base": "2.x",
+    "@opentelemetry/sdk-trace-node": "2.x",
+    "@opentelemetry/semantic-conventions": "1.x"
+  }
+}
