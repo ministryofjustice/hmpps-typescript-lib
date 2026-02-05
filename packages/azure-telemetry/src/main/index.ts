@@ -6,13 +6,14 @@ import { modifySpanNameWithHttpRoute } from './proccessors/modifySpanNameWithHtt
 import { modifySpanWithObfuscation } from './proccessors/modifySpanWithObfuscation'
 
 /** Export types */
-export { initialiseTelemetry, flushTelemetry, trace } from './TelemetryInitialiser'
+export { initialiseTelemetry, flushTelemetry, defaultInstrumentations, trace } from './TelemetryInitialiser'
 export type { TelemetryBuilder } from './TelemetryInitialiser'
 export type { SpanInfo, ModifiableSpan, SpanFilterFn, SpanModifierFn } from './types/SpanProcessor'
 export type { TelemetryConfig } from './types/TelemetryConfig'
 export type { UserContext } from './types/UserContext'
 export type { ObfuscationRule, ObfuscatorConfig } from './types/ObfuscatorConfig'
 export { SpanKind } from '@opentelemetry/api'
+export type { Instrumentation } from '@opentelemetry/instrumentation'
 
 /**
  * Telemetry library for Azure Application Insights with OpenTelemetry.

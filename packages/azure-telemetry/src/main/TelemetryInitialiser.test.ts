@@ -1,3 +1,4 @@
+import { registerInstrumentations } from '@opentelemetry/instrumentation'
 import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node'
 
 import { FilteringSpanProcessor } from './FilteringSpanProcessor'
@@ -50,6 +51,7 @@ jest.mock('./FilteringSpanProcessor', () => ({
 
 const mockedNodeTracerProvider = jest.mocked(NodeTracerProvider)
 const mockedFilteringSpanProcessor = jest.mocked(FilteringSpanProcessor)
+const mockedRegisterInstrumentations = jest.mocked(registerInstrumentations)
 
 describe('initialiseTelemetry()', () => {
   let consoleInfoSpy: jest.SpyInstance
@@ -68,15 +70,16 @@ describe('initialiseTelemetry()', () => {
 
     expect(builder.addFilter).toBeDefined()
     expect(builder.addModifier).toBeDefined()
+    expect(builder.setInstrumentations).toBeDefined()
     expect(builder.startRecording).toBeDefined()
   })
 
-  it('should support chaining addFilter and addModifier', () => {
+  it('should support chaining addFilter, setInstrumentations, and addModifier', () => {
     const filter = jest.fn()
     const modifier = jest.fn()
 
     const builder = initialiseTelemetry({ serviceName: 'test-service' })
-    const result = builder.addFilter(filter).addModifier(modifier)
+    const result = builder.addFilter(filter).setInstrumentations([]).addModifier(modifier)
 
     expect(result).toBe(builder)
   })
@@ -111,6 +114,30 @@ describe('initialiseTelemetry()', () => {
       expect(consoleInfoSpy).toHaveBeenCalledWith(
         'Telemetry: No connection string and debug disabled - telemetry not initialised',
       )
+    })
+
+    it('should use default instrumentations when setInstrumentations is not called', () => {
+      initialiseTelemetry({
+        serviceName: 'test-service',
+        connectionString: 'InstrumentationKey=test',
+      }).startRecording()
+
+      const call = mockedRegisterInstrumentations.mock.calls[0][0]
+      expect(call.instrumentations).toHaveLength(3)
+    })
+
+    it('should override instrumentations when setInstrumentations is called', () => {
+      const customInstrumentation = { name: 'custom' } as never
+
+      initialiseTelemetry({
+        serviceName: 'test-service',
+        connectionString: 'InstrumentationKey=test',
+      })
+        .setInstrumentations([customInstrumentation])
+        .startRecording()
+
+      const call = mockedRegisterInstrumentations.mock.calls[0][0]
+      expect(call.instrumentations).toEqual([customInstrumentation])
     })
 
     it('should pass filters and modifiers to FilteringSpanProcessor', () => {

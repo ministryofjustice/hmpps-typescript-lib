@@ -1,5 +1,5 @@
 import { metrics, trace } from '@opentelemetry/api'
-import { registerInstrumentations } from '@opentelemetry/instrumentation'
+import { type Instrumentation, registerInstrumentations } from '@opentelemetry/instrumentation'
 import { BunyanInstrumentation } from '@opentelemetry/instrumentation-bunyan'
 import { ExpressInstrumentation, ExpressLayerType } from '@opentelemetry/instrumentation-express'
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
@@ -13,9 +13,18 @@ import type { SpanFilterFn, SpanModifierFn } from './types/SpanProcessor'
 import { FilteringSpanProcessor } from './FilteringSpanProcessor'
 import { setConfig } from './config'
 
+export const defaultInstrumentations: Instrumentation[] = [
+  new BunyanInstrumentation(),
+  new HttpInstrumentation(),
+  new ExpressInstrumentation({
+    ignoreLayersType: [ExpressLayerType.MIDDLEWARE, ExpressLayerType.ROUTER, ExpressLayerType.REQUEST_HANDLER],
+  }),
+]
+
 export interface TelemetryBuilder {
   addFilter(filter: SpanFilterFn): TelemetryBuilder
   addModifier(modifier: SpanModifierFn): TelemetryBuilder
+  setInstrumentations(instrumentations: Instrumentation[]): TelemetryBuilder
   startRecording(): void
 }
 
@@ -47,6 +56,7 @@ function initialiseWithAzureMonitor(
   config: TelemetryConfig,
   filters: SpanFilterFn[],
   modifiers: SpanModifierFn[],
+  instrumentations: Instrumentation[],
 ): void {
   console.info(`Telemetry: Initialising Azure Monitor for ${config.serviceName}`)
 
@@ -78,17 +88,16 @@ function initialiseWithAzureMonitor(
   registerInstrumentations({
     tracerProvider: provider,
     meterProvider: metrics.getMeterProvider(),
-    instrumentations: [
-      new BunyanInstrumentation(),
-      new HttpInstrumentation(),
-      new ExpressInstrumentation({
-        ignoreLayersType: [ExpressLayerType.MIDDLEWARE, ExpressLayerType.ROUTER, ExpressLayerType.REQUEST_HANDLER],
-      }),
-    ],
+    instrumentations,
   })
 }
 
-function initialiseDebugOnly(config: TelemetryConfig, filters: SpanFilterFn[], modifiers: SpanModifierFn[]): void {
+function initialiseDebugOnly(
+  config: TelemetryConfig,
+  filters: SpanFilterFn[],
+  modifiers: SpanModifierFn[],
+  instrumentations: Instrumentation[],
+): void {
   console.info(`Telemetry: Debug mode only for ${config.serviceName} - spans will be logged to console`)
 
   const provider = new NodeTracerProvider({
@@ -103,13 +112,7 @@ function initialiseDebugOnly(config: TelemetryConfig, filters: SpanFilterFn[], m
 
   registerInstrumentations({
     tracerProvider: provider,
-    instrumentations: [
-      new BunyanInstrumentation(),
-      new HttpInstrumentation(),
-      new ExpressInstrumentation({
-        ignoreLayersType: [ExpressLayerType.MIDDLEWARE, ExpressLayerType.ROUTER, ExpressLayerType.REQUEST_HANDLER],
-      }),
-    ],
+    instrumentations,
   })
 }
 
@@ -137,6 +140,7 @@ export function initialiseTelemetry(config: TelemetryConfig): TelemetryBuilder {
 
   const filters: SpanFilterFn[] = []
   const modifiers: SpanModifierFn[] = []
+  let instrumentations: Instrumentation[] = defaultInstrumentations
 
   return {
     addFilter(filter: SpanFilterFn): TelemetryBuilder {
@@ -151,11 +155,17 @@ export function initialiseTelemetry(config: TelemetryConfig): TelemetryBuilder {
       return this
     },
 
+    setInstrumentations(custom: Instrumentation[]): TelemetryBuilder {
+      instrumentations = custom
+
+      return this
+    },
+
     startRecording(): void {
       if (config.connectionString) {
-        initialiseWithAzureMonitor(config, filters, modifiers)
+        initialiseWithAzureMonitor(config, filters, modifiers, instrumentations)
       } else if (config.debug) {
-        initialiseDebugOnly(config, filters, modifiers)
+        initialiseDebugOnly(config, filters, modifiers, instrumentations)
       } else {
         console.info('Telemetry: No connection string and debug disabled - telemetry not initialised')
       }
