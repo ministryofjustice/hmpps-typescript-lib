@@ -49,9 +49,9 @@ repos:
     rev: v1.4.1
     hooks:
       - id: baseline
-    env:
-      GITLEAKS_CONFIGURATION_FILE: ./.gitleaks/gitleaks.toml
-      GITLEAKS_IGNORE_FILE: ./.gitleaks/.gitleaksignore
+        env:
+          GITLEAKS_CONFIGURATION_FILE: ./.gitleaks/gitleaks.toml
+          GITLEAKS_IGNORE_FILE: ./.gitleaks/.gitleaksignore
 
   - repo: local
     hooks:
