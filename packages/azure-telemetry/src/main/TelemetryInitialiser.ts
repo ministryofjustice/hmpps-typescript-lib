@@ -1,20 +1,22 @@
 import { metrics, trace } from '@opentelemetry/api'
+import { logs } from '@opentelemetry/api-logs'
 import { type Instrumentation, registerInstrumentations } from '@opentelemetry/instrumentation'
 import { BunyanInstrumentation } from '@opentelemetry/instrumentation-bunyan'
 import { ExpressInstrumentation, ExpressLayerType } from '@opentelemetry/instrumentation-express'
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
 import { resourceFromAttributes } from '@opentelemetry/resources'
+import { BatchLogRecordProcessor, ConsoleLogRecordExporter, LoggerProvider } from '@opentelemetry/sdk-logs'
 import { BatchSpanProcessor, ConsoleSpanExporter } from '@opentelemetry/sdk-trace-base'
 import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node'
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions'
-import { AzureMonitorTraceExporter } from '@azure/monitor-opentelemetry-exporter'
+import { AzureMonitorLogExporter, AzureMonitorTraceExporter } from '@azure/monitor-opentelemetry-exporter'
 import type { TelemetryConfig } from './types/TelemetryConfig'
 import type { SpanFilterFn, SpanModifierFn } from './types/SpanProcessor'
 import { FilteringSpanProcessor } from './FilteringSpanProcessor'
 import { setConfig } from './config'
 
 export const defaultInstrumentations: Instrumentation[] = [
-  new BunyanInstrumentation(),
+  new BunyanInstrumentation({ disableLogSending: true }),
   new HttpInstrumentation(),
   new ExpressInstrumentation({
     ignoreLayersType: [ExpressLayerType.MIDDLEWARE, ExpressLayerType.ROUTER, ExpressLayerType.REQUEST_HANDLER],
@@ -36,14 +38,24 @@ export async function flushTelemetry(): Promise<void> {
   console.info('Telemetry: Flushing telemetry...')
 
   try {
-    const provider = trace.getTracerProvider()
+    const traceProvider = trace.getTracerProvider()
 
-    if ('forceFlush' in provider && typeof provider.forceFlush === 'function') {
-      await provider.forceFlush()
+    if ('forceFlush' in traceProvider && typeof traceProvider.forceFlush === 'function') {
+      await traceProvider.forceFlush()
     }
 
-    if ('shutdown' in provider && typeof provider.shutdown === 'function') {
-      await provider.shutdown()
+    if ('shutdown' in traceProvider && typeof traceProvider.shutdown === 'function') {
+      await traceProvider.shutdown()
+    }
+
+    const logProvider = logs.getLoggerProvider()
+
+    if ('forceFlush' in logProvider && typeof logProvider.forceFlush === 'function') {
+      await logProvider.forceFlush()
+    }
+
+    if ('shutdown' in logProvider && typeof logProvider.shutdown === 'function') {
+      await logProvider.shutdown()
     }
 
     console.info('Telemetry: Flush complete')
@@ -85,9 +97,21 @@ function initialiseWithAzureMonitor(
 
   provider.register()
 
+  const logProcessors = [
+    new BatchLogRecordProcessor(new AzureMonitorLogExporter({ connectionString: config.connectionString })),
+  ]
+
+  if (config.debug) {
+    logProcessors.push(new BatchLogRecordProcessor(new ConsoleLogRecordExporter()))
+  }
+
+  const loggerProvider = new LoggerProvider({ resource, processors: logProcessors })
+  logs.setGlobalLoggerProvider(loggerProvider)
+
   registerInstrumentations({
     tracerProvider: provider,
     meterProvider: metrics.getMeterProvider(),
+    loggerProvider,
     instrumentations,
   })
 }
@@ -110,8 +134,19 @@ function initialiseDebugOnly(
 
   provider.register()
 
+  const loggerProvider = new LoggerProvider({
+    resource: resourceFromAttributes({
+      [ATTR_SERVICE_NAME]: config.serviceName,
+      [ATTR_SERVICE_VERSION]: config.serviceVersion || 'unknown',
+    }),
+    processors: [new BatchLogRecordProcessor(new ConsoleLogRecordExporter())],
+  })
+
+  logs.setGlobalLoggerProvider(loggerProvider)
+
   registerInstrumentations({
     tracerProvider: provider,
+    loggerProvider,
     instrumentations,
   })
 }

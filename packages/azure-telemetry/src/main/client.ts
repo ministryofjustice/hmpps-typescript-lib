@@ -1,10 +1,18 @@
 import { trace, SpanStatusCode, Span } from '@opentelemetry/api'
+import { logs, SeverityNumber } from '@opentelemetry/api-logs'
 
 import { getConfig } from './config'
 
 function getTracer() {
   const config = getConfig()
+
   return trace.getTracer(config?.serviceName ?? 'hmpps-azure-telemetry')
+}
+
+function getLogger() {
+  const config = getConfig()
+
+  return logs.getLogger(config?.serviceName ?? 'hmpps-azure-telemetry')
 }
 
 /**
@@ -13,8 +21,8 @@ function getTracer() {
  * @example
  * import { telemetry } from '@ministryofjustice/hmpps-azure-telemetry'
  *
- * // Add an event to the current span
- * telemetry.addSpanEvent('UserLoggedIn', { userId: '123' })
+ * // Track a custom event
+ * telemetry.trackEvent('UserLoggedIn', { userId: '123' })
  *
  * // Wrap an operation in a span
  * await telemetry.withSpan('processPayment', async (span) => {
@@ -35,20 +43,6 @@ export const telemetry = {
       for (const [key, value] of Object.entries(attributes)) {
         span.setAttribute(key, value)
       }
-    }
-  },
-
-  /**
-   * Add an event to the current active span (point-in-time occurrence).
-   *
-   * @param name - Event name
-   * @param attributes - Optional attributes to attach
-   */
-  addSpanEvent(name: string, attributes?: Record<string, string | number | boolean>): void {
-    const span = trace.getActiveSpan()
-
-    if (span) {
-      span.addEvent(name, attributes)
     }
   },
 
@@ -84,6 +78,24 @@ export const telemetry = {
     } finally {
       span.end()
     }
+  },
+
+  /**
+   * Track a custom event in Application Insights (appears in the customEvents table).
+   *
+   * @param name - Event name
+   * @param attributes - Optional attributes to attach
+   */
+  trackEvent(name: string, attributes?: Record<string, string | number | boolean>): void {
+    const logger = getLogger()
+
+    logger.emit({
+      severityNumber: SeverityNumber.INFO,
+      attributes: {
+        'microsoft.custom_event.name': name,
+        ...attributes,
+      },
+    })
   },
 
   /**

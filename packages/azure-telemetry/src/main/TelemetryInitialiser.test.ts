@@ -41,8 +41,19 @@ jest.mock('@opentelemetry/semantic-conventions', () => ({
   ATTR_SERVICE_VERSION: 'service.version',
 }))
 
+jest.mock('@opentelemetry/api-logs', () => ({
+  logs: { setGlobalLoggerProvider: jest.fn() },
+}))
+
+jest.mock('@opentelemetry/sdk-logs', () => ({
+  LoggerProvider: jest.fn(),
+  BatchLogRecordProcessor: jest.fn(),
+  ConsoleLogRecordExporter: jest.fn(),
+}))
+
 jest.mock('@azure/monitor-opentelemetry-exporter', () => ({
   AzureMonitorTraceExporter: jest.fn(),
+  AzureMonitorLogExporter: jest.fn(),
 }))
 
 jest.mock('./FilteringSpanProcessor', () => ({
