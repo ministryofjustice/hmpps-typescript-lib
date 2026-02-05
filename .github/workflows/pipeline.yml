@@ -106,14 +106,13 @@ jobs:
             cd "${root_path}/${package_dir}"
             name=$(jq -r .name package.json)
 
-            latest_version=$(npm view $name version || echo unpublished)
             version=$(jq -r .version package.json)
 
-            if [ "$version" == "$latest_version" ]; then
-              echo "package ${name} has already published latest version: ${version}, skipping..."
-
+            # Check whether this specific version is already published on npm
+            if npm view "${name}@${version}" version >/dev/null 2>&1; then
+              echo "package ${name} version ${version} is already published, skipping..."
             else
-              echo "→ Existing published version is ${latest_version}, publishing version ${version} of ${name}…"
+              echo "→ Publishing version ${version} of ${name}…"
 
               echo "→ Building package ${name}"
               package_name=$(npm pack)
