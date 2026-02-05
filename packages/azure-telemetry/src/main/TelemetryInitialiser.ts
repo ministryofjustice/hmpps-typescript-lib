@@ -1,5 +1,6 @@
 import { metrics, trace } from '@opentelemetry/api'
 import { registerInstrumentations } from '@opentelemetry/instrumentation'
+import { BunyanInstrumentation } from '@opentelemetry/instrumentation-bunyan'
 import { ExpressInstrumentation, ExpressLayerType } from '@opentelemetry/instrumentation-express'
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
 import { resourceFromAttributes } from '@opentelemetry/resources'
@@ -78,6 +79,7 @@ function initialiseWithAzureMonitor(
     tracerProvider: provider,
     meterProvider: metrics.getMeterProvider(),
     instrumentations: [
+      new BunyanInstrumentation(),
       new HttpInstrumentation(),
       new ExpressInstrumentation({
         ignoreLayersType: [ExpressLayerType.MIDDLEWARE, ExpressLayerType.ROUTER, ExpressLayerType.REQUEST_HANDLER],
@@ -102,6 +104,7 @@ function initialiseDebugOnly(config: TelemetryConfig, filters: SpanFilterFn[], m
   registerInstrumentations({
     tracerProvider: provider,
     instrumentations: [
+      new BunyanInstrumentation(),
       new HttpInstrumentation(),
       new ExpressInstrumentation({
         ignoreLayersType: [ExpressLayerType.MIDDLEWARE, ExpressLayerType.ROUTER, ExpressLayerType.REQUEST_HANDLER],

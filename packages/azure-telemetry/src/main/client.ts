@@ -49,17 +49,6 @@ export const telemetry = {
 
     if (span) {
       span.addEvent(name, attributes)
-    } else {
-      const tracer = getTracer()
-      const newSpan = tracer.startSpan(name)
-
-      if (attributes) {
-        Object.entries(attributes).forEach(([key, value]) => {
-          newSpan.setAttribute(key, value)
-        })
-      }
-
-      newSpan.end()
     }
   },
 

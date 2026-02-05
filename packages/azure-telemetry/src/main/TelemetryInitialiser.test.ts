@@ -18,6 +18,10 @@ jest.mock('@opentelemetry/instrumentation', () => ({
   registerInstrumentations: jest.fn(),
 }))
 
+jest.mock('@opentelemetry/instrumentation-bunyan', () => ({
+  BunyanInstrumentation: jest.fn(),
+}))
+
 jest.mock('@opentelemetry/instrumentation-http', () => ({
   HttpInstrumentation: jest.fn(),
 }))
