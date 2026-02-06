@@ -1,9 +1,9 @@
 import { telemetry as baseTelemetry } from './client'
 import { enrichSpanWithUser } from './helpers/enrichSpanWithUser'
-import { filterSpanWhereClient } from './proccessors/filterSpanWhereClient'
-import { filterSpanWherePath } from './proccessors/filterSpanWherePath'
-import { modifySpanNameWithHttpRoute } from './proccessors/modifySpanNameWithHttpRoute'
-import { modifySpanWithObfuscation } from './proccessors/modifySpanWithObfuscation'
+import { filterSpanWhereClient } from './processors/filterSpanWhereClient'
+import { filterSpanWherePath } from './processors/filterSpanWherePath'
+import { modifySpanNameWithHttpRoute } from './processors/modifySpanNameWithHttpRoute'
+import { modifySpanWithObfuscation } from './processors/modifySpanWithObfuscation'
 
 /** Export types */
 export { initialiseTelemetry, flushTelemetry, defaultInstrumentations, trace } from './TelemetryInitialiser'
