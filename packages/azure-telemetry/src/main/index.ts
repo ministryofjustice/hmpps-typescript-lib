@@ -1,16 +1,14 @@
 import { telemetry as baseTelemetry } from './client'
-import { enrichSpanWithUser } from './helpers/enrichSpanWithUser'
-import { filterSpanWhereClient } from './proccessors/filterSpanWhereClient'
-import { filterSpanWherePath } from './proccessors/filterSpanWherePath'
-import { modifySpanNameWithHttpRoute } from './proccessors/modifySpanNameWithHttpRoute'
-import { modifySpanWithObfuscation } from './proccessors/modifySpanWithObfuscation'
+import { filterSpanWhereClient } from './processors/filterSpanWhereClient'
+import { filterSpanWherePath } from './processors/filterSpanWherePath'
+import { modifySpanNameWithHttpRoute } from './processors/modifySpanNameWithHttpRoute'
+import { modifySpanWithObfuscation } from './processors/modifySpanWithObfuscation'
 
 /** Export types */
 export { initialiseTelemetry, flushTelemetry, defaultInstrumentations, trace } from './TelemetryInitialiser'
 export type { TelemetryBuilder } from './TelemetryInitialiser'
 export type { SpanInfo, ModifiableSpan, SpanFilterFn, SpanModifierFn } from './types/SpanProcessor'
 export type { TelemetryConfig } from './types/TelemetryConfig'
-export type { UserContext } from './types/UserContext'
 export type { ObfuscationRule, ObfuscatorConfig } from './types/ObfuscatorConfig'
 export { SpanKind } from '@opentelemetry/api'
 export type { Instrumentation } from '@opentelemetry/instrumentation'
@@ -49,7 +47,6 @@ export type { Instrumentation } from '@opentelemetry/instrumentation'
  *
  * telemetry.setSpanAttributes({ 'custom.attribute': 'value' })
  * telemetry.addSpanEvent('UserLoggedIn', { userId })
- * telemetry.helpers.enrichSpanWithUser({ id: userId, authSource: 'nomis' })
  */
 export const telemetry = {
   ...baseTelemetry,
@@ -58,8 +55,5 @@ export const telemetry = {
     filterSpanWherePath,
     enrichSpanNameWithHttpRoute: modifySpanNameWithHttpRoute,
     enrichSpanWithObfuscation: modifySpanWithObfuscation,
-  },
-  helpers: {
-    enrichSpanWithUser,
   },
 }
