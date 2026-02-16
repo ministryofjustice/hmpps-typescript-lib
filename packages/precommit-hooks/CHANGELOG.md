@@ -1,5 +1,9 @@
 # Change log
 
+## 2.0.1
+
+Fixing config.toml location 
+
 ## 2.0.0
 
 ### Breaking Changes
