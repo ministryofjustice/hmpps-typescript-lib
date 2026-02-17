@@ -81,7 +81,7 @@ describe('hmppsAuditClient', () => {
       expect(sqsMock.calls().length).toEqual(0)
     })
 
-    it("shouldn't throw an error if sqs message cannot be sent", async () => {
+    it("shouldn't throw an error if sqs message cannot be sent when configured not to", async () => {
       sqsMock.on(SendMessageCommand).rejects(new Error('Error sending sqs message'))
       auditClient = new AuditClient({ ...auditClientConfig }, console)
 
@@ -99,7 +99,7 @@ describe('hmppsAuditClient', () => {
       expect(sqsMock.calls().length).toEqual(1)
     })
 
-    it('should throw an error if sqs message cannot be sent', async () => {
+    it('should throw an error if sqs message cannot be sent by default', async () => {
       sqsMock.on(SendMessageCommand).rejects(new Error('Error sending sqs message'))
       auditClient = new AuditClient({ ...auditClientConfig }, console)
 
