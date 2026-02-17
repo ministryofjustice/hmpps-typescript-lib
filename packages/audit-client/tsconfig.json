@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "declarationDir": "./dist",
+    "declaration": true,
+    "module": "ESNext",
+    "moduleResolution": "node"
+  },
+  "include": ["./src/**/*.ts"],
+}

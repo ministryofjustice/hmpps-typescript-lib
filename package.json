@@ -26,6 +26,8 @@
     "/packages/monitoring",
     "/packages/npm-script-allowlist",
     "/packages/precommit-hooks"
+    "/packages/azure-telemetry",
+    "/packages/audit-client"
   ],
   "engines": {
     "node": "22 || 24 || 26"
