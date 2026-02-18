@@ -20,11 +20,22 @@ type JsonBody = {
   files?: never
 }
 
-type MultipartBody = {
-  data?: never
-  multipartData?: object | string[]
-  files?: { [key: string]: { buffer: Buffer; originalname: string } }
-}
+type MultipartBody =
+  | {
+      data?: never
+      multipartData: object | string[]
+      files: { [key: string]: { buffer: Buffer; originalname: string } }
+    }
+  | {
+      data?: never
+      multipartData?: never
+      files: { [key: string]: { buffer: Buffer; originalname: string } }
+    }
+  | {
+      data?: never
+      multipartData: object | string[]
+      files?: never
+    }
 
 export type RequestWithBody<Response, ErrorData> = Request<Response, ErrorData> & { retry?: boolean } & (
     | JsonBody
