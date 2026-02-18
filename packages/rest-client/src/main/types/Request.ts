@@ -16,6 +16,8 @@ export interface Request<Response, ErrorData> {
 
 export interface RequestWithBody<Response, ErrorData> extends Request<Response, ErrorData> {
   data?: Record<string, unknown> | string | Array<unknown> | undefined
+  multipartData?: object | string[]
+  files?: { [key: string]: { buffer: Buffer; originalname: string } }
   retry?: boolean
 }
 
