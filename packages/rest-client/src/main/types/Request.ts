@@ -14,12 +14,21 @@ export interface Request<Response, ErrorData> {
   retryHandler?: (retry?: boolean) => (err: Error, res: SuperAgentResponse) => boolean | undefined
 }
 
-export interface RequestWithBody<Response, ErrorData> extends Request<Response, ErrorData> {
-  data?: Record<string, unknown> | string | Array<unknown> | undefined
-  multipartData?: object | string[]
-  files?: { [key: string]: { buffer: Buffer; originalname: string } }
-  retry?: boolean
-}
+type UnionKeys<T> = T extends T ? keyof T : never
+type StrictUnionHelper<T, TAll> = T extends unknown
+  ? T & Partial<Record<Exclude<UnionKeys<TAll>, keyof T>, never>>
+  : never
+type StrictUnion<T> = StrictUnionHelper<T, T>
+
+export type RequestWithBody<Response, ErrorData> = Request<Response, ErrorData> & { retry?: boolean } & StrictUnion<
+    | {
+        data?: Record<string, unknown> | string | Array<unknown> | undefined
+      }
+    | {
+        multipartData?: object | string[]
+        files?: { [key: string]: { buffer: Buffer; originalname: string } }
+      }
+  >
 
 export interface StreamRequest<ErrorData> {
   path: string
