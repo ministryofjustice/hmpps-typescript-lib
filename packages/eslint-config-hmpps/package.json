@@ -37,16 +37,19 @@
     "check-for-updates": "npx npm-check-updates -u"
   },
   "dependencies": {
-    "@eslint/js": "^10.0.1",
+    "@stylistic/eslint-plugin": "^5.9.0",
+    "@eslint/js": "^9.39.3",
     "@typescript-eslint/eslint-plugin": "^8.56.1",
     "@typescript-eslint/parser": "^8.56.1",
-    "eslint": "^10.0.1",
-    "eslint-config-prettier": "^10.1.8",
+    "eslint": "^9.39.3",
+    "eslint-config-prettier": "10.1.8",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-cypress": "^6.1.0",
     "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-n": "^17.24.0",
     "eslint-plugin-no-only-tests": "^3.3.0",
     "eslint-plugin-prettier": "^5.5.5",
+    "prettier": "^3.8.1",
     "globals": "17.3.0"
   }
 }

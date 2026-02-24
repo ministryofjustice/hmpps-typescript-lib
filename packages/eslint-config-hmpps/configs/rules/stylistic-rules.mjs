@@ -44,19 +44,29 @@ const stylisticRules = {
     },
   ],
 
-  // Require or disallow newlines around directives.
-  // https://eslint.org/docs/latest/rules/lines-around-directive
-  'lines-around-directive': [
+  // Require or disallow padding lines between statements, including around directives.
+  // https://eslint.style/rules/padding-line-between-statements
+  '@stylistic/padding-line-between-statements': [
     'error',
     {
-      before: 'always',
-      after: 'always',
+      blankLine: 'always',
+      prev: 'directive',
+      next: '*',
+    },
+    {
+      blankLine: 'always',
+      prev: '*',
+      next: 'directive',
     },
   ],
 
+  // Require or disallow padding lines between statements.
+  // https://eslint.org/docs/latest/rules/padding-line-between-statements
+  'padding-line-between-statements': 'off',
+
   // Require or disallow an empty line between class members.
-  // https://eslint.org/docs/latest/rules/lines-between-class-members
-  'lines-between-class-members': [
+  // https://eslint.style/rules/lines-between-class-members
+  '@stylistic/lines-between-class-members': [
     'error',
     'always',
     {
@@ -94,10 +104,6 @@ const stylisticRules = {
     },
   ],
 
-  // Require or disallow padding lines between statements.
-  // https://eslint.org/docs/latest/rules/padding-line-between-statements
-  'padding-line-between-statements': 'off',
-
   // Enforce sorted `import` declarations within modules.
   // https://eslint.org/docs/latest/rules/sort-imports
   'sort-imports': [
@@ -126,8 +132,8 @@ const stylisticRules = {
   'sort-vars': 'off',
 
   // Enforce consistent spacing after the `//` or `/*` in a comment.
-  // https://eslint.org/docs/latest/rules/spaced-comment
-  'spaced-comment': [
+  // https://eslint.style/rules/spaced-comment
+  '@stylistic/spaced-comment': [
     'error',
     'always',
     {
@@ -160,8 +166,8 @@ const stylisticRules = {
   semi: 0,
 
   // Require or disallow trailing commas.
-  // https://eslint.org/docs/latest/rules/comma-dangle
-  'comma-dangle': ['error', 'always-multiline'],
+  // https://eslint.style/rules/comma-dangle
+  '@stylistic/comma-dangle': ['error', 'always-multiline'],
 
   // Run Prettier as an ESLint rule so formatting differences are reported by lint.
   // https://github.com/prettier/eslint-plugin-prettier#options

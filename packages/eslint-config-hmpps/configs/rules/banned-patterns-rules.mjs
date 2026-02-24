@@ -5,8 +5,8 @@
  */
 const bannedPatternsRules = {
   // Require `require()` calls to be placed at top-level module scope.
-  // https://eslint.org/docs/latest/rules/global-require
-  'global-require': 'error',
+  // https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/global-require.md
+  'n/global-require': 'error',
 
   // Disallow the use of `process.env`.
   // https://eslint.org/docs/latest/rules/no-process-env

@@ -153,13 +153,9 @@ const codeConventionRules = {
   // https://eslint.org/docs/latest/rules/no-negated-in-lhs
   'no-negated-in-lhs': 'off',
 
-  // Disallow `Object` constructors.
-  // https://eslint.org/docs/latest/rules/no-new-object
-  'no-new-object': 'error',
-
-  // Disallow unnecessary `return await`.
-  // https://eslint.org/docs/latest/rules/no-return-await
-  'no-return-await': 'error',
+  // Disallow `Object` constructor calls when object literal syntax can be used.
+  // https://eslint.org/docs/latest/rules/no-object-constructor
+  'no-object-constructor': 'error',
 
   // Disallow unnecessary calls to `.call()` and `.apply()`.
   // https://eslint.org/docs/latest/rules/no-useless-call

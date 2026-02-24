@@ -35,9 +35,9 @@ const errorPreventionRules = {
   // https://eslint.org/docs/latest/rules/guard-for-in
   'guard-for-in': 'error',
 
-  // Disallow use of the `Buffer()` constructor.
-  // https://eslint.org/docs/latest/rules/no-buffer-constructor
-  'no-buffer-constructor': 'error',
+  // Disallow deprecated Node.js APIs, including the legacy `Buffer()` constructor.
+  // https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/no-deprecated-api.md
+  'n/no-deprecated-api': 'error',
 
   // Disallow returning value from constructor.
   // https://eslint.org/docs/latest/rules/no-constructor-return
@@ -60,12 +60,12 @@ const errorPreventionRules = {
   'no-invalid-this': 'off',
 
   // Disallow `new` operators with calls to `require`.
-  // https://eslint.org/docs/latest/rules/no-new-require
-  'no-new-require': 'error',
+  // https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/no-new-require.md
+  'n/no-new-require': 'error',
 
   // Disallow string concatenation with `__dirname` and `__filename`.
-  // https://eslint.org/docs/latest/rules/no-path-concat
-  'no-path-concat': 'error',
+  // https://github.com/eslint-community/eslint-plugin-n/blob/master/docs/rules/no-path-concat.md
+  'n/no-path-concat': 'error',
 
   // Disallow returning values from Promise executor functions.
   // https://eslint.org/docs/latest/rules/no-promise-executor-return
