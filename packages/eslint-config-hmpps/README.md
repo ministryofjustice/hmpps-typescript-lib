@@ -5,7 +5,7 @@ This package aims so simplify code style enforcement in HMPPS typescript project
 It should include all:
 
 - the necessary npm packages to simplify dependency management within repositories
-- rules as defined by classic Airbnb best-practice with HMPPS overrides and typescript parsing
+- modern flat-config lint rules with HMPPS overrides and typescript parsing
 
 ## Status
 
@@ -34,7 +34,7 @@ This may expose some issues that need to manually fixed and some minor config ov
 The template project was migrated as part of [pull request 470](https://github.com/ministryofjustice/hmpps-template-typescript/pull/470),
 so you can either manually adopt changes from it or cherry-pick the squashed commit.
 
-Essentially, the move from eslint v8 to v9 requires changes to eslint configuration:
+Essentially, adopting the shared ESLint flat config requires changes to eslint configuration:
 
 - `npm uninstall @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint eslint-config-airbnb-base eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-cypress eslint-plugin-import eslint-plugin-no-only-tests eslint-plugin-prettier`
 - `npm install --save-dev @ministryofjustice/eslint-config-hmpps`
@@ -57,7 +57,7 @@ and [here](https://github.com/ministryofjustice/hmpps-incident-reporting/pull/25
 ## Developing this package
 
 It is deliberately not using typescript or rollup so that building is not required.
-CommonJS enables the parent and sibling packages to use the rules directly for lint checks.
+ES modules enable the parent and sibling packages to use the rules directly for lint checks.
 
 ## Testing changes to this library
 
@@ -66,6 +66,3 @@ Inside the project of choice then:
 * uninstall the existing library: `npm uninstall @ministryofjustice/eslint-config-hmpps`
 * install from the packed file: `npm install -D ~/ministryofjustice-eslint-config-hmpps-<some-version>.tgz`
 
-### TODO
-
-- use modern eslint typescript plugins desgined for eslint v9
