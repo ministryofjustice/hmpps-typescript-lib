@@ -34,8 +34,8 @@ const stylisticRules = {
   ],
 
   // Enforce position of line comments.
-  // https://eslint.org/docs/latest/rules/line-comment-position
-  'line-comment-position': [
+  // https://eslint.style/rules/line-comment-position
+  '@stylistic/line-comment-position': [
     'off',
     {
       position: 'above',
@@ -60,10 +60,6 @@ const stylisticRules = {
     },
   ],
 
-  // Require or disallow padding lines between statements.
-  // https://eslint.org/docs/latest/rules/padding-line-between-statements
-  'padding-line-between-statements': 'off',
-
   // Require or disallow an empty line between class members.
   // https://eslint.style/rules/lines-between-class-members
   '@stylistic/lines-between-class-members': [
@@ -75,20 +71,12 @@ const stylisticRules = {
   ],
 
   // Enforce a particular style for multiline comments.
-  // https://eslint.org/docs/latest/rules/multiline-comment-style
-  'multiline-comment-style': ['off', 'starred-block'],
-
-  // Require or disallow an empty line after variable declarations.
-  // https://eslint.org/docs/latest/rules/newline-after-var
-  'newline-after-var': 'off',
-
-  // Require an empty line before `return` statements.
-  // https://eslint.org/docs/latest/rules/newline-before-return
-  'newline-before-return': 'off',
+  // https://eslint.style/rules/multiline-comment-style
+  '@stylistic/multiline-comment-style': ['off', 'starred-block'],
 
   // Disallow `require` calls to be mixed with regular variable declarations.
-  // https://eslint.org/docs/latest/rules/no-mixed-requires
-  'no-mixed-requires': ['off', false],
+  // https://github.com/eslint-community/eslint-plugin-n/tree/master/docs/rules/no-mixed-requires.md
+  'n/no-mixed-requires': ['off', false],
 
   // Disallow multiline strings.
   // https://eslint.org/docs/latest/rules/no-multi-str
@@ -162,8 +150,8 @@ const stylisticRules = {
   'vars-on-top': 'error',
 
   // Require or disallow semicolons instead of ASI.
-  // https://eslint.org/docs/latest/rules/semi
-  semi: 0,
+  // https://eslint.style/rules/semi
+  '@stylistic/semi': 0,
 
   // Require or disallow trailing commas.
   // https://eslint.style/rules/comma-dangle

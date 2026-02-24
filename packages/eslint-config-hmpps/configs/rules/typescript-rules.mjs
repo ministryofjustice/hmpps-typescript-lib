@@ -37,10 +37,9 @@ const typescriptRules = {
   'no-loop-func': 'off',
   '@typescript-eslint/no-loop-func': 'error',
 
-  // Disallow numeric precision loss. The TypeScript variant is deprecated, so use the core rule.
+  // Disallow numeric precision loss.
   // https://eslint.org/docs/latest/rules/no-loss-of-precision
   'no-loss-of-precision': 'error',
-  '@typescript-eslint/no-loss-of-precision': 'off',
 
   // Disallow unused private class members. Use the TypeScript-specific variant: @typescript-eslint/no-unused-private-class-members.
   // https://typescript-eslint.io/rules/no-unused-private-class-members

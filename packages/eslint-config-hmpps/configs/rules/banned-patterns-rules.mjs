@@ -9,12 +9,12 @@ const bannedPatternsRules = {
   'n/global-require': 'error',
 
   // Disallow the use of `process.env`.
-  // https://eslint.org/docs/latest/rules/no-process-env
-  'no-process-env': 'off',
+  // https://github.com/eslint-community/eslint-plugin-n/tree/master/docs/rules/no-process-env.md
+  'n/no-process-env': 'off',
 
   // Disallow the use of `process.exit()`.
-  // https://eslint.org/docs/latest/rules/no-process-exit
-  'no-process-exit': 'off',
+  // https://github.com/eslint-community/eslint-plugin-n/tree/master/docs/rules/no-process-exit.md
+  'n/no-process-exit': 'off',
 
   // Disallow specified names in exports.
   // https://eslint.org/docs/latest/rules/no-restricted-exports
@@ -110,8 +110,8 @@ const bannedPatternsRules = {
   ],
 
   // Disallow specified modules when loaded by `require`.
-  // https://eslint.org/docs/latest/rules/no-restricted-modules
-  'no-restricted-modules': 'off',
+  // https://github.com/eslint-community/eslint-plugin-n/tree/master/docs/rules/no-restricted-require.md
+  'n/no-restricted-require': 'off',
 
   // Disallow certain properties on certain objects.
   // https://eslint.org/docs/latest/rules/no-restricted-properties
@@ -168,8 +168,8 @@ const bannedPatternsRules = {
   ],
 
   // Disallow synchronous methods.
-  // https://eslint.org/docs/latest/rules/no-sync
-  'no-sync': 'off',
+  // https://github.com/eslint-community/eslint-plugin-n/tree/master/docs/rules/no-sync.md
+  'n/no-sync': 'off',
 
   // Disallow ternary operators.
   // https://eslint.org/docs/latest/rules/no-ternary

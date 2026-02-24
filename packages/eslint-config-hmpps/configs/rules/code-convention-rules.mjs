@@ -35,8 +35,8 @@ const codeConventionRules = {
   'accessor-pairs': 'off',
 
   // Require `return` statements after callbacks.
-  // https://eslint.org/docs/latest/rules/callback-return
-  'callback-return': 'off',
+  // https://github.com/eslint-community/eslint-plugin-n/tree/master/docs/rules/callback-return.md
+  'n/callback-return': 'off',
 
   // Enforce consistent naming when capturing the current execution context.
   // https://eslint.org/docs/latest/rules/consistent-this
@@ -66,8 +66,8 @@ const codeConventionRules = {
   'grouped-accessor-pairs': 'error',
 
   // Require error handling in callbacks.
-  // https://eslint.org/docs/latest/rules/handle-callback-err
-  'handle-callback-err': 'off',
+  // https://github.com/eslint-community/eslint-plugin-n/tree/master/docs/rules/handle-callback-err.md
+  'n/handle-callback-err': 'off',
 
   // Disallow specified identifiers.
   // https://eslint.org/docs/latest/rules/id-denylist
@@ -98,8 +98,8 @@ const codeConventionRules = {
   ],
 
   // Disallow `catch` clause parameters from shadowing variables in the outer scope.
-  // https://eslint.org/docs/latest/rules/no-catch-shadow
-  'no-catch-shadow': 'off',
+  // https://eslint.org/docs/latest/rules/no-shadow
+  'no-shadow': 'off',
 
   // Disallow equal signs explicitly at the beginning of regular expressions.
   // https://eslint.org/docs/latest/rules/no-div-regex
@@ -141,17 +141,17 @@ const codeConventionRules = {
   // https://eslint.org/docs/latest/rules/no-lonely-if
   'no-lonely-if': 'error',
 
-  // Disallow assignments to native objects or read-only global variables.
-  // https://eslint.org/docs/latest/rules/no-native-reassign
-  'no-native-reassign': 'off',
+  // Disallow assignments to read-only global variables.
+  // https://eslint.org/docs/latest/rules/no-global-assign
+  'no-global-assign': 'error',
 
   // Disallow negated conditions.
   // https://eslint.org/docs/latest/rules/no-negated-condition
   'no-negated-condition': 'off',
 
-  // Disallow negating the left operand in `in` expressions.
-  // https://eslint.org/docs/latest/rules/no-negated-in-lhs
-  'no-negated-in-lhs': 'off',
+  // Disallow negating the left operand of relational operators.
+  // https://eslint.org/docs/latest/rules/no-unsafe-negation
+  'no-unsafe-negation': 'error',
 
   // Disallow `Object` constructor calls when object literal syntax can be used.
   // https://eslint.org/docs/latest/rules/no-object-constructor
@@ -187,10 +187,6 @@ const codeConventionRules = {
   // Enforce using named capture group in regular expression.
   // https://eslint.org/docs/latest/rules/prefer-named-capture-group
   'prefer-named-capture-group': 'off',
-
-  // Require `Reflect` methods where applicable.
-  // https://eslint.org/docs/latest/rules/prefer-reflect
-  'prefer-reflect': 'off',
 
   // Disallow async functions which have no `await` expression.
   // https://eslint.org/docs/latest/rules/require-await
