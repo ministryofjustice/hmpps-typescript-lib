@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/eslint-config-hmpps",
-  "version": "2.0.0",
+  "version": "2.0.0-alpha.1",
   "description": "ESLint rules for HMPPS typescript projects",
   "keywords": [
     "eslint",
@@ -16,7 +16,7 @@
   },
   "publishConfig": {
     "access": "public",
-    "tag": "latest"
+    "tag": "alpha"
   },
   "bin": {
     "eslint-config-hmpps": "bin/migrate.sh"
