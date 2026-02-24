@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/eslint-config-hmpps",
-  "version": "1.0.3",
+  "version": "2.0.0-alpha.1",
   "description": "ESLint rules for HMPPS typescript projects",
   "keywords": [
     "eslint",
@@ -16,17 +16,17 @@
   },
   "publishConfig": {
     "access": "public",
-    "tag": "latest"
+    "tag": "alpha"
   },
   "bin": {
     "eslint-config-hmpps": "bin/migrate.sh"
   },
-  "main": "index.cjs",
+  "main": "index.mjs",
   "files": [
     "*.md",
     "bin/*.sh",
-    "index.cjs",
-    "airbnbRules/"
+    "index.mjs",
+    "configs/**/*.mjs"
   ],
   "engines": {
     "node": "20 || 22 || 24"
@@ -37,23 +37,19 @@
     "check-for-updates": "npx npm-check-updates -u"
   },
   "dependencies": {
-    "@eslint/eslintrc": "^3.3.3",
-    "@eslint/js": "^9.39.2",
-    "@typescript-eslint/eslint-plugin": "^8.54.0",
-    "@typescript-eslint/parser": "^8.54.0",
-    "confusing-browser-globals": "^1.0.11",
-    "eslint": "^9.39.2",
-    "eslint-config-prettier": "^10.1.8",
+    "@stylistic/eslint-plugin": "^5.9.0",
+    "@eslint/js": "^9.39.3",
+    "@typescript-eslint/eslint-plugin": "^8.56.1",
+    "@typescript-eslint/parser": "^8.56.1",
+    "eslint": "^9.39.3",
+    "eslint-config-prettier": "10.1.8",
     "eslint-import-resolver-typescript": "^4.4.4",
-    "eslint-plugin-cypress": "^5.2.1",
+    "eslint-plugin-cypress": "^6.1.0",
     "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-n": "^17.24.0",
     "eslint-plugin-no-only-tests": "^3.3.0",
     "eslint-plugin-prettier": "^5.5.5",
-    "globals": "17.3.0",
-    "semver": "^7.7.3"
-  },
-  "devDependencies": {
-    "@types/confusing-browser-globals": "^1.0.3",
-    "@types/semver": "^7.7.1"
+    "prettier": "^3.8.1",
+    "globals": "17.3.0"
   }
 }

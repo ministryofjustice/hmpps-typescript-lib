@@ -1,6 +1,3 @@
-import hmppsConfig from './index.cjs'
+import hmppsConfig from './index.mjs'
 
-export default hmppsConfig({
-  // ignoring linting within Airbnb rules since they are vendored as-is
-  extraIgnorePaths: ['airbnbRules/'],
-})
+export default hmppsConfig()
