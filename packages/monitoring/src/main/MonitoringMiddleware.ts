@@ -22,7 +22,7 @@ export default class MonitoringMiddleware {
 
   private readonly deploymentInfo: DeploymentInfo
 
-  constructor(private readonly options: MonitoringOptions) {
+  constructor(options: MonitoringOptions) {
     this.healthCheck = new HealthCheck(options.healthComponents ?? [])
     this.deploymentInfo = new DeploymentInfo(options.applicationInfo)
   }
