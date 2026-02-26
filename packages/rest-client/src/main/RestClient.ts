@@ -1,5 +1,5 @@
 import { HttpAgent, HttpsAgent } from 'agentkeepalive'
-import superagent, { Response, ResponseError } from 'superagent'
+import superagent, { Response, ResponseError, Request as SuperAgentRequest } from 'superagent'
 import { Readable } from 'stream'
 import type Logger from 'bunyan'
 import sanitiseError from './helpers/sanitiseError'
@@ -187,6 +187,8 @@ export default class RestClient {
       headers = {},
       responseType = '',
       data,
+      multipartData,
+      files,
       raw = false,
       retry = false,
       errorHandler = this.handleError,
@@ -199,14 +201,39 @@ export default class RestClient {
     const token = await this.resolveToken(authOptions)
 
     try {
-      const req = superagent[method](`${this.apiUrl()}${path}`)
-        .query(query)
-        .send(data)
-        .agent(this.agent)
-        .retry(2, retryHandler.bind(this)(retry))
-        .set(headers)
-        .responseType(responseType)
-        .timeout(this.timeoutConfig())
+      let req: SuperAgentRequest
+
+      if (multipartData || files) {
+        req = superagent[method](`${this.apiUrl()}${path}`)
+          .type('form')
+          .query(query)
+          .agent(this.agent)
+          .retry(2, retryHandler.bind(this)(retry))
+          .set(headers)
+          .responseType(responseType)
+          .timeout(this.timeoutConfig())
+
+        if (multipartData) {
+          Object.entries(multipartData).forEach(([key, value]) => {
+            req.field(key, value)
+          })
+        }
+
+        if (files) {
+          Object.entries(files).forEach(([key, file]) => {
+            req.attach(key, file.buffer, file.originalname?.replaceAll("'", ''))
+          })
+        }
+      } else {
+        req = superagent[method](`${this.apiUrl()}${path}`)
+          .query(query)
+          .send(data)
+          .agent(this.agent)
+          .retry(2, retryHandler.bind(this)(retry))
+          .set(headers)
+          .responseType(responseType)
+          .timeout(this.timeoutConfig())
+      }
 
       if (token) {
         req.auth(token, { type: 'bearer' })
