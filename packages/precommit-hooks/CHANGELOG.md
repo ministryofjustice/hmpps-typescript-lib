@@ -1,5 +1,9 @@
 # Change log
 
+## 2.0.2
+
+Change default precommit config to run linting, typechecks and tests if the package-lock.json file changes 
+
 ## 2.0.1
 
 Fixing config.toml location 
