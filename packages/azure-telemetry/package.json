@@ -47,6 +47,6 @@
     "@opentelemetry/semantic-conventions": "1.x"
   },
   "devDependencies": {
-    "@opentelemetry/instrumentation-bunyan": "0.56.0"
+    "@opentelemetry/instrumentation-bunyan": "0.57.0"
   }
 }
