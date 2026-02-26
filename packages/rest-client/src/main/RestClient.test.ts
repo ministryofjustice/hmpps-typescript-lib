@@ -490,7 +490,7 @@ describe('RestClient', () => {
       const result = await restClient[method](
         {
           path: '/test',
-          multipartData: { test: 'data' },
+          multipartData: { test: 'data', object: { key: 'value', array: [1, 2] } },
           files: { sample: { originalname: 'sample.txt', buffer: Buffer.from('Lorem ipsum', 'utf8') } },
         },
         systemAuthOptions,
@@ -501,6 +501,9 @@ describe('RestClient', () => {
       expect(interceptedRequestBody).toMatch(/Content-Disposition: form-data; name="test"\s+data/)
       expect(interceptedRequestBody).toMatch(
         /Content-Disposition: form-data; name="sample"; filename="sample.txt"\s+Content-Type: text\/plain\s+Lorem ipsum/,
+      )
+      expect(interceptedRequestBody).toMatch(
+        /Content-Disposition: form-data; name="object"\s+Content-Type: application\/json\s+\{"key":"value","array":\[1,2]}/,
       )
     })
   })

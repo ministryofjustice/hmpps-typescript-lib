@@ -1,5 +1,5 @@
 import { HttpAgent, HttpsAgent } from 'agentkeepalive'
-import superagent, { Response, ResponseError, Request as SuperAgentRequest } from 'superagent'
+import superagent, { Response as SuperAgentResponse, ResponseError, Request as SuperAgentRequest } from 'superagent'
 import { Readable } from 'stream'
 import type Logger from 'bunyan'
 import sanitiseError from './helpers/sanitiseError'
@@ -94,7 +94,7 @@ export default class RestClient {
    * @returns A function that handles retries.
    */
   private handleRetry(retry: boolean = true) {
-    return (error: RetryError, res?: Response) => {
+    return (error: RetryError, res?: SuperAgentResponse) => {
       if (!retry) {
         return false
       }
@@ -215,7 +215,8 @@ export default class RestClient {
 
         if (multipartData) {
           Object.entries(multipartData).forEach(([key, value]) => {
-            req.field(key, value)
+            if (typeof value === 'object') req.field(key, JSON.stringify(value), { contentType: 'application/json' })
+            else req.field(key, value)
           })
         }
 
