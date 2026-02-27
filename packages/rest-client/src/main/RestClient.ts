@@ -215,8 +215,10 @@ export default class RestClient {
 
         if (multipartData) {
           Object.entries(multipartData).forEach(([key, value]) => {
-            if (typeof value === 'object') req.field(key, JSON.stringify(value), { contentType: 'application/json' })
-            else req.field(key, value)
+            if (value !== undefined && value !== null) {
+              if (typeof value === 'object') req.field(key, JSON.stringify(value), { contentType: 'application/json' })
+              else req.field(key, value)
+            }
           })
         }
 

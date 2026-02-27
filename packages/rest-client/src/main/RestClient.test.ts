@@ -490,7 +490,13 @@ describe('RestClient', () => {
       const result = await restClient[method](
         {
           path: '/test',
-          multipartData: { test: 'data', object: { key: 'value', array: [1, 2] } },
+          multipartData: {
+            test: 'data',
+            object: { key: 'value', array: [1, 2] },
+            array: ['a', 'b'],
+            undefinedProp: undefined,
+            nullProp: null,
+          },
           files: { sample: { originalname: 'sample.txt', buffer: Buffer.from('Lorem ipsum', 'utf8') } },
         },
         systemAuthOptions,
@@ -505,6 +511,11 @@ describe('RestClient', () => {
       expect(interceptedRequestBody).toMatch(
         /Content-Disposition: form-data; name="object"\s+Content-Type: application\/json\s+\{"key":"value","array":\[1,2]}/,
       )
+      expect(interceptedRequestBody).toMatch(
+        /Content-Disposition: form-data; name="array"\s+Content-Type: application\/json\s+\["a","b"]/,
+      )
+      expect(interceptedRequestBody).not.toContain('undefinedProp')
+      expect(interceptedRequestBody).not.toContain('nullProp')
     })
   })
 
