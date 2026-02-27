@@ -493,7 +493,7 @@ describe('RestClient', () => {
           multipartData: {
             test: 'data',
             object: { key: 'value', array: [1, 2] },
-            array: ['a', 'b'],
+            array: ['value1', 'value2'],
             undefinedProp: undefined,
             nullProp: null,
           },
@@ -511,9 +511,8 @@ describe('RestClient', () => {
       expect(interceptedRequestBody).toMatch(
         /Content-Disposition: form-data; name="object"\s+Content-Type: application\/json\s+\{"key":"value","array":\[1,2]}/,
       )
-      expect(interceptedRequestBody).toMatch(
-        /Content-Disposition: form-data; name="array"\s+Content-Type: application\/json\s+\["a","b"]/,
-      )
+      expect(interceptedRequestBody).toMatch(/Content-Disposition: form-data; name="array"\s+value1/)
+      expect(interceptedRequestBody).toMatch(/Content-Disposition: form-data; name="array"\s+value2/)
       expect(interceptedRequestBody).not.toContain('undefinedProp')
       expect(interceptedRequestBody).not.toContain('nullProp')
     })
