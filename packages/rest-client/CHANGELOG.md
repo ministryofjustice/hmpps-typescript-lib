@@ -1,5 +1,8 @@
 # Change log
 
+# 1.1.1
+- Allow json content in multipart form data
+
 # 1.1.0
 - Add support for multipart form data requests [PR-143](https://github.com/ministryofjustice/hmpps-typescript-lib/pull/143)
 
