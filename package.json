@@ -20,11 +20,12 @@
   "workspaces": [
     "/packages/rest-client",
     "/packages/auth-clients",
+    "/packages/azure-telemetry",
     "/packages/eslint-config-hmpps",
+    "/packages/frontend-types",
     "/packages/monitoring",
-    "/packages/precommit-hooks",
     "/packages/npm-script-allowlist",
-    "/packages/azure-telemetry"
+    "/packages/precommit-hooks"
   ],
   "engines": {
     "node": "20 || 22 || 24"
