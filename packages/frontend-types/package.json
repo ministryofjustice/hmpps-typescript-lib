@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/frontend-types",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "description": "",
   "author": "hmpps-developers",
   "license": "MIT",
@@ -31,14 +31,14 @@
     "check-for-updates": "npx npm-check-updates -u"
   },
   "devDependencies": {
-    "@ministryofjustice/frontend": "8.0.1",
+    "@ministryofjustice/frontend": "9.0.0",
     "accessible-autocomplete": "3.0.1",
-    "govuk-frontend": "5.14.0"
+    "govuk-frontend": "6.1.0"
   },
   "peerDependencies": {
     "@ministryofjustice/frontend": "6 || 7 || 8 || 9",
     "accessible-autocomplete": "3",
-    "govuk-frontend": "5 || 6.0.x"
+    "govuk-frontend": "5 || 6"
   },
   "peerDependenciesMeta": {
     "@ministryofjustice/frontend": {

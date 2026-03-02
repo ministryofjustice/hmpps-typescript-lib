@@ -1,5 +1,5 @@
 /**
- * MoJ Frontend types based on v8.0.1
+ * MoJ Frontend types based on v9.0.0
  * https://github.com/ministryofjustice/moj-frontend
  *
  * NB: this was recreated manually from javascript sources and may be incomplete!
