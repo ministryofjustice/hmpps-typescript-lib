@@ -13,7 +13,9 @@ Teams are welcome to trial this library. Please provide feedback via slack to th
 
 ## Usage
 
-Usage is best demonstrated by the [HMPPS typescript template](https://github.com/ministryofjustice/hmpps-template-typescript).
+Usage will be best demonstrated by the [HMPPS typescript template](https://github.com/ministryofjustice/hmpps-template-typescript)
+once this package is published and [incorporated](https://github.com/ministryofjustice/hmpps-template-typescript/pull/681).
+
 Note the `tsconfig.json` in the /assets/js folder, particularly the `lib` and `typeRoots` properties.
 
 ```typescript
