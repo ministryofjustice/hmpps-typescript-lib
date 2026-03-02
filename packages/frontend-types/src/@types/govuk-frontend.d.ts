@@ -1,5 +1,5 @@
 /**
- * GOV.UK Frontend types based on v5.14.0
+ * GOV.UK Frontend types based on v6.1.0
  * https://github.com/alphagov/govuk-frontend
  *
  * NB: this was recreated manually from javascript sources and may be incomplete!
@@ -72,7 +72,7 @@ declare module 'govuk-frontend' {
   /** @since 5.9.0 */
   export class FileUpload extends ConfigurableComponent {}
   /**
-   * NB: removed in 6.0.0
+   * NB: removed in 6.0.0! Included here for 5.x compatibility.
    * @since 5.0.0
    */
   export class Header extends Component {}
