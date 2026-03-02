@@ -1,0 +1,54 @@
+{
+  "name": "@ministryofjustice/frontend-types",
+  "version": "1.0.0-alpha.1",
+  "description": "",
+  "author": "hmpps-developers",
+  "license": "MIT",
+  "homepage": "https://github.com/ministryofjustice/hmpps-typescript-lib#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ministryofjustice/hmpps-typescript-lib.git"
+  },
+  "publishConfig": {
+    "access": "public",
+    "tag": "latest"
+  },
+  "main": "",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "*.md",
+    "dist/**/*"
+  ],
+  "engines": {
+    "node": "20 || 22 || 24"
+  },
+  "scripts": {
+    "build": "mkdir -p ./dist && cat ./src/@types/*.d.ts > ./dist/index.d.ts",
+    "clean": "rm -rf ./dist/",
+    "test": "tsc",
+    "lint": "eslint src --cache --max-warnings 0",
+    "lint-fix": "eslint src --cache --max-warnings 0 --fix",
+    "check-for-updates": "npx npm-check-updates -u"
+  },
+  "devDependencies": {
+    "@ministryofjustice/frontend": "8.0.1",
+    "accessible-autocomplete": "3.0.1",
+    "govuk-frontend": "5.14.0"
+  },
+  "peerDependencies": {
+    "@ministryofjustice/frontend": "6 || 7 || 8 || 9",
+    "accessible-autocomplete": "3",
+    "govuk-frontend": "5 || 6.0.x"
+  },
+  "peerDependenciesMeta": {
+    "@ministryofjustice/frontend": {
+      "optional": true
+    },
+    "accessible-autocomplete": {
+      "optional": true
+    },
+    "govuk-frontend": {
+      "optional": true
+    }
+  }
+}
