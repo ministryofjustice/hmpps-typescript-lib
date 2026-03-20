@@ -1,6 +1,6 @@
 # @ministryofjustice/hmpps-npm-script-allowlist
 
-This package aims to restrict npm scripts from running unless as part of a predefined allowlist. 
+This package aims to restrict npm scripts from running unless as part of a predefined allowlist.
 
 ## Status
 
@@ -29,9 +29,10 @@ This will:
 - Add a new npm script called `setup`
 - Run the tool, which will likely fail allowing the developer to complete configuration
 
-The tool can then be configured with a list of packages and their associated versions that should run be allowed to run scripts post install.
+The tool can then be configured with a list of packages that should be allowed to run scripts post install.
+Entries can target an exact version, a semver range, or the package path with no version to match all installed versions at that path.
 
-To work with the project after that: 
+To work with the project after that:
 - `npm install` will install packages but no longer executes any scripts due to the defaults set in `.npmrc`
 - `npm run setup` runs `npm ci` (without scripts) and then executes only those scripts that have been explicitly allowed.
 
@@ -46,11 +47,11 @@ import configureAllowedScripts from '@ministryofjustice/hmpps-npm-script-allowli
 
 export default configureAllowedScripts({
    allowlist: {
-      "node_modules/@parcel/watcher@2.5.1": "ALLOW",
-      "node_modules/cypress@14.5.4": "FORBID",
+      "node_modules/@parcel/watcher@^2.5.1": "ALLOW",
+      "node_modules/cypress@~14.5.4": "FORBID",
       "node_modules/dtrace-provider@0.8.8": "ALLOW",
       "node_modules/fsevents@2.3.3": "FORBID",
-      "node_modules/unrs-resolver@1.11.1": "ALLOW"
+      "node_modules/unrs-resolver": "ALLOW"
    },
 })
 ```
@@ -64,7 +65,7 @@ By default hmpps-npm-script-allowlist will only manage and run the following scr
 - `prepare`
 - `postinstall`
 
-Scripts bound to other lifecycles will not be executed. 
+Scripts bound to other lifecycles will not be executed.
 This list can be expand by specifying the following options in `./allowed-scripts.mjs`:
 
 - `localScriptsToRun`: The list of the current service's scripts to run post install
@@ -77,8 +78,8 @@ This is heavily inspired by [lavamoat's allowscripts](https://github.com/LavaMoa
 This works slightly differently:
 
 - Scripts need to be explicitly configured either to be included or not or the script will fail
-- This uses the explicit version in the package-lock.json to key whether a script should run or not, rather than just the name of the package
-- It provides some extra contextual information about the packages that need to be allowlisted - details about the script and when the package was published. 
+- This supports using the explicit version in the package-lock.json to key whether a script should run or not, rather than just the name of the package
+- It provides some extra contextual information about the packages that need to be allowlisted - details about the script and when the package was published.
 
 ## Example output:
 

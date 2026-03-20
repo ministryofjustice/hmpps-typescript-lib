@@ -41,6 +41,10 @@
     "node": "20 || 22 || 24"
   },
   "dependencies": {
-    "@npmcli/run-script": "10.0.3"
+    "@npmcli/run-script": "10.0.3",
+    "semver": "^7.7.4"
+  },
+  "devDependencies": {
+    "@types/semver": "^7.7.1"
   }
 }
