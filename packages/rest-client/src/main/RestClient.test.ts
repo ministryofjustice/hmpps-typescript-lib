@@ -445,6 +445,66 @@ describe('RestClient', () => {
     })
   })
 
+  describe.each(['patch', 'post', 'put'] as const)('%s request with body', method => {
+    afterEach(() => {
+      nock.cleanAll()
+    })
+
+    it('should handle json request body', async () => {
+      let interceptedRequestBody: unknown
+
+      nock('http://localhost:8080', {
+        reqheaders: { authorization: 'Bearer some_system_jwt' },
+      })
+        [method]('/api/test', body => {
+          interceptedRequestBody = body
+          return true
+        })
+        .reply(200, { success: true })
+
+      const result = await restClient[method](
+        {
+          path: '/test',
+          data: { test: 'data' },
+        },
+        systemAuthOptions,
+      )
+
+      expect(nock.isDone()).toBe(true)
+      expect(result).toStrictEqual({ success: true })
+      expect(interceptedRequestBody).toStrictEqual({ test: 'data' })
+    })
+
+    it('should handle multipart request body', async () => {
+      let interceptedRequestBody: unknown
+
+      nock('http://localhost:8080', {
+        reqheaders: { authorization: 'Bearer some_system_jwt' },
+      })
+        [method]('/api/test', body => {
+          interceptedRequestBody = body
+          return true
+        })
+        .reply(200, { success: true })
+
+      const result = await restClient[method](
+        {
+          path: '/test',
+          multipartData: { test: 'data' },
+          files: { sample: { originalname: 'sample.txt', buffer: Buffer.from('Lorem ipsum', 'utf8') } },
+        },
+        systemAuthOptions,
+      )
+
+      expect(nock.isDone()).toBe(true)
+      expect(result).toStrictEqual({ success: true })
+      expect(interceptedRequestBody).toMatch(/Content-Disposition: form-data; name="test"\s+data/)
+      expect(interceptedRequestBody).toMatch(
+        /Content-Disposition: form-data; name="sample"; filename="sample.txt"\s+Content-Type: text\/plain\s+Lorem ipsum/,
+      )
+    })
+  })
+
   describe('stream', () => {
     afterEach(() => {
       nock.cleanAll()

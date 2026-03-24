@@ -14,10 +14,33 @@ export interface Request<Response, ErrorData> {
   retryHandler?: (retry?: boolean) => (err: Error, res: SuperAgentResponse) => boolean | undefined
 }
 
-export interface RequestWithBody<Response, ErrorData> extends Request<Response, ErrorData> {
+type JsonBody = {
   data?: Record<string, unknown> | string | Array<unknown> | undefined
-  retry?: boolean
+  multipartData?: never
+  files?: never
 }
+
+type MultipartBody =
+  | {
+      data?: never
+      multipartData: object | string[]
+      files: { [key: string]: { buffer: Buffer; originalname: string } }
+    }
+  | {
+      data?: never
+      multipartData?: never
+      files: { [key: string]: { buffer: Buffer; originalname: string } }
+    }
+  | {
+      data?: never
+      multipartData: object | string[]
+      files?: never
+    }
+
+export type RequestWithBody<Response, ErrorData> = Request<Response, ErrorData> & { retry?: boolean } & (
+    | JsonBody
+    | MultipartBody
+  )
 
 export interface StreamRequest<ErrorData> {
   path: string

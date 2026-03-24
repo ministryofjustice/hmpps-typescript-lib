@@ -1,5 +1,8 @@
 # Change log
 
+# 1.1.0
+- Add support for multipart form data requests [PR-143](https://github.com/ministryofjustice/hmpps-typescript-lib/pull/143)
+
 # 1.0.0
 
 Move to node 24
@@ -17,7 +20,7 @@ Move to node 24
 
 # 0.0.1
 
-Initial release 
+Initial release
 
  @types/express  ^4.17.21 →  ^5.0.3
  nock            ^13.5.6" →  ^14.0.5

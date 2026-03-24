@@ -51,6 +51,14 @@ class ExampleApiClient extends RestClient {
   async getExampleData(username: string) {
     return this.get({ path: '/example-data' }, asSystem(username))
   }
+
+  async postJsonData(username: string, jsonRequestBody: object) {
+    return this.post({ path: '/example-data', data: jsonRequestBody }, asSystem(username))
+  }
+
+  async postMultipartData(username: string, file: { buffer: Buffer; originalname: string }, multipartRequestBody: object) {
+    return this.post({ path: '/example-data', files: { upload: file }, multipartData: multipartRequestBody }, asSystem(username))
+  }
 }
 
 export default new ExampleApiClient()
