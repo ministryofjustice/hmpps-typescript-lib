@@ -100,12 +100,12 @@ export default class RestClient {
       }
 
       if (res && this.STATUS_CODES.has(res.status)) {
-        this.logger.info(`Retry handler found API error with status code ${res.status}`)
+        this.logger.warn(`Retry handler found API error with status code ${res.status}`)
         return true
       }
 
       if (error) {
-        this.logger.info(`Retry handler found API error with ${error.name} - ${error.message}`)
+        this.logger.warn(`Retry handler found API error with ${error.name} - ${error.message}`)
         if (
           (error?.code && this.ERROR_CODES.has(error.code)) ||
           (error.timeout && error?.code === 'ECONNABORTED') ||
@@ -141,7 +141,7 @@ export default class RestClient {
     }: Request<Response, ErrorData>,
     authOptions?: AuthOptions | string,
   ): Promise<Response> {
-    this.logger.info(`${this.name} GET: ${path}`)
+    this.logger.debug(`${this.name} GET: ${path}`)
 
     // 1) Resolve the token (if any)
     const token = await this.resolveToken(authOptions)
@@ -196,7 +196,7 @@ export default class RestClient {
     }: RequestWithBody<Response, ErrorData>,
     authOptions?: AuthOptions | string,
   ): Promise<Response> {
-    this.logger.info(`${this.name} ${method.toUpperCase()}: ${path}`)
+    this.logger.debug(`${this.name} ${method.toUpperCase()}: ${path}`)
 
     const token = await this.resolveToken(authOptions)
 
@@ -317,7 +317,7 @@ export default class RestClient {
     }: Request<Response, ErrorData>,
     authOptions?: AuthOptions | string,
   ): Promise<Response> {
-    this.logger.info(`${this.name} DELETE: ${path}`)
+    this.logger.debug(`${this.name} DELETE: ${path}`)
 
     const token = await this.resolveToken(authOptions)
 
@@ -355,7 +355,7 @@ export default class RestClient {
     { path, headers = {}, errorLogger = this.logError }: StreamRequest<ErrorData>,
     authOptions?: AuthOptions | string,
   ): Promise<Readable> {
-    this.logger.info(`${this.name} streaming: ${path}`)
+    this.logger.debug(`${this.name} streaming: ${path}`)
 
     const token = await this.resolveToken(authOptions)
 
