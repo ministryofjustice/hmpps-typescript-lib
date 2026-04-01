@@ -5,8 +5,8 @@ import { readConfiguration } from './configuration-reader'
 describe('readConfiguration', () => {
   const baseConfig: Config = {
     allowlist: {
-      'package-a@1.0.0': 'ALLOW',
-      'package-b@2.0.0': 'FORBID',
+      'package-a@^1.0.0': 'ALLOW',
+      'package-b': 'FORBID',
       'package-c@1.9.0': 'ALLOW',
     },
     dependencyScriptsToRun: ['install'],
@@ -16,7 +16,7 @@ describe('readConfiguration', () => {
   const basePackageLock: PackageLock = {
     packages: {
       'package-a': {
-        version: '1.0.0',
+        version: '1.2.0',
         hasInstallScript: true,
       },
       'package-b': {
@@ -43,7 +43,7 @@ describe('readConfiguration', () => {
     expect(result.packages.incorrectlyConfigured).toBe(true)
 
     expect(result.configToPrint).toEqual({
-      'package-a@1.0.0': 'ALLOW',
+      'package-a@1.2.0': 'ALLOW',
       'package-b@2.0.0': 'FORBID',
       'package-c@1.9.0': '<REMOVED>',
       'package-c@3.0.0': '<MISSING>',
@@ -56,7 +56,7 @@ describe('readConfiguration', () => {
   it('should use default scripts if none are provided', () => {
     const configWithoutScripts: Config = {
       allowlist: {
-        'package-a@1.0.0': 'ALLOW',
+        'package-a@^1.0.0': 'ALLOW',
       },
     }
 
@@ -71,7 +71,32 @@ describe('readConfiguration', () => {
 
     expect(result.packages.toRun).toEqual([])
     expect(result.packages.toConfigure).toEqual([])
-    expect(result.packages.toRemove).toEqual(['package-a@1.0.0', 'package-b@2.0.0', 'package-c@1.9.0'])
+    expect(result.packages.toRemove).toEqual(['package-a@^1.0.0', 'package-b', 'package-c@1.9.0'])
     expect(result.packages.incorrectlyConfigured).toBe(true)
+  })
+
+  it('should prefer exact versions over ranges and package-wide rules', () => {
+    const result = readConfiguration(
+      {
+        allowlist: {
+          'package-a': 'FORBID',
+          'package-a@^1.0.0': 'FORBID',
+          'package-a@1.2.0': 'ALLOW',
+        },
+      },
+      {
+        packages: {
+          'package-a': {
+            version: '1.2.0',
+            hasInstallScript: true,
+          },
+        },
+      },
+    )
+
+    expect(result.packages.toRun).toEqual(['package-a'])
+    expect(result.packages.toConfigure).toEqual([])
+    expect(result.packages.toRemove).toEqual([])
+    expect(result.packages.incorrectlyConfigured).toBe(false)
   })
 })

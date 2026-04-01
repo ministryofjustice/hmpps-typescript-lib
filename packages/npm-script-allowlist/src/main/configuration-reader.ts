@@ -1,4 +1,5 @@
-import { ConfigurationReader, PackageLock, Config } from './types/configuration-loading'
+import { Config, ConfigurationReader, PackageLock, ScriptRunStatus } from './types/configuration-loading'
+import { resolvePackage, satisfiesVersion } from './version-resolver'
 
 const ALL_INSTALL_SCRIPTS = ['preinstall', 'install', 'prepare', 'postinstall']
 
@@ -12,19 +13,22 @@ export const readConfiguration: ConfigurationReader = (config: Config, packageLo
     .filter(pkg => pkg.hasInstallScript)
     .map(pkg => {
       const nameWithVersion = `${pkg.name}@${pkg.version}`
-      const configuredPackage = configuredAllowlist.find(([name]) => nameWithVersion === name)
-      const isConfigured = Boolean(configuredPackage)
+      const mode = resolvePackage(configuredAllowlist, pkg.name, pkg.version)
       return {
         ...pkg,
         nameWithVersion,
-        configured: isConfigured,
-        status: configuredPackage ? configuredPackage[1] : '<MISSING>',
+        configured: Boolean(mode),
+        status: mode || ('<MISSING>' as ScriptRunStatus),
       }
     })
 
-  const installedPackagesWithScripts = packagesWithScripts.map(pkg => pkg.nameWithVersion)
+  const configuredPackages = configuredAllowlist
+    .filter(([configuredPackage]) =>
+      packagesWithScripts.some(pkg => satisfiesVersion(configuredPackage, pkg.name, pkg.version)),
+    )
+    .map(([configuredPackage]) => configuredPackage)
 
-  const packagesToRemove = Object.keys(config.allowlist).filter(pkg => !installedPackagesWithScripts.includes(pkg))
+  const packagesToRemove = Object.keys(config.allowlist).filter(pkg => !configuredPackages.includes(pkg))
   const removedPackagesToPrint = packagesToRemove.map(pkg => [pkg, '<REMOVED>'])
   const configToPrint = Object.fromEntries(
     removedPackagesToPrint
