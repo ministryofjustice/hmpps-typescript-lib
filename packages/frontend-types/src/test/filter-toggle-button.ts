@@ -1,0 +1,27 @@
+import { FilterToggleButton } from '@ministryofjustice/frontend'
+
+export default function filterToggleButton() {
+  const rootElement = document.querySelector<HTMLDivElement>('[data-module="moj-filter"]')
+  if (rootElement !== null) {
+    // eslint-disable-next-line no-new
+    new FilterToggleButton(rootElement, {
+      bigModeMediaQuery: '(min-width: 48.063em)',
+      startHidden: false,
+      toggleButton: {
+        showText: 'Show filters',
+        hideText: 'Hide filters',
+        classes: 'govuk-button--secondary',
+      },
+      toggleButtonContainer: {
+        selector: '.moj-action-bar__filter',
+      },
+      closeButton: {
+        text: 'Close',
+        classes: 'moj-filter__close',
+      },
+      closeButtonContainer: {
+        selector: '.moj-filter__header-action',
+      },
+    })
+  }
+}
