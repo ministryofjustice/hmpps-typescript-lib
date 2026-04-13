@@ -52,9 +52,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
         with:
-          node-version: 24
-      - name: Update npm
-        run: npm install -g npm@latest
+          node-version-file: '.nvmrc'
       - name: Install dependencies
         run: npm install
       - name: Clean build step
@@ -80,11 +78,9 @@ jobs:
       - name: Setup node with public npmjs.com registry
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
         with:
-          node-version: 24
+          node-version-file: '.nvmrc'
           registry-url: 'https://registry.npmjs.org'
           scope: '@ministryofjustice'
-      - name: Update npm
-        run: npm install -g npm@latest
       - name: Install dependencies
         run: npm install
       - name: Build all packages
