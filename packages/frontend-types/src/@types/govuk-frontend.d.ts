@@ -42,7 +42,7 @@ declare module 'govuk-frontend' {
   /** @since 5.8.0 */
   export abstract class ConfigurableComponent<
     RootElement extends HTMLElement = HTMLElement,
-    Config = Record<string, string | boolean | number | object>,
+    Config = ObjectNested,
   > extends Component<RootElement> {
     // technically types of `schema` and `defaults` should be strongly tied to `Config`,
     // but static properties cannot refer to generic parameters
