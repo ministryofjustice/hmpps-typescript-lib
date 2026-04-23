@@ -12,6 +12,7 @@ describe('run()', () => {
   const mockRunScript = jest.fn()
   const mockFetchPackages = jest.fn()
   const mockReadConfiguration = jest.fn()
+  const mockVerifyEnvironment = jest.fn()
 
   const deps = {
     readFile: mockReadFile,
@@ -22,6 +23,7 @@ describe('run()', () => {
     runScript: mockRunScript,
     fetchPackageInfo: mockFetchPackages,
     readConfiguration: mockReadConfiguration,
+    verifyEnvironment: mockVerifyEnvironment,
   }
 
   const mockPackageLockJson = {
@@ -65,8 +67,34 @@ describe('run()', () => {
     mockReadConfiguration.mockReturnValue(mockDerivedConfig)
   })
 
+  it('should exit if env is not correct', async () => {
+    mockVerifyEnvironment.mockImplementation(() => {
+      throw new Error('exit')
+    })
+
+    await expect(new Runner(deps).run()).rejects.toThrow('exit')
+    expect(mockVerifyEnvironment).toHaveBeenCalled()
+  })
+
   it('should run scripts when configuration is correct', async () => {
     await expect(new Runner(deps).run()).resolves.not.toThrow()
+
+    expect(mockLog).toHaveBeenCalledWith(expect.stringContaining('Running dependency scripts'))
+    expect(mockRunScript).toHaveBeenCalledWith({ path: 'package-a', event: 'install' })
+
+    expect(mockLog).toHaveBeenCalledWith(expect.stringContaining('Running local scripts'))
+    expect(mockRunScript).toHaveBeenCalledWith({ path: '.', event: 'postinstall' })
+
+    expect(mockLog).toHaveBeenCalledWith('FIN!')
+  })
+
+  // we know certain scripts will fail (e.g. postinstall scripts that expect to be run in the context of the package), but we don't want that to cause the whole process to fail.
+  it('should not error when scripts fail to execute', async () => {
+    await expect(new Runner(deps).run()).resolves.not.toThrow()
+
+    mockRunScript.mockImplementation(() => {
+      throw new Error('exit')
+    })
 
     expect(mockLog).toHaveBeenCalledWith(expect.stringContaining('Running dependency scripts'))
     expect(mockRunScript).toHaveBeenCalledWith({ path: 'package-a', event: 'install' })

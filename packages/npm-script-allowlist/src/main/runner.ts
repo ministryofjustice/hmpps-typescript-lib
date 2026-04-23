@@ -11,13 +11,26 @@ export type Dependencies = {
   runScript: (opts: { path: string; event: string }) => Promise<void>
   fetchPackageInfo: PackageFetcher
   readConfiguration: ConfigurationReader
+  verifyEnvironment(): void
 }
 
 export class Runner {
   constructor(private readonly deps: Dependencies) {}
 
   async run(): Promise<void> {
-    const { readFile, dynamicImport, log, error, exit, runScript, fetchPackageInfo, readConfiguration } = this.deps
+    const {
+      readFile,
+      dynamicImport,
+      log,
+      error,
+      exit,
+      runScript,
+      fetchPackageInfo,
+      readConfiguration,
+      verifyEnvironment,
+    } = this.deps
+
+    verifyEnvironment()
 
     const packageLockJson = JSON.parse(readFile('package-lock.json'))
     const configModule = await dynamicImport(`${process.cwd()}/.allowed-scripts.mjs`)
@@ -66,14 +79,22 @@ export class Runner {
     for (const path of packages.toRun) {
       log(`- Running scripts for: ${path}`)
       for (const event of scripts.dependencyScriptsToRun) {
-        await runScript({ path, event })
+        try {
+          await runScript({ path, event })
+        } catch (err) {
+          error(`Error running dependency script: ${event} for ${path}`, err)
+        }
       }
     }
 
     log('Running local scripts')
     for (const event of scripts.localScriptsToRun) {
       log(`- Running local scripts: ${event}`)
-      await runScript({ path: '.', event })
+      try {
+        await runScript({ path: '.', event })
+      } catch (err) {
+        error(`Error running local script: ${event}`, err)
+      }
     }
 
     log('FIN!')

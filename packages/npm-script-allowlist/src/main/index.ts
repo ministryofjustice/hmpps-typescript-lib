@@ -4,6 +4,7 @@ import npmRunScript from '@npmcli/run-script'
 import { readConfiguration } from './configuration-reader'
 import { fetchPackageInfo } from './fetch-package-info'
 import { Runner } from './runner'
+import { environmentVerifier } from './environment-verifier'
 
 export { configureAllowedScripts, type Config } from './project-configuration'
 
@@ -17,5 +18,6 @@ export async function run() {
     runScript: ({ path, event }) => npmRunScript({ event, path, stdio: 'inherit' }),
     fetchPackageInfo,
     readConfiguration,
+    verifyEnvironment: environmentVerifier,
   }).run()
 }
