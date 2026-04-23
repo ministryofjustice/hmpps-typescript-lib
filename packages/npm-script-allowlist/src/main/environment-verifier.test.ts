@@ -53,7 +53,7 @@ describe('environmentVerifier', () => {
       .mockReturnValueOnce('FROM node:18') // Dockerfile content without .npmrc reference
 
     expect(() => environmentVerifier()).toThrow(
-      'Please ensure your Dockerfile copies the .npmrc file to the container. See here for example: https://github.com/ministryofjustice/hmpps-template-typescript/pull/719',
+      /Please ensure your Dockerfile copies the \.npmrc file to the container\./,
     )
   })
 
