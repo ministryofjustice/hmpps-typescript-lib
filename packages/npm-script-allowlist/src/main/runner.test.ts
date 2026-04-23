@@ -65,6 +65,7 @@ describe('run()', () => {
     mockReadFile.mockReturnValue(JSON.stringify(mockPackageLockJson))
     mockDynamicImport.mockResolvedValue({ default: mockConfig })
     mockReadConfiguration.mockReturnValue(mockDerivedConfig)
+    mockVerifyEnvironment.mockReturnValue(undefined)
   })
 
   it('should exit if env is not correct', async () => {

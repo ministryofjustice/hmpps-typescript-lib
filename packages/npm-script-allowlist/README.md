@@ -39,7 +39,7 @@ To work with the project after that:
 
 A manual step is required to move CI and docker over to use `npm run setup` instead of `npm ci`
 
-## Verfiying the environment
+## Verifying the environment
 
 The environment verification ensures:
 
