@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'fs'
 
 export const environmentVerifier = (log: (...args: unknown[]) => void = console.log) => {
-  // if processs.env.NPM_SCRIPT_ALLOWLIST_VERIFICATION_DISABLED is set, skip verification
+  // if process.env.NPM_SCRIPT_ALLOWLIST_VERIFICATION_DISABLED is set, skip verification
   if (process.env.NPM_SCRIPT_ALLOWLIST_VERIFICATION_DISABLED === 'true') {
     log('Environment verification is disabled.')
     return
