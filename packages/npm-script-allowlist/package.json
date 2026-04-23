@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/hmpps-npm-script-allowlist",
-  "version": "0.0.4",
+  "version": "0.0.5-beta",
   "description": "A tool to restrict npm scripts from running unless as part of an allowlist",
   "keywords": [
     "npm",
@@ -15,7 +15,7 @@
   },
   "publishConfig": {
     "access": "public",
-    "tag": "latest"
+    "tag": "beta"
   },
   "main": "./dist/index.cjs.js",
   "module": "./dist/index.esm.js",

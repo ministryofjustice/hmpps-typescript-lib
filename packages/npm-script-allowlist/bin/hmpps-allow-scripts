@@ -4,4 +4,5 @@ const { run } = require('@ministryofjustice/hmpps-npm-script-allowlist/dist/inde
 
 run().catch(error => {
   console.error(`An error occurred: ${error}`)
+  throw error
 })

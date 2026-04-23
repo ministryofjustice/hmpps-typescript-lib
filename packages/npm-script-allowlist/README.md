@@ -33,10 +33,34 @@ The tool can then be configured with a list of packages that should be allowed t
 Entries can target an exact version, a semver range, or the package path with no version to match all installed versions at that path.
 
 To work with the project after that:
+
 - `npm install` will install packages but no longer executes any scripts due to the defaults set in `.npmrc`
 - `npm run setup` runs `npm ci` (without scripts) and then executes only those scripts that have been explicitly allowed.
 
 A manual step is required to move CI and docker over to use `npm run setup` instead of `npm ci`
+
+## Verifying the environment
+
+The environment verification ensures:
+
+1. **.npmrc configuration** - Verifies that your `.npmrc` file exists and contains `ignore-scripts=true` to prevent unauthorized scripts from executing during `npm install`
+2. **Dockerfile npm setup** - If a Dockerfile exists in your project, verification attempts to detect if it correctly copies the `.npmrc` file into the container.
+
+### Why this matters
+
+These checks ensure that the security settings required by the allowlist system are consistently applied across development and deployment environments.
+
+This project assumes that preinstall and postinstall scripts have been disabled. Docker containers will bypass security restrictions if the `.npmrc` isn't copied over and there's been cases where the npmrc file hasn't been configured correctly.
+
+See the [hmpps-template-typescript PR #719](https://github.com/ministryofjustice/hmpps-template-typescript/pull/719) for a complete example of how to properly configure your project to pass these checks.
+
+### Disabling verification
+
+```bash
+NPM_SCRIPT_ALLOWLIST_VERIFICATION_DISABLED=true npm run setup
+```
+
+**Note:** Disabling verification should only be done in exceptional circumstances and is not recommended in production environments. If you encounter verification failures, it's better to fix the underlying configuration issues - please raise any issues on #typescript.
 
 ## Configuration
 
@@ -120,10 +144,10 @@ Copy the "Current Configuration" from above and use it to update: some-project/.
 
 This generally requires a bit of investigation!
 
-* There's a list of common vetted packages at specific versions in the hmpps-template-typescript project [here](https://github.com/ministryofjustice/hmpps-template-typescript/blob/main/.allowed-scripts.mjs).
-* One of the developers of lavamoat has curated a list of scripts which you likely can forbid [here](https://github.com/naugtur/can-i-ignore-scripts)
-* Otherwise you really need to determine what the specific flagged `preinstall`, `install`, `prepare` or `postinstall` scripts are doing.
-* If in doubt please ask the #typescript channel for help
+- There's a list of common vetted packages at specific versions in the hmpps-template-typescript project [here](https://github.com/ministryofjustice/hmpps-template-typescript/blob/main/.allowed-scripts.mjs).
+- One of the developers of lavamoat has curated a list of scripts which you likely can forbid [here](https://github.com/naugtur/can-i-ignore-scripts)
+- Otherwise you really need to determine what the specific flagged `preinstall`, `install`, `prepare` or `postinstall` scripts are doing.
+- If in doubt please ask the #typescript channel for help
 
 ### Testing
 
