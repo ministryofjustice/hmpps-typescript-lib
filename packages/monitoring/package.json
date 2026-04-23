@@ -39,7 +39,7 @@
     "@types/bunyan": "^1.8.11",
     "@types/express": "^5.0.6",
     "@types/superagent": "^8.1.9",
-    "nock": "^14.0.10"
+    "nock": "^15.0.0"
   },
   "peerDependencies": {
     "agentkeepalive": "4.x",
