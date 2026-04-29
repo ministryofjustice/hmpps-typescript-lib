@@ -707,10 +707,13 @@ describe('RestClient', () => {
       const receivedData = await restClient.makeRestClientCall<string>(
         systemAuthOptions,
         async ({ superagent, token, agent }: CallContext): Promise<string> => {
-          const result = await superagent
-            .get(`http://localhost:8080/api/some-path`)
-            .auth(token as string, { type: 'bearer' })
-            .agent(agent)
+          const request = superagent.get(`http://localhost:8080/api/some-path`).auth(token as string, { type: 'bearer' })
+
+          if (agent) {
+            request.agent(agent)
+          }
+
+          const result = await request
 
           return result.body.message
         },

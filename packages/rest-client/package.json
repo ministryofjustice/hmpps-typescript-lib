@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/hmpps-rest-client",
-  "version": "2.0.0",
+  "version": "2.0.0-beta",
   "description": "Standardized, reusable REST client for use with HMPPS services",
   "author": "hmpps-developers",
   "license": "MIT",
