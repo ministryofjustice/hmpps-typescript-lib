@@ -16,11 +16,15 @@ Teams are encouraged to use this library. Please provide feedback via slack to t
 
 ## Runtime support
 
-Version 2.x requires Node 24 or later.
+Version 2.x supports Node 22 and Node 24.
 
-When `NODE_USE_ENV_PROXY=1` or `--use-env-proxy` is enabled, endpoint health checks now defer to the Node runtime for
-proxy-aware transport by default. In that mode this package does not create its own `agentkeepalive` agent unless you
-explicitly opt in via `transport`.
+Built-in env-proxy support via `NODE_USE_ENV_PROXY=1` or `--use-env-proxy` requires Node 24.
+
+On Node 24, endpoint health checks defer to the Node runtime for proxy-aware transport by default. In that mode this
+package does not create its own `agentkeepalive` agent unless you explicitly opt in via `transport`.
+
+On Node 22, the package still works, but it does not rely on the Node runtime for env-proxy support. If an application
+needs proxying for health checks on Node 22, it must continue to supply a proxy-aware transport explicitly.
 
 ## Usage
 
@@ -96,8 +100,9 @@ const middleware = monitoringMiddleware({
 })
 ```
 
-If your application needs a bespoke health-check transport even when env proxy mode is enabled, you can provide one via
-`transport`. Any custom agent supplied here must already be compatible with your proxying requirements.
+If your application needs a bespoke health-check transport even when env proxy mode is enabled, or if it needs explicit
+proxy-aware transport on Node 22, you can provide one via `transport`. Any custom agent supplied here must already be
+compatible with your proxying requirements.
 
 ```ts
 const healthComponents = apis.map(([name, config]) =>

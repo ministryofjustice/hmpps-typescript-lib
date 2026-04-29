@@ -8,6 +8,12 @@ import { EndpointHealthComponentOptions } from '../types/EndpointHealthComponent
 import { ComponentHealthResult, HealthComponent } from '../types/HealthComponent'
 
 const usesNodeEnvProxy = () => {
+  const majorNodeVersion = Number.parseInt(process.versions.node.split('.')[0], 10)
+
+  if (!Number.isInteger(majorNodeVersion) || majorNodeVersion < 24) {
+    return false
+  }
+
   const nodeUseEnvProxy = process.env.NODE_USE_ENV_PROXY?.toLowerCase()
 
   return (

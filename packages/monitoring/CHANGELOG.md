@@ -2,8 +2,8 @@
 
 ## 2.0.0
 
-- Require Node 24 or later for proxy-capable releases.
-- When Node env proxy mode is enabled, stop creating a default `agentkeepalive` agent for health checks and defer to the runtime's proxy-aware transport.
+- Keep package support for Node 22 and Node 24, but only enable built-in env-proxy behavior on Node 24 runtimes.
+- When Node env proxy mode is enabled on Node 24, stop creating a default `agentkeepalive` agent for health checks and defer to the runtime's proxy-aware transport.
 - Add an explicit `transport` escape hatch for applications that need to provide their own custom health-check agent.
 
 ## 1.0.1

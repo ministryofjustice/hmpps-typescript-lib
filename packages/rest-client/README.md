@@ -20,11 +20,15 @@ This package aims to standardize the way HMPPS TypeScript applications interact 
 
 ## Runtime support
 
-Version 2.x requires Node 24 or later.
+Version 2.x supports Node 22 and Node 24.
 
-When `NODE_USE_ENV_PROXY=1` or `--use-env-proxy` is enabled, this package now defers to the Node runtime for proxy-aware
-transport by default. In that mode it does not create its own `agentkeepalive` agent unless you explicitly opt in via
-`transport`.
+Built-in env-proxy support via `NODE_USE_ENV_PROXY=1` or `--use-env-proxy` requires Node 24.
+
+On Node 24, this package defers to the Node runtime for proxy-aware transport by default. In that mode it does not
+create its own `agentkeepalive` agent unless you explicitly opt in via `transport`.
+
+On Node 22, the package still works, but it does not rely on the Node runtime for env-proxy support. If an application
+needs proxying on Node 22, it must continue to supply a proxy-aware transport explicitly.
 
 ## Usage
 
@@ -75,8 +79,8 @@ export default new ExampleApiClient()
 
 ### Proxying and custom transport
 
-If your application enables Node env proxy mode, for example with `NODE_USE_ENV_PROXY=1`, the rest client will use the
-runtime's default proxy-aware transport and will ignore the default `agent` configuration.
+If your application enables Node env proxy mode on Node 24, for example with `NODE_USE_ENV_PROXY=1`, the rest client
+will use the runtime's default proxy-aware transport and will ignore the default `agent` configuration.
 
 For most applications that is the desired behaviour and no application change is required.
 
@@ -110,9 +114,9 @@ class ExampleApiClient extends RestClient {
 }
 ```
 
-Applications only need to make this change if they want to preserve custom
-transport behaviour while also using Node env proxy mode. If they only want correct proxying, no app-level transport
-override is needed.
+Applications only need to make this change if they want to preserve custom transport behaviour while also using Node env
+proxy mode, or if they need explicit proxy-aware transport on Node 22. If they only want correct proxying on Node 24,
+no app-level transport override is needed.
 
 When using `hmpps-auth-clients` and dependency injection this might look like:
 

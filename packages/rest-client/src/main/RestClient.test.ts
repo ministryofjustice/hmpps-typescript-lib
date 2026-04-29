@@ -60,18 +60,23 @@ async function readAll(stream: NodeJS.ReadableStream): Promise<string> {
 describe('RestClient', () => {
   const originalNodeUseEnvProxy = process.env.NODE_USE_ENV_PROXY
   const originalNodeOptions = process.env.NODE_OPTIONS
+  const nodeSupportsEnvProxy = Number.parseInt(process.versions.node.split('.')[0], 10) >= 24
 
   afterEach(() => {
     process.env.NODE_USE_ENV_PROXY = originalNodeUseEnvProxy
     process.env.NODE_OPTIONS = originalNodeOptions
   })
 
-  it('does not create a custom agent when Node env proxy mode is enabled', () => {
+  it('only defers to Node env proxy mode when the runtime supports it', () => {
     process.env.NODE_USE_ENV_PROXY = '1'
 
     const proxiedClient = new TestRestClient() as unknown as { agent?: unknown }
 
-    expect(proxiedClient.agent).toBeUndefined()
+    if (nodeSupportsEnvProxy) {
+      expect(proxiedClient.agent).toBeUndefined()
+    } else {
+      expect(proxiedClient.agent).toBeDefined()
+    }
   })
 
   it('uses an explicitly supplied custom agent when Node env proxy mode is enabled', () => {

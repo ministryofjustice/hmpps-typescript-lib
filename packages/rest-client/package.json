@@ -22,7 +22,7 @@
     "src/**/*"
   ],
   "engines": {
-    "node": ">=24"
+    "node": "22 || 24"
   },
   "scripts": {
     "build": "rollup -c rollup.config.ts --bundleConfigAsCjs",

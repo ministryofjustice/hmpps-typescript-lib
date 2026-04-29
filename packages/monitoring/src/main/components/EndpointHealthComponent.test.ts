@@ -9,6 +9,7 @@ describe('EndpointHealthComponent', () => {
   let endpointHealthComponentOptions: EndpointHealthComponentOptions
   const originalNodeUseEnvProxy = process.env.NODE_USE_ENV_PROXY
   const originalNodeOptions = process.env.NODE_OPTIONS
+  const nodeSupportsEnvProxy = Number.parseInt(process.versions.node.split('.')[0], 10) >= 24
 
   const messages = jest.fn()
   const logger = {
@@ -34,7 +35,7 @@ describe('EndpointHealthComponent', () => {
     nock.done()
   })
 
-  it('does not create a custom agent when Node env proxy mode is enabled', () => {
+  it('only defers to Node env proxy mode when the runtime supports it', () => {
     process.env.NODE_USE_ENV_PROXY = '1'
 
     const endpointHealthComponent = new EndpointHealthComponent(
@@ -43,7 +44,11 @@ describe('EndpointHealthComponent', () => {
       endpointHealthComponentOptions,
     ) as unknown as { agent?: unknown }
 
-    expect(endpointHealthComponent.agent).toBeUndefined()
+    if (nodeSupportsEnvProxy) {
+      expect(endpointHealthComponent.agent).toBeUndefined()
+    } else {
+      expect(endpointHealthComponent.agent).toBeDefined()
+    }
   })
 
   it('uses an explicitly supplied custom agent when Node env proxy mode is enabled', () => {

@@ -10,6 +10,12 @@ import { AuthenticationClient } from './types/AuthenticationClient'
 import { RetryError, SanitisedError } from './types/Errors'
 
 const usesNodeEnvProxy = () => {
+  const majorNodeVersion = Number.parseInt(process.versions.node.split('.')[0], 10)
+
+  if (!Number.isInteger(majorNodeVersion) || majorNodeVersion < 24) {
+    return false
+  }
+
   const nodeUseEnvProxy = process.env.NODE_USE_ENV_PROXY?.toLowerCase()
 
   return (
