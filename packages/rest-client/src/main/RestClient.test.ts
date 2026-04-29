@@ -3,6 +3,7 @@ import express from 'express'
 import { Response } from 'superagent'
 import { PassThrough } from 'stream'
 import { NotFound } from 'http-errors'
+import { HttpAgent } from 'agentkeepalive'
 import RestClient from './RestClient'
 import { AgentConfig } from './types/ApiConfig'
 import { AuthOptions, TokenType } from './types/AuthOptions'
@@ -57,6 +58,93 @@ async function readAll(stream: NodeJS.ReadableStream): Promise<string> {
 }
 
 describe('RestClient', () => {
+  const originalNodeUseEnvProxy = process.env.NODE_USE_ENV_PROXY
+  const originalNodeOptions = process.env.NODE_OPTIONS
+
+  afterEach(() => {
+    process.env.NODE_USE_ENV_PROXY = originalNodeUseEnvProxy
+    process.env.NODE_OPTIONS = originalNodeOptions
+  })
+
+  it('does not create a custom agent when Node env proxy mode is enabled', () => {
+    process.env.NODE_USE_ENV_PROXY = '1'
+
+    const proxiedClient = new TestRestClient() as unknown as { agent?: unknown }
+
+    expect(proxiedClient.agent).toBeUndefined()
+  })
+
+  it('uses an explicitly supplied custom agent when Node env proxy mode is enabled', () => {
+    process.env.NODE_USE_ENV_PROXY = '1'
+
+    const customAgent = new HttpAgent({ keepAlive: true, timeout: 3210 })
+
+    class CustomTransportRestClient extends RestClient {
+      constructor() {
+        super(
+          'api-name',
+          {
+            url: 'http://localhost:8080/api',
+            timeout: {
+              response: 200,
+              deadline: 200,
+            },
+            agent: new AgentConfig(200),
+            transport: {
+              agent: customAgent,
+            },
+          },
+          console,
+          {
+            getToken: jest.fn().mockResolvedValue('some_system_jwt'),
+          },
+        )
+      }
+    }
+
+    const proxiedClient = new CustomTransportRestClient() as unknown as { agent?: unknown }
+
+    expect(proxiedClient.agent).toBe(customAgent)
+  })
+
+  it('uses a custom agent created by transport.createAgent when Node env proxy mode is enabled', () => {
+    process.env.NODE_USE_ENV_PROXY = '1'
+
+    const customAgent = new HttpAgent({ keepAlive: true, timeout: 4321 })
+    const createAgent = jest.fn().mockReturnValue(customAgent)
+
+    class CustomTransportRestClient extends RestClient {
+      constructor() {
+        super(
+          'api-name',
+          {
+            url: 'http://localhost:8080/api',
+            timeout: {
+              response: 200,
+              deadline: 200,
+            },
+            agent: new AgentConfig(3456),
+            transport: {
+              createAgent,
+            },
+          },
+          console,
+          {
+            getToken: jest.fn().mockResolvedValue('some_system_jwt'),
+          },
+        )
+      }
+    }
+
+    const proxiedClient = new CustomTransportRestClient() as unknown as { agent?: unknown }
+
+    expect(createAgent).toHaveBeenCalledWith({
+      url: 'http://localhost:8080/api',
+      agentConfig: expect.objectContaining({ timeout: 3456 }),
+    })
+    expect(proxiedClient.agent).toBe(customAgent)
+  })
+
   describe.each(['get', 'patch', 'post', 'put', 'delete'] as const)('%s', method => {
     afterEach(() => {
       nock.cleanAll()

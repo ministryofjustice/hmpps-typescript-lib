@@ -14,6 +14,14 @@ It includes:
 
 Teams are encouraged to use this library. Please provide feedback via slack to the #typescript channel.
 
+## Runtime support
+
+Version 2.x requires Node 24 or later.
+
+When `NODE_USE_ENV_PROXY=1` or `--use-env-proxy` is enabled, endpoint health checks now defer to the Node runtime for
+proxy-aware transport by default. In that mode this package does not create its own `agentkeepalive` agent unless you
+explicitly opt in via `transport`.
+
 ## Usage
 
 Usage is best demonstrated by the [HMPPS typescript template](https://github.com/ministryofjustice/hmpps-template-typescript)
@@ -87,6 +95,23 @@ const middleware = monitoringMiddleware({
   healthComponents: apis.map(([name, config]) => endpointHealthComponent(logger, name, config)),
 })
 ```
+
+If your application needs a bespoke health-check transport even when env proxy mode is enabled, you can provide one via
+`transport`. Any custom agent supplied here must already be compatible with your proxying requirements.
+
+```ts
+const healthComponents = apis.map(([name, config]) =>
+  endpointHealthComponent(logger, name, {
+    ...config,
+    transport: {
+      createAgent: () => buildProxyAwareHealthAgentSomehow(),
+    },
+  }),
+)
+```
+
+Most applications do not need this. It is only for services that must preserve custom connection-pooling behaviour for
+health checks.
 
 Once the middleware component is instantiated, then individual endpoints can be registered:
 

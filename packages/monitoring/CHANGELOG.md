@@ -1,5 +1,11 @@
 # Change log
 
+## 2.0.0
+
+- Require Node 24 or later for proxy-capable releases.
+- When Node env proxy mode is enabled, stop creating a default `agentkeepalive` agent for health checks and defer to the runtime's proxy-aware transport.
+- Add an explicit `transport` escape hatch for applications that need to provide their own custom health-check agent.
+
 ## 1.0.1
 
 Allow all 2xx response codes to be successful for endpoint health components

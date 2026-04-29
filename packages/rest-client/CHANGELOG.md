@@ -1,5 +1,11 @@
 # Change log
 
+# 2.0.0
+- Require Node 24 or later for proxy-capable releases.
+- When Node env proxy mode is enabled, stop creating a default `agentkeepalive` agent and defer to the runtime's proxy-aware transport.
+- Add an explicit `transport` escape hatch for applications that need to provide their own custom agent.
+- Make bespoke `CallContext.agent` optional when no custom agent is active.
+
 # 1.1.0
 - Add support for multipart form data requests [PR-143](https://github.com/ministryofjustice/hmpps-typescript-lib/pull/143)
 

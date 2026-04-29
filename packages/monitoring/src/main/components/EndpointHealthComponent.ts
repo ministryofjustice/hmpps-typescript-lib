@@ -7,6 +7,17 @@ import Logger from 'bunyan'
 import { EndpointHealthComponentOptions } from '../types/EndpointHealthComponentOptions'
 import { ComponentHealthResult, HealthComponent } from '../types/HealthComponent'
 
+const usesNodeEnvProxy = () => {
+  const nodeUseEnvProxy = process.env.NODE_USE_ENV_PROXY?.toLowerCase()
+
+  return (
+    nodeUseEnvProxy === '1' ||
+    nodeUseEnvProxy === 'true' ||
+    process.env.NODE_OPTIONS?.includes('--use-env-proxy') ||
+    process.execArgv.includes('--use-env-proxy')
+  )
+}
+
 /**
  * EndpointHealthComponent class implements the HealthComponent interface.
  * It checks the health status of an external service by sending HTTP requests to a specified endpoint.
@@ -21,7 +32,7 @@ export default class EndpointHealthComponent implements HealthComponent {
     enabled: true,
   }
 
-  private readonly agent: Agent
+  private readonly agent?: Agent
 
   private readonly healthUrl: string
 
@@ -30,9 +41,21 @@ export default class EndpointHealthComponent implements HealthComponent {
     private readonly name: string,
     private readonly options: EndpointHealthComponentOptions,
   ) {
-    this.agent = options.url.startsWith('https')
-      ? new HttpsAgent(options.agentConfig as HttpsOptions)
-      : new Agent(options.agentConfig as HttpOptions)
+    const agentConfig = options.agentConfig ?? options.agent
+
+    if (options.transport?.agent) {
+      this.agent = options.transport.agent as Agent
+    } else if (options.transport?.createAgent) {
+      this.agent = options.transport.createAgent({
+        url: options.url,
+        healthPath: options.healthPath,
+        agentConfig,
+      }) as Agent
+    } else if (!usesNodeEnvProxy()) {
+      this.agent = options.url.startsWith('https')
+        ? new HttpsAgent(agentConfig as HttpsOptions)
+        : new Agent(agentConfig as HttpOptions)
+    }
 
     this.healthUrl = `${options.url}${options.healthPath}`
     this.options = { ...this.defaultOptions, ...options } as EndpointHealthComponentOptions
@@ -62,9 +85,8 @@ export default class EndpointHealthComponent implements HealthComponent {
     let attemptsCount = 1
 
     try {
-      const response = await superagent
+      const request = superagent
         .get(this.healthUrl)
-        .agent(this.agent)
         .timeout(timeout as number)
         .retry(retries, (err, res) => {
           attemptsCount += 1
@@ -78,6 +100,12 @@ export default class EndpointHealthComponent implements HealthComponent {
             )
           }
         })
+
+      if (this.agent) {
+        request.agent(this.agent)
+      }
+
+      const response = await request
 
       return {
         name,

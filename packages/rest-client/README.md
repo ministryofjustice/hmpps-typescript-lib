@@ -10,12 +10,21 @@ This package aims to standardize the way HMPPS TypeScript applications interact 
 - Streamed responses for large payloads
 - Request logging and error handling
 - Configurable timeouts and request headers
+- Node 24 env-proxy support without forcing a custom agent
 
 ## Status
 
 **This library is currently: ready to adopt.**
 
  Teams are encouraged to use this library. Please provide feedback via slack to the #typescript channel.
+
+## Runtime support
+
+Version 2.x requires Node 24 or later.
+
+When `NODE_USE_ENV_PROXY=1` or `--use-env-proxy` is enabled, this package now defers to the Node runtime for proxy-aware
+transport by default. In that mode it does not create its own `agentkeepalive` agent unless you explicitly opt in via
+`transport`.
 
 ## Usage
 
@@ -63,6 +72,47 @@ class ExampleApiClient extends RestClient {
 
 export default new ExampleApiClient()
 ```
+
+### Proxying and custom transport
+
+If your application enables Node env proxy mode, for example with `NODE_USE_ENV_PROXY=1`, the rest client will use the
+runtime's default proxy-aware transport and will ignore the default `agent` configuration.
+
+For most applications that is the desired behaviour and no application change is required.
+
+If your application previously depended on a bespoke keepalive agent with custom pooling behaviour, you must now opt in
+explicitly using `transport`. This is intended for advanced cases only. Any custom agent supplied here must already be
+compatible with your proxying requirements.
+
+```ts
+import { AgentConfig, RestClient, type TransportConfig } from '@ministryofjustice/hmpps-rest-client'
+
+const transport: TransportConfig = {
+  createAgent: () => buildProxyAwareAgentSomehow(),
+}
+
+class ExampleApiClient extends RestClient {
+  constructor() {
+    super(
+      'example-api',
+      {
+        url: 'https://example.com/api',
+        timeout: {
+          response: 5000,
+          deadline: 10000,
+        },
+        agent: new AgentConfig(8000),
+        transport,
+      },
+      console,
+    )
+  }
+}
+```
+
+Applications only need to make this change if they want to preserve custom
+transport behaviour while also using Node env proxy mode. If they only want correct proxying, no app-level transport
+override is needed.
 
 When using `hmpps-auth-clients` and dependency injection this might look like:
 

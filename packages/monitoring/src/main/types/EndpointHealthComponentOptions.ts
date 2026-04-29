@@ -1,4 +1,26 @@
 import type { HttpOptions, HttpsOptions } from 'agentkeepalive'
+import type http from 'http'
+
+export interface EndpointHealthTransportOptions {
+  /**
+   * Explicit agent instance to use for health checks.
+   *
+   * When provided, the monitoring package will always use this agent, even when Node env proxy mode is enabled.
+   * The caller is responsible for ensuring the supplied agent is compatible with any required proxying.
+   */
+  agent?: http.Agent
+  /**
+   * Factory for creating an explicit health-check agent.
+   *
+   * This overrides both the default keepalive agent and Node env proxy auto-detection. The caller is responsible for
+   * ensuring the supplied agent is compatible with any required proxying.
+   */
+  createAgent?: (options: {
+    url: string
+    healthPath: string
+    agentConfig?: HttpsOptions | HttpOptions
+  }) => http.Agent
+}
 
 export interface EndpointHealthComponentOptions {
   /** The root URL of the external service to be health-checked. */
@@ -14,8 +36,12 @@ export interface EndpointHealthComponentOptions {
         response?: number
         deadline?: number
       }
-  /** (Optional) The number of retry attempts for the health check. Defaults to 2 */
+  /** (Optional) The number of retry attempts for the component's health check. Defaults to 2 */
   retries?: number
+  /** (Optional) Agent configuration from hmpps-rest-client ApiConfig. */
+  agent?: HttpsOptions | HttpOptions
   /** (Optional) Agent configuration options for HTTP/HTTPS requests to the service. */
   agentConfig?: HttpsOptions | HttpOptions
+  /** (Optional) Explicit transport override for health checks. */
+  transport?: EndpointHealthTransportOptions
 }

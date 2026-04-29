@@ -28,3 +28,4 @@ export function endpointHealthComponent(...args: ConstructorParameters<typeof En
 
 export type { HealthComponent, ComponentHealthResult } from './types/HealthComponent'
 export type { EndpointHealthComponentOptions } from './types/EndpointHealthComponentOptions'
+export type { EndpointHealthTransportOptions } from './types/EndpointHealthComponentOptions'

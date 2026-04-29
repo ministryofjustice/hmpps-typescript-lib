@@ -1,3 +1,5 @@
+import type http from 'http'
+
 export class AgentConfig {
   // Sets the working socket to timeout after timeout milliseconds of inactivity on the working socket.
   timeout: number
@@ -5,6 +7,24 @@ export class AgentConfig {
   constructor(timeout = 8000) {
     this.timeout = timeout
   }
+}
+
+export interface TransportConfig {
+  /**
+   * Explicit agent instance to use for all requests.
+   *
+   * When provided, the rest client will always use this agent, even when Node env proxy mode is enabled.
+   * The caller is responsible for ensuring the supplied agent is compatible with any required proxying.
+   */
+  agent?: http.Agent
+  /**
+   * Factory for creating an explicit agent instance.
+   *
+   * This is evaluated during client construction and overrides both the default keepalive agent and Node env proxy
+   * auto-detection. The caller is responsible for ensuring the supplied agent is compatible with any required
+   * proxying.
+   */
+  createAgent?: (options: { url: string; agentConfig: AgentConfig }) => http.Agent
 }
 
 export interface ApiConfig {
@@ -18,4 +38,5 @@ export interface ApiConfig {
     deadline: number
   }
   agent: AgentConfig
+  transport?: TransportConfig
 }
