@@ -79,30 +79,24 @@ describe('RestClient', () => {
 
     const customAgent = new HttpAgent({ keepAlive: true, timeout: 3210 })
 
-    class CustomTransportRestClient extends RestClient {
-      constructor() {
-        super(
-          'api-name',
-          {
-            url: 'http://localhost:8080/api',
-            timeout: {
-              response: 200,
-              deadline: 200,
-            },
-            agent: new AgentConfig(200),
-            transport: {
-              agent: customAgent,
-            },
-          },
-          console,
-          {
-            getToken: jest.fn().mockResolvedValue('some_system_jwt'),
-          },
-        )
-      }
-    }
-
-    const proxiedClient = new CustomTransportRestClient() as unknown as { agent?: unknown }
+    const proxiedClient = new RestClient(
+      'api-name',
+      {
+        url: 'http://localhost:8080/api',
+        timeout: {
+          response: 200,
+          deadline: 200,
+        },
+        agent: new AgentConfig(200),
+        transport: {
+          agent: customAgent,
+        },
+      },
+      console,
+      {
+        getToken: jest.fn().mockResolvedValue('some_system_jwt'),
+      },
+    ) as unknown as { agent?: unknown }
 
     expect(proxiedClient.agent).toBe(customAgent)
   })
@@ -113,30 +107,24 @@ describe('RestClient', () => {
     const customAgent = new HttpAgent({ keepAlive: true, timeout: 4321 })
     const createAgent = jest.fn().mockReturnValue(customAgent)
 
-    class CustomTransportRestClient extends RestClient {
-      constructor() {
-        super(
-          'api-name',
-          {
-            url: 'http://localhost:8080/api',
-            timeout: {
-              response: 200,
-              deadline: 200,
-            },
-            agent: new AgentConfig(3456),
-            transport: {
-              createAgent,
-            },
-          },
-          console,
-          {
-            getToken: jest.fn().mockResolvedValue('some_system_jwt'),
-          },
-        )
-      }
-    }
-
-    const proxiedClient = new CustomTransportRestClient() as unknown as { agent?: unknown }
+    const proxiedClient = new RestClient(
+      'api-name',
+      {
+        url: 'http://localhost:8080/api',
+        timeout: {
+          response: 200,
+          deadline: 200,
+        },
+        agent: new AgentConfig(3456),
+        transport: {
+          createAgent,
+        },
+      },
+      console,
+      {
+        getToken: jest.fn().mockResolvedValue('some_system_jwt'),
+      },
+    ) as unknown as { agent?: unknown }
 
     expect(createAgent).toHaveBeenCalledWith({
       url: 'http://localhost:8080/api',
@@ -707,7 +695,9 @@ describe('RestClient', () => {
       const receivedData = await restClient.makeRestClientCall<string>(
         systemAuthOptions,
         async ({ superagent, token, agent }: CallContext): Promise<string> => {
-          const request = superagent.get(`http://localhost:8080/api/some-path`).auth(token as string, { type: 'bearer' })
+          const request = superagent
+            .get(`http://localhost:8080/api/some-path`)
+            .auth(token as string, { type: 'bearer' })
 
           if (agent) {
             request.agent(agent)

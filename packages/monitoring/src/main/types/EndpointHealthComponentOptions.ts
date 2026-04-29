@@ -15,11 +15,7 @@ export interface EndpointHealthTransportOptions {
    * This overrides both the default keepalive agent and Node env proxy auto-detection. The caller is responsible for
    * ensuring the supplied agent is compatible with any required proxying.
    */
-  createAgent?: (options: {
-    url: string
-    healthPath: string
-    agentConfig?: HttpsOptions | HttpOptions
-  }) => http.Agent
+  createAgent?: (options: { url: string; healthPath: string; agentConfig?: HttpsOptions | HttpOptions }) => http.Agent
 }
 
 export interface EndpointHealthComponentOptions {
