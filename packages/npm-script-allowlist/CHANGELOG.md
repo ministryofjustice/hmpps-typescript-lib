@@ -4,9 +4,9 @@
 
 - **Environment verification feature**: New `environmentVerifier` function validates project configuration for secure npm script execution
   - Ensures `.npmrc` file exists with `ignore-scripts=true` configuration
-  - Validates Dockerfile properly references `.npmrc` for container environments
-  - Prevents inadvertent circumvention of the security model
-  - Can be disabled via `NPM_SCRIPT_ALLOWLIST_VERIFICATION_DISABLED` environment variable
+  - Validates Dockerfile properly references both `.npmrc` and `.allowed-scripts.mjs` files for container environments (when Dockerfile exists)
+  - Validates `.dockerignore` file contains exceptions for both `!.npmrc` and `!.allowed-scripts.mjs` (when .dockerignore exists)
+  - Can be disabled via `NPM_SCRIPT_ALLOWLIST_VERIFICATION_DISABLED` environment variable for testing
 
 ### Reference
 

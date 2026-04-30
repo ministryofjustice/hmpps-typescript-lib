@@ -44,13 +44,16 @@ A manual step is required to move CI and docker over to use `npm run setup` inst
 The environment verification ensures:
 
 1. **.npmrc configuration** - Verifies that your `.npmrc` file exists and contains `ignore-scripts=true` to prevent unauthorized scripts from executing during `npm install`
-2. **Dockerfile npm setup** - If a Dockerfile exists in your project, verification attempts to detect if it correctly copies the `.npmrc` file into the container.
+2. **Dockerfile setup** - If a Dockerfile exists in your project, verification ensures it copies both:
+   - `.npmrc` file to the container
+   - `.allowed-scripts.mjs` file to the container
+3. **.dockerignore exceptions** - If a `.dockerignore` file exists, verification ensures it contains exceptions for:
+   - `!.npmrc` to allow the .npmrc file to be copied into the container
+   - `!.allowed-scripts.mjs` to allow the allowed scripts configuration to be copied into the container
 
 ### Why this matters
 
-These checks ensure that the security settings required by the allowlist system are consistently applied across development and deployment environments.
-
-This project assumes that preinstall and postinstall scripts have been disabled. Docker containers will bypass security restrictions if the `.npmrc` isn't copied over and there's been cases where the npmrc file hasn't been configured correctly.
+These checks ensure that the security settings required by the allowlist system are consistently applied across development and deployment environments. Docker containers will bypass security restrictions if the `.npmrc` and `.allowed-scripts.mjs` files aren't properly configured and copied during the build process.
 
 See the [hmpps-template-typescript PR #719](https://github.com/ministryofjustice/hmpps-template-typescript/pull/719) for a complete example of how to properly configure your project to pass these checks.
 
