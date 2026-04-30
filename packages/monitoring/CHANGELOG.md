@@ -1,6 +1,6 @@
 # Change log
 
-## 2.0.0
+## 2.0.0-beta
 
 - Keep package support for Node 22 and Node 24, but only enable built-in env-proxy behavior on Node 24 runtimes.
 - When Node env proxy mode is enabled on Node 24, stop creating a default `agentkeepalive` agent for health checks and defer to the runtime's proxy-aware transport.

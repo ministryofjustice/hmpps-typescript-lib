@@ -38,7 +38,7 @@
     "dist/**/*"
   ],
   "engines": {
-    "node": "22 || 24"
+    "node": "20 || 22 || 24"
   },
   "dependencies": {
     "@npmcli/run-script": "10.0.4",

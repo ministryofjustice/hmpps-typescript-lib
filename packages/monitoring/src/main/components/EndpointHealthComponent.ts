@@ -1,4 +1,5 @@
 import Agent, { HttpOptions, HttpsOptions, HttpsAgent } from 'agentkeepalive'
+import type http from 'http'
 import superagent from 'superagent'
 // annoyingly, eslint doesn't automatically consider @types/bunyuan a dev depdendency, it's not even directly referenced here
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -38,7 +39,7 @@ export default class EndpointHealthComponent implements HealthComponent {
     enabled: true,
   }
 
-  private readonly agent?: Agent
+  private readonly agent?: http.Agent
 
   private readonly healthUrl: string
 
@@ -50,13 +51,13 @@ export default class EndpointHealthComponent implements HealthComponent {
     const agentConfig = options.agentConfig ?? options.agent
 
     if (options.transport?.agent) {
-      this.agent = options.transport.agent as Agent
+      this.agent = options.transport.agent
     } else if (options.transport?.createAgent) {
       this.agent = options.transport.createAgent({
         url: options.url,
         healthPath: options.healthPath,
         agentConfig,
-      }) as Agent
+      })
     } else if (!usesNodeEnvProxy()) {
       this.agent = options.url.startsWith('https')
         ? new HttpsAgent(agentConfig as HttpsOptions)

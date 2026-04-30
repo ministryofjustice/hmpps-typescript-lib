@@ -20,7 +20,7 @@
     "dist/**/*"
   ],
   "engines": {
-    "node": "22 || 24"
+    "node": "20 || 22 || 24"
   },
   "scripts": {
     "build": "mkdir -p ./dist && cat ./src/@types/*.d.ts > ./dist/index.d.ts",

@@ -1,3 +1,4 @@
+import type http from 'http'
 import { HttpAgent, HttpsAgent } from 'agentkeepalive'
 import superagent, { Response, ResponseError, Request as SuperAgentRequest } from 'superagent'
 import { Readable } from 'stream'
@@ -30,7 +31,7 @@ const usesNodeEnvProxy = () => {
  * Base class for REST API clients.
  */
 export default class RestClient {
-  private readonly agent?: HttpAgent
+  private readonly agent?: http.Agent
 
   /**
    * Creates an instance of RestClient.
@@ -47,9 +48,9 @@ export default class RestClient {
     private readonly authenticationClient?: AuthenticationClient,
   ) {
     if (config.transport?.agent) {
-      this.agent = config.transport.agent as HttpAgent
+      this.agent = config.transport.agent
     } else if (config.transport?.createAgent) {
-      this.agent = config.transport.createAgent({ url: config.url, agentConfig: config.agent }) as HttpAgent
+      this.agent = config.transport.createAgent({ url: config.url, agentConfig: config.agent })
     } else if (!usesNodeEnvProxy()) {
       this.agent = config.url.startsWith('https') ? new HttpsAgent(config.agent) : new HttpAgent(config.agent)
     }
