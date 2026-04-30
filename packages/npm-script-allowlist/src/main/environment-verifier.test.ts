@@ -4,8 +4,6 @@ import { environmentVerifier, ERRORS, runChecks } from './environment-verifier'
 jest.mock('fs')
 
 describe('environmentVerifier', () => {
-  const mockExistsSync = existsSync as jest.MockedFunction<typeof existsSync>
-  const mockReadFileSync = readFileSync as jest.MockedFunction<typeof readFileSync>
   const mockLog = jest.fn()
 
   // Valid file contents for a passing environment
@@ -18,8 +16,8 @@ describe('environmentVerifier', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     delete process.env.NPM_SCRIPT_ALLOWLIST_VERIFICATION_DISABLED
-    mockExistsSync.mockReturnValue(false)
-    mockReadFileSync.mockReturnValue('')
+    jest.mocked(existsSync).mockReturnValue(false)
+    jest.mocked(readFileSync).mockReturnValue('')
   })
 
   /**
@@ -40,7 +38,7 @@ describe('environmentVerifier', () => {
       dockerignore: overrides?.dockerignoreContent ?? validFileContents.dockerignore,
     }
 
-    mockExistsSync.mockImplementation((path: PathLike) => {
+    jest.mocked(existsSync).mockImplementation((path: PathLike) => {
       const pathStr = path.toString()
       if (pathStr.includes('.npmrc')) return overrides?.npmrcExists ?? true
       if (pathStr.includes('Dockerfile')) return overrides?.dockerfileExists ?? true
@@ -48,7 +46,7 @@ describe('environmentVerifier', () => {
       return false
     })
 
-    mockReadFileSync.mockImplementation((path: PathOrFileDescriptor) => {
+    jest.mocked(readFileSync).mockImplementation((path: PathOrFileDescriptor) => {
       const pathStr = path.toString()
       if (pathStr.includes('.npmrc')) return fileContents.npmrc
       if (pathStr.includes('Dockerfile')) return fileContents.dockerfile
@@ -60,7 +58,7 @@ describe('environmentVerifier', () => {
   describe('when verification is disabled', () => {
     it('should skip verification when NPM_SCRIPT_ALLOWLIST_VERIFICATION_DISABLED is true', () => {
       process.env.NPM_SCRIPT_ALLOWLIST_VERIFICATION_DISABLED = 'true'
-      mockExistsSync.mockReturnValue(false)
+      jest.mocked(existsSync).mockReturnValue(false)
 
       expect(() => environmentVerifier(mockLog)).not.toThrow()
       expect(mockLog).toHaveBeenCalledWith('Environment verification is disabled.')
@@ -71,8 +69,8 @@ describe('environmentVerifier', () => {
 
       environmentVerifier(mockLog)
 
-      expect(mockExistsSync).not.toHaveBeenCalled()
-      expect(mockReadFileSync).not.toHaveBeenCalled()
+      expect(jest.mocked(existsSync)).not.toHaveBeenCalled()
+      expect(jest.mocked(readFileSync)).not.toHaveBeenCalled()
     })
   })
 
