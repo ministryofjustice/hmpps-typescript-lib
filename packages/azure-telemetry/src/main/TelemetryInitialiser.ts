@@ -6,6 +6,7 @@ import { ExpressInstrumentation, ExpressLayerType } from '@opentelemetry/instrum
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
 import { resourceFromAttributes } from '@opentelemetry/resources'
 import { BatchLogRecordProcessor, ConsoleLogRecordExporter, LoggerProvider } from '@opentelemetry/sdk-logs'
+import type { LogRecordExporter, ReadableLogRecord } from '@opentelemetry/sdk-logs'
 import { BatchSpanProcessor, ConsoleSpanExporter } from '@opentelemetry/sdk-trace-base'
 import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node'
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions'
@@ -64,6 +65,26 @@ export async function flushTelemetry(): Promise<void> {
   }
 }
 
+function createCompatibleAzureLogExporter(connectionString: string): LogRecordExporter {
+  const exporter = new AzureMonitorLogExporter({ connectionString })
+
+  return {
+    export(logRecords: ReadableLogRecord[], resultCallback) {
+      return exporter.export(logRecords, resultCallback)
+    },
+    shutdown() {
+      return exporter.shutdown()
+    },
+    forceFlush() {
+      if ('forceFlush' in exporter && typeof exporter.forceFlush === 'function') {
+        return exporter.forceFlush()
+      }
+
+      return Promise.resolve()
+    },
+  }
+}
+
 function initialiseWithAzureMonitor(
   config: TelemetryConfig,
   filters: SpanFilterFn[],
@@ -71,6 +92,7 @@ function initialiseWithAzureMonitor(
   instrumentations: Instrumentation[],
 ): void {
   console.info(`Telemetry: Initialising Azure Monitor for ${config.serviceName}`)
+  const connectionString = config.connectionString as string
 
   const resource = resourceFromAttributes({
     [ATTR_SERVICE_NAME]: config.serviceName,
@@ -78,7 +100,7 @@ function initialiseWithAzureMonitor(
   })
 
   const azureExporter = new AzureMonitorTraceExporter({
-    connectionString: config.connectionString,
+    connectionString,
   })
 
   const spanProcessors = [new FilteringSpanProcessor(new BatchSpanProcessor(azureExporter), filters, modifiers)]
@@ -97,9 +119,7 @@ function initialiseWithAzureMonitor(
 
   provider.register()
 
-  const logProcessors = [
-    new BatchLogRecordProcessor(new AzureMonitorLogExporter({ connectionString: config.connectionString })),
-  ]
+  const logProcessors = [new BatchLogRecordProcessor(createCompatibleAzureLogExporter(connectionString))]
 
   if (config.debug) {
     logProcessors.push(new BatchLogRecordProcessor(new ConsoleLogRecordExporter()))
