@@ -1,11 +1,37 @@
-import Agent, { HttpOptions, HttpsOptions, HttpsAgent } from 'agentkeepalive'
-import superagent from 'superagent'
+import { RestClient, type AgentConfig, type ApiConfig, type SanitisedError } from '@ministryofjustice/hmpps-rest-client'
+import type { Response as SuperAgentResponse } from 'superagent'
 // annoyingly, eslint doesn't automatically consider @types/bunyuan a dev depdendency, it's not even directly referenced here
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Logger from 'bunyan'
 
 import { EndpointHealthComponentOptions } from '../types/EndpointHealthComponentOptions'
 import { ComponentHealthResult, HealthComponent } from '../types/HealthComponent'
+
+type RetryError = Error & {
+  code?: string
+  timeout?: number
+  crossDomain?: boolean
+}
+
+const RETRYABLE_ERROR_CODES = new Set([
+  'ETIMEDOUT',
+  'ECONNRESET',
+  'EADDRINUSE',
+  'ECONNREFUSED',
+  'EPIPE',
+  'ENOTFOUND',
+  'ENETUNREACH',
+  'EAI_AGAIN',
+])
+
+const RETRYABLE_STATUS_CODES = new Set([408, 413, 429, 500, 502, 503, 504, 521, 522, 524])
+
+type HealthCheckResult = SuperAgentResponse | ComponentHealthResult
+
+const restClientLogger = {
+  debug: () => undefined,
+  warn: () => undefined,
+} as Console
 
 /**
  * EndpointHealthComponent class implements the HealthComponent interface.
@@ -21,21 +47,18 @@ export default class EndpointHealthComponent implements HealthComponent {
     enabled: true,
   }
 
-  private readonly agent: Agent
-
   private readonly healthUrl: string
+
+  private readonly healthClient: RestClient
 
   constructor(
     private logger: Console | Logger,
     private readonly name: string,
     private readonly options: EndpointHealthComponentOptions,
   ) {
-    this.agent = options.url.startsWith('https')
-      ? new HttpsAgent(options.agentConfig as HttpsOptions)
-      : new Agent(options.agentConfig as HttpOptions)
-
     this.healthUrl = `${options.url}${options.healthPath}`
     this.options = { ...this.defaultOptions, ...options } as EndpointHealthComponentOptions
+    this.healthClient = new RestClient(`${name} health`, this.createApiConfig(this.options), restClientLogger)
 
     logger.info(`Monitoring health of external service '${name}' on: '${this.healthUrl}'`)
   }
@@ -56,60 +79,105 @@ export default class EndpointHealthComponent implements HealthComponent {
    * @returns A promise that resolves to a ComponentCheckResult, indicating the health status of the service.
    */
   health = async (): Promise<ComponentHealthResult> => {
-    const { timeout, retries } = this.options
+    const { retries } = this.options
     const { name } = this
 
     let attemptsCount = 1
 
-    try {
-      const response = await superagent
-        .get(this.healthUrl)
-        .agent(this.agent)
-        .timeout(timeout as number)
-        .retry(retries, (err, res) => {
+    const response = await this.healthClient.get<HealthCheckResult, never>(
+      {
+        path: this.options.healthPath,
+        raw: true,
+        retries,
+        retryHandler: () => (error, responseToRetry) => {
+          const retryError = error as RetryError | undefined
+          const retryStatus = typeof responseToRetry?.status === 'number' ? responseToRetry.status : undefined
+
           attemptsCount += 1
-          if (err) {
+
+          if (retryError) {
             this.logger.info(
-              `Attempting to get health of external service '${name}', got: ${err.code} - ${err.message}`,
+              `Attempting to get health of external service '${name}', got: ${retryError.name} - ${retryError.message}`,
             )
-          } else if (res?.clientError || res?.serverError) {
-            this.logger.info(
-              `Attempting to get health of external service '${name}', received response: ${res.statusCode}`,
+
+            return (
+              (retryError.code && RETRYABLE_ERROR_CODES.has(retryError.code)) ||
+              (retryError.timeout && retryError.code === 'ECONNABORTED') ||
+              Boolean(retryError.crossDomain)
             )
           }
-        })
 
+          if (retryStatus && RETRYABLE_STATUS_CODES.has(retryStatus)) {
+            this.logger.info(
+              `Attempting to get health of external service '${name}', received response: ${retryStatus}`,
+            )
+
+            return true
+          }
+
+          return false
+        },
+        errorHandler: (_path, _method, error) => this.toDownResult(error, attemptsCount),
+      },
+      undefined,
+    )
+
+    if (this.isDownResult(response)) {
       return {
-        name,
-        status: response.status >= 200 && response.status <= 299 ? 'UP' : 'DOWN',
+        ...response,
       }
-    } catch (error: unknown) {
-      this.logger.warn(`Failed getting health of external service '${name}'`, (error as superagent.ResponseError).stack)
+    }
 
-      const responseError = error as superagent.ResponseError
-      if (responseError?.response) {
-        return {
-          name,
-          status: 'DOWN',
-          details: {
-            status: responseError.status,
-            message: responseError.message || 'Error response from external service',
-            attempts: attemptsCount,
-          },
-        }
-      }
+    return {
+      name,
+      status: response.status >= 200 && response.status <= 299 ? 'UP' : 'DOWN',
+    }
+  }
 
-      const genericError = error as NodeJS.ErrnoException
+  private createApiConfig(options: EndpointHealthComponentOptions): ApiConfig {
+    const timeout =
+      typeof options.timeout === 'number'
+        ? { response: options.timeout, deadline: options.timeout }
+        : {
+            response: options.timeout?.response ?? this.defaultOptions.timeout.response,
+            deadline: options.timeout?.deadline ?? this.defaultOptions.timeout.deadline,
+          }
+
+    return {
+      url: options.url,
+      timeout,
+      agent: options.agentConfig as AgentConfig,
+    }
+  }
+
+  private isDownResult(result: HealthCheckResult): result is ComponentHealthResult {
+    return typeof result.status === 'string'
+  }
+
+  private toDownResult(error: SanitisedError, attemptsCount: number): ComponentHealthResult {
+    this.logger.warn(`Failed getting health of external service '${this.name}'`, error.stack)
+
+    if (error.responseStatus) {
       return {
-        name,
+        name: this.name,
         status: 'DOWN',
         details: {
-          code: genericError.code,
-          error: genericError.errno,
-          message: genericError.message || 'Unknown error',
+          status: error.responseStatus,
+          message: error.message || 'Error response from external service',
           attempts: attemptsCount,
         },
       }
+    }
+
+    return {
+      name: this.name,
+      status: 'DOWN',
+      details: {
+        code: error.code,
+        error: error.errno,
+        message: error.message || 'Unknown error',
+        attempts: attemptsCount,
+      },
     }
   }
 }

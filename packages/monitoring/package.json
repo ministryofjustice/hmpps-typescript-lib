@@ -35,14 +35,15 @@
     "lint-fix": "eslint . --cache --max-warnings 0 --fix",
     "check-for-updates": "npx npm-check-updates -u"
   },
+  "dependencies": {
+    "@ministryofjustice/hmpps-rest-client": "^1.2.0"
+  },
   "devDependencies": {
     "@types/bunyan": "^1.8.11",
     "@types/express": "^5.0.6",
-    "@types/superagent": "^8.1.9",
     "nock": "^14.0.10"
   },
   "peerDependencies": {
-    "agentkeepalive": "4.x",
-    "superagent": "^10.x"
+    "agentkeepalive": "4.x"
   }
 }
