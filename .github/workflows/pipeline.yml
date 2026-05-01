@@ -8,9 +8,6 @@ on:
   push:
     branches:
       - main
-  # when a release is published
-  release:
-    types: [published]
   # and manually
   workflow_dispatch:
 
@@ -63,18 +60,21 @@ jobs:
         run: npm run lint
 
   publish:
-    name: Publish packages
+    name: Version or publish packages
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
       id-token: write
     needs:
       - test
       - lint
-    if: github.event_name == 'release' && github.event.action == 'published'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
       - name: Setup node with public npmjs.com registry
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
         with:
@@ -83,42 +83,15 @@ jobs:
           scope: '@ministryofjustice'
       - name: Install dependencies
         run: npm install
-      - name: Build all packages
-        run: |
-          npm run clean
-          npm run build
-      - name: Publish new versions of packages
-        run: |
-          root_path=$(pwd)
-
-          echo "→ Finding packages"
-          all_package_json_files=$( find packages -maxdepth 2 -name package.json )
-          echo "${all_package_json_files}"
-
-          echo "${all_package_json_files}" | while read -r package_json_files
-          do
-            package_dir=$(dirname "${package_json_files}")
-
-            cd "${root_path}/${package_dir}"
-            name=$(jq -r .name package.json)
-
-            version=$(jq -r .version package.json)
-
-            # Check whether this specific version is already published on npm
-            if npm view "${name}@${version}" version >/dev/null 2>&1; then
-              echo "package ${name} version ${version} is already published, skipping..."
-            else
-              echo "→ Publishing version ${version} of ${name}…"
-
-              echo "→ Building package ${name}"
-              package_name=$(npm pack)
-
-              echo "→ Uploading package ${package_name} to Github release"
-              gh release upload ${{ github.event.release.tag_name }} "${package_name}"
-
-              echo "→ Publishing package ${name} v${version} to npmjs.com"
-              npm publish
-            fi
-          done
+      - name: Create release pull request or publish packages
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          version: npm run version-packages
+          publish: npm run release
+          title: Version Packages
+          commit: Version Packages
+          createGithubReleases: true
         env:
-          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

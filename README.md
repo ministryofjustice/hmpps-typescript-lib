@@ -44,28 +44,24 @@ TODO: document adding a new sub-package
 
 ### Publishing process
 
-There is a Github actions pipeline to publish new releases of sub-packages.
+This repository uses Changesets to manage package versions, changelogs and publish ordering for sub-packages.
 When a new version needs to be released, these steps should be followed as part of the usual pull request process…
 
 1. Make necessary changes to package(s).
-2. Ensure the README.md and CHANGELOG.md files are correct.
-3. Update version in package.json for the updated packages, _not_ the root project.
+2. Run `npm run changeset` and describe the package changes that should be released.
+3. Commit the generated `.changeset/*.md` file alongside the code changes.
 4. Create pull request, get it reviewed and merge into `main`.
-5. Create a tag on the `main` branch for the pull request’s squashed merge commit.
-   The tag name can be in the form `[package]-[version]`, but automation does not rely on this.
-   So run `git fetch --tags` to get all the existing tags, `git tag` to list the tags and, for example, run
+5. When changesets land on `main`, the publish workflow creates or updates a `Version Packages` pull request containing
+   the generated version bumps and changelog updates.
+6. Review and merge the `Version Packages` pull request.
+7. When that pull request lands on `main`, the publish workflow builds the packages, publishes new versions to npmjs.com
+   and creates GitHub releases for the published packages.
+
+Package versions and changelog entries should not normally be edited by hand. Changesets generates those updates in the
+`Version Packages` pull request.
+
+If you need to inspect the generated release changes locally, run:
 
 ```shell
-git tag clients-0.0.1-alpha.6
-git push origin tag clients-0.0.1-alpha.6
-```
-
-6. On [Github](https://github.com/ministryofjustice/hmpps-typescript-lib/releases), create a new release from this tag.
-   This kicks off the Github actions pipeline to publish changed packages to npmjs.com and as tarball attachments to the
-   release itself.
-
-TODO: ideally, we would use something like this automatically, however squashing commits leaves the tag dangling
-
-```shell
-npm version --workspace [package] [major | minor | prerelease --preid=pre]
+npm run version-packages
 ```

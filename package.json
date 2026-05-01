@@ -33,15 +33,19 @@
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "clean": "find . -name '.eslintcache' -delete && npm run clean --workspaces --if-present",
+    "changeset": "changeset",
     "lint": "npm run lint --workspaces --if-present",
     "lint-fix": "npm run lint-fix --workspaces --if-present",
+    "release": "npm run clean && npm run build && changeset publish",
     "test": "npm run test --workspaces --if-present",
+    "version-packages": "changeset version",
     "check-for-updates": "npm run --workspaces check-for-updates",
     "prepare": "hmpps-precommit-hooks-prepare",
     "precommit:secrets": "gitleaks git --pre-commit --redact --staged --verbose --config .gitleaks/config.toml --gitleaks-ignore-path .gitleaks/.gitleaksignore",
     "precommit:verify": "npm run clean && npm run build && npm run lint && npm test"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.31.0",
     "@rollup/plugin-commonjs": "^28.0.9",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-typescript": "^12.3.0",
