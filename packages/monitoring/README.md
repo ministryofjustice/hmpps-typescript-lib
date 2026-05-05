@@ -71,6 +71,9 @@ Reflecting dependency health via the /health endpoint will ensure that pingdom a
 
 The library provides an implementation of `HealthComponent`, `EndpointHealthComponent`, which is used to track the health of APIs that this service relies on.
 
+`EndpointHealthComponent` reuses `@ministryofjustice/hmpps-rest-client` for outbound HTTP transport, so applications
+that already standardise on that client do not have to maintain a separate health-check HTTP stack.
+
 These require:
 
 - An instance of the logger that your application uses
