@@ -37,7 +37,7 @@ jobs:
       - name: Update npm
         run: npm install -g npm@11.11.1
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Test build step
         run: npm run build
       - name: Run unit tests
@@ -54,7 +54,7 @@ jobs:
         with:
           node-version-file: '.nvmrc'
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Clean build step
         run: npm run clean
       - name: Test build step
@@ -82,7 +82,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           scope: '@ministryofjustice'
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Build all packages
         run: |
           npm run clean
