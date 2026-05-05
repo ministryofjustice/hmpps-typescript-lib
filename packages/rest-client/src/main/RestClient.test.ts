@@ -21,14 +21,9 @@ const baseApiConfig: ApiConfig = {
 
 class TestRestClient extends RestClient {
   constructor(config: ApiConfig = baseApiConfig) {
-    super(
-      'api-name',
-      config,
-      console,
-      {
-        getToken: jest.fn().mockResolvedValue('some_system_jwt'),
-      },
-    )
+    super('api-name', config, console, {
+      getToken: jest.fn().mockResolvedValue('some_system_jwt'),
+    })
   }
 }
 

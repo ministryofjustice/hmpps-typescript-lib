@@ -41,11 +41,7 @@ describe('EndpointHealthComponent', () => {
   it('only defers to Node env proxy mode when the runtime supports it', () => {
     process.env.NODE_USE_ENV_PROXY = '1'
 
-    const endpointHealthComponent = new EndpointHealthComponent(
-      logger,
-      componentName,
-      endpointHealthComponentOptions,
-    )
+    const endpointHealthComponent = new EndpointHealthComponent(logger, componentName, endpointHealthComponentOptions)
 
     if (nodeSupportsEnvProxy) {
       expect(getInternalAgent(endpointHealthComponent)).toBeUndefined()
@@ -60,11 +56,7 @@ describe('EndpointHealthComponent', () => {
     const customAgent = new http.Agent({ keepAlive: true, timeout: 6543 })
     endpointHealthComponentOptions.transport = { agent: customAgent }
 
-    const endpointHealthComponent = new EndpointHealthComponent(
-      logger,
-      componentName,
-      endpointHealthComponentOptions,
-    )
+    const endpointHealthComponent = new EndpointHealthComponent(logger, componentName, endpointHealthComponentOptions)
 
     expect(getInternalAgent(endpointHealthComponent)).toBe(customAgent)
   })
@@ -76,11 +68,7 @@ describe('EndpointHealthComponent', () => {
     const createAgent = jest.fn().mockReturnValue(customAgent)
     endpointHealthComponentOptions.transport = { createAgent }
 
-    const endpointHealthComponent = new EndpointHealthComponent(
-      logger,
-      componentName,
-      endpointHealthComponentOptions,
-    )
+    const endpointHealthComponent = new EndpointHealthComponent(logger, componentName, endpointHealthComponentOptions)
 
     expect(createAgent).toHaveBeenCalledWith({
       url: nock.baseUrl,
