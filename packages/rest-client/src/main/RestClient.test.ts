@@ -1,26 +1,29 @@
 import nock from 'nock'
+import http from 'http'
 import express from 'express'
 import { Response } from 'superagent'
 import { PassThrough } from 'stream'
 import { NotFound } from 'http-errors'
 import RestClient from './RestClient'
-import { AgentConfig } from './types/ApiConfig'
+import { AgentConfig, type ApiConfig } from './types/ApiConfig'
 import { AuthOptions, TokenType } from './types/AuthOptions'
 import { SanitisedError } from './types/Errors'
 import { CallContext } from './types/Request'
 
+const baseApiConfig: ApiConfig = {
+  url: 'http://localhost:8080/api',
+  timeout: {
+    response: 200,
+    deadline: 200,
+  },
+  agent: new AgentConfig(200),
+}
+
 class TestRestClient extends RestClient {
-  constructor() {
+  constructor(config: ApiConfig = baseApiConfig) {
     super(
       'api-name',
-      {
-        url: 'http://localhost:8080/api',
-        timeout: {
-          response: 200,
-          deadline: 200,
-        },
-        agent: new AgentConfig(200),
-      },
+      config,
       console,
       {
         getToken: jest.fn().mockResolvedValue('some_system_jwt'),
@@ -30,6 +33,9 @@ class TestRestClient extends RestClient {
 }
 
 const restClient = new TestRestClient()
+const originalNodeUseEnvProxy = process.env.NODE_USE_ENV_PROXY
+const originalNodeOptions = process.env.NODE_OPTIONS
+const nodeSupportsEnvProxy = Number.parseInt(process.versions.node.split('.')[0], 10) >= 24
 
 const systemAuthOptions: AuthOptions = {
   tokenType: TokenType.SYSTEM_TOKEN,
@@ -57,6 +63,54 @@ async function readAll(stream: NodeJS.ReadableStream): Promise<string> {
 }
 
 describe('RestClient', () => {
+  const getInternalAgent = (client: RestClient) => (client as unknown as { agent?: unknown }).agent
+
+  afterEach(() => {
+    process.env.NODE_USE_ENV_PROXY = originalNodeUseEnvProxy
+    process.env.NODE_OPTIONS = originalNodeOptions
+  })
+
+  it('only defers to Node env proxy mode when the runtime supports it', () => {
+    process.env.NODE_USE_ENV_PROXY = '1'
+
+    const client = new TestRestClient()
+
+    if (nodeSupportsEnvProxy) {
+      expect(getInternalAgent(client)).toBeUndefined()
+    } else {
+      expect(getInternalAgent(client)).toBeDefined()
+    }
+  })
+
+  it('uses an explicitly supplied transport agent when Node env proxy mode is enabled', () => {
+    process.env.NODE_USE_ENV_PROXY = '1'
+
+    const customAgent = new http.Agent({ keepAlive: true, timeout: 6543 })
+    const client = new TestRestClient({
+      ...baseApiConfig,
+      transport: { agent: customAgent },
+    })
+
+    expect(getInternalAgent(client)).toBe(customAgent)
+  })
+
+  it('uses a transport.createAgent factory when Node env proxy mode is enabled', () => {
+    process.env.NODE_USE_ENV_PROXY = '1'
+
+    const customAgent = new http.Agent({ keepAlive: true, timeout: 7654 })
+    const createAgent = jest.fn().mockReturnValue(customAgent)
+    const client = new TestRestClient({
+      ...baseApiConfig,
+      transport: { createAgent },
+    })
+
+    expect(createAgent).toHaveBeenCalledWith({
+      url: baseApiConfig.url,
+      agentConfig: baseApiConfig.agent,
+    })
+    expect(getInternalAgent(client)).toBe(customAgent)
+  })
+
   describe.each(['get', 'patch', 'post', 'put', 'delete'] as const)('%s', method => {
     afterEach(() => {
       nock.cleanAll()
@@ -619,10 +673,15 @@ describe('RestClient', () => {
       const receivedData = await restClient.makeRestClientCall<string>(
         systemAuthOptions,
         async ({ superagent, token, agent }: CallContext): Promise<string> => {
-          const result = await superagent
+          const request = superagent
             .get(`http://localhost:8080/api/some-path`)
             .auth(token as string, { type: 'bearer' })
-            .agent(agent)
+
+          if (agent) {
+            request.agent(agent)
+          }
+
+          const result = await request
 
           return result.body.message
         },

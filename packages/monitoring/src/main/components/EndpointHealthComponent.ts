@@ -1,4 +1,10 @@
-import { RestClient, type AgentConfig, type ApiConfig, type SanitisedError } from '@ministryofjustice/hmpps-rest-client'
+import {
+  RestClient,
+  type AgentConfig,
+  type ApiConfig,
+  type SanitisedError,
+  type TransportConfig,
+} from '@ministryofjustice/hmpps-rest-client'
 import type { Response as SuperAgentResponse } from 'superagent'
 // annoyingly, eslint doesn't automatically consider @types/bunyuan a dev depdendency, it's not even directly referenced here
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -135,6 +141,8 @@ export default class EndpointHealthComponent implements HealthComponent {
   }
 
   private createApiConfig(options: EndpointHealthComponentOptions): ApiConfig {
+    const transportOptions = options.transport
+    const createAgent = transportOptions?.createAgent
     const timeout =
       typeof options.timeout === 'number'
         ? { response: options.timeout, deadline: options.timeout }
@@ -143,10 +151,25 @@ export default class EndpointHealthComponent implements HealthComponent {
             deadline: options.timeout?.deadline ?? this.defaultOptions.timeout.deadline,
           }
 
+    const transport: TransportConfig | undefined = transportOptions
+      ? {
+          agent: transportOptions.agent,
+          createAgent: createAgent
+            ? ({ url, agentConfig }) =>
+                createAgent({
+                  url,
+                  healthPath: options.healthPath,
+                  agentConfig,
+                })
+            : undefined,
+        }
+      : undefined
+
     return {
       url: options.url,
       timeout,
-      agent: options.agentConfig as AgentConfig,
+      agent: (options.agentConfig ?? options.agent) as AgentConfig,
+      transport,
     }
   }
 

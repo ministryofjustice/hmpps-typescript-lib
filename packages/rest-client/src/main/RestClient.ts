@@ -1,3 +1,4 @@
+import type http from 'http'
 import { HttpAgent, HttpsAgent } from 'agentkeepalive'
 import superagent, { Response, ResponseError, Request as SuperAgentRequest } from 'superagent'
 import { Readable } from 'stream'
@@ -9,11 +10,28 @@ import { Call, Request, RequestWithBody, StreamRequest } from './types/Request'
 import { AuthenticationClient } from './types/AuthenticationClient'
 import { RetryError, SanitisedError } from './types/Errors'
 
+const usesNodeEnvProxy = () => {
+  const majorNodeVersion = Number.parseInt(process.versions.node.split('.')[0], 10)
+
+  if (!Number.isInteger(majorNodeVersion) || majorNodeVersion < 24) {
+    return false
+  }
+
+  const nodeUseEnvProxy = process.env.NODE_USE_ENV_PROXY?.toLowerCase()
+
+  return (
+    nodeUseEnvProxy === '1' ||
+    nodeUseEnvProxy === 'true' ||
+    process.env.NODE_OPTIONS?.includes('--use-env-proxy') ||
+    process.execArgv.includes('--use-env-proxy')
+  )
+}
+
 /**
  * Base class for REST API clients.
  */
 export default class RestClient {
-  private readonly agent: HttpAgent
+  private readonly agent?: http.Agent
 
   /**
    * Creates an instance of RestClient.
@@ -29,7 +47,13 @@ export default class RestClient {
     protected readonly logger: Logger | Console,
     private readonly authenticationClient?: AuthenticationClient,
   ) {
-    this.agent = config.url.startsWith('https') ? new HttpsAgent(config.agent) : new HttpAgent(config.agent)
+    if (config.transport?.agent) {
+      this.agent = config.transport.agent
+    } else if (config.transport?.createAgent) {
+      this.agent = config.transport.createAgent({ url: config.url, agentConfig: config.agent })
+    } else if (!usesNodeEnvProxy()) {
+      this.agent = config.url.startsWith('https') ? new HttpsAgent(config.agent) : new HttpAgent(config.agent)
+    }
   }
 
   /**
@@ -151,11 +175,14 @@ export default class RestClient {
       const req = superagent
         .get(`${this.apiUrl()}${path}`)
         .query(query)
-        .agent(this.agent)
         .retry(retries, retryHandler.bind(this)())
         .set(headers)
         .responseType(responseType)
         .timeout(this.timeoutConfig())
+
+      if (this.agent) {
+        req.agent(this.agent)
+      }
 
       if (token) {
         req.auth(token, { type: 'bearer' })
@@ -207,11 +234,14 @@ export default class RestClient {
         req = superagent[method](`${this.apiUrl()}${path}`)
           .type('form')
           .query(query)
-          .agent(this.agent)
           .retry(2, retryHandler.bind(this)(retry))
           .set(headers)
           .responseType(responseType)
           .timeout(this.timeoutConfig())
+
+        if (this.agent) {
+          req.agent(this.agent)
+        }
 
         if (multipartData) {
           Object.entries(multipartData).forEach(([key, value]) => {
@@ -228,11 +258,14 @@ export default class RestClient {
         req = superagent[method](`${this.apiUrl()}${path}`)
           .query(query)
           .send(data)
-          .agent(this.agent)
           .retry(2, retryHandler.bind(this)(retry))
           .set(headers)
           .responseType(responseType)
           .timeout(this.timeoutConfig())
+
+        if (this.agent) {
+          req.agent(this.agent)
+        }
       }
 
       if (token) {
@@ -325,11 +358,14 @@ export default class RestClient {
       const req = superagent
         .delete(`${this.apiUrl()}${path}`)
         .query(query)
-        .agent(this.agent)
         .retry(retries, retryHandler.bind(this)())
         .set(headers)
         .responseType(responseType)
         .timeout(this.timeoutConfig())
+
+      if (this.agent) {
+        req.agent(this.agent)
+      }
 
       if (token) {
         req.auth(token, { type: 'bearer' })
@@ -362,10 +398,13 @@ export default class RestClient {
     return new Promise((resolve, reject) => {
       const req = superagent
         .get(`${this.apiUrl()}${path}`)
-        .agent(this.agent)
         .retry(2, this.handleRetry())
         .timeout(this.timeoutConfig())
         .set(headers)
+
+      if (this.agent) {
+        req.agent(this.agent)
+      }
 
       if (token) {
         req.auth(token, { type: 'bearer' })
