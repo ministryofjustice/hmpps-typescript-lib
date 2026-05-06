@@ -1,4 +1,4 @@
-import type { AgentConfig, TransportConfig } from '@ministryofjustice/hmpps-rest-client'
+import type { AgentConfig, AgentOptions, TransportConfig } from '@ministryofjustice/hmpps-rest-client'
 import type http from 'http'
 
 export interface EndpointHealthTransportOptions extends Omit<TransportConfig, 'createAgent'> {
@@ -15,7 +15,7 @@ export interface EndpointHealthTransportOptions extends Omit<TransportConfig, 'c
    * This overrides both the default keepalive agent and Node env proxy auto-detection. The caller is responsible for
    * ensuring the supplied agent is compatible with any required proxying.
    */
-  createAgent?: (options: { url: string; healthPath: string; agentConfig?: AgentConfig }) => http.Agent
+  createAgent?: (options: { url: string; healthPath: string; agentConfig?: AgentOptions }) => http.Agent
 }
 
 export interface EndpointHealthComponentOptions {
@@ -37,7 +37,7 @@ export interface EndpointHealthComponentOptions {
   /** (Optional) Agent configuration from hmpps-rest-client ApiConfig. */
   agent?: AgentConfig
   /** (Optional) Agent configuration options for HTTP/HTTPS requests to the service. */
-  agentConfig?: AgentConfig
+  agentConfig?: AgentOptions
   /** (Optional) Explicit transport override for health checks. */
   transport?: EndpointHealthTransportOptions
 }

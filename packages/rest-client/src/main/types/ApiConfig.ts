@@ -1,4 +1,5 @@
 import type http from 'http'
+import type { HttpOptions, HttpsOptions } from 'agentkeepalive'
 
 export class AgentConfig {
   // Sets the working socket to timeout after timeout milliseconds of inactivity on the working socket.
@@ -8,6 +9,8 @@ export class AgentConfig {
     this.timeout = timeout
   }
 }
+
+export type AgentOptions = AgentConfig | HttpOptions | HttpsOptions
 
 export interface TransportConfig {
   /**
@@ -24,7 +27,7 @@ export interface TransportConfig {
    * auto-detection. The caller is responsible for ensuring the supplied agent is compatible with any required
    * proxying.
    */
-  createAgent?: (options: { url: string; agentConfig: AgentConfig }) => http.Agent
+  createAgent?: (options: { url: string; agentConfig: AgentOptions }) => http.Agent
 }
 
 export interface ApiConfig {
@@ -37,6 +40,6 @@ export interface ApiConfig {
     // If the response isn't fully downloaded within that time, the request will be aborted.
     deadline: number
   }
-  agent: AgentConfig
+  agent: AgentOptions
   transport?: TransportConfig
 }

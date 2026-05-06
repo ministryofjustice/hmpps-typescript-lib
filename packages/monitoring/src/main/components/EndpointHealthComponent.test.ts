@@ -73,9 +73,25 @@ describe('EndpointHealthComponent', () => {
     expect(createAgent).toHaveBeenCalledWith({
       url: nock.baseUrl,
       healthPath: nock.uniquePath,
-      agentConfig: undefined,
+      agentConfig: expect.objectContaining({ timeout: 8000 }),
     })
     expect(getInternalAgent(endpointHealthComponent)).toBe(customAgent)
+  })
+
+  it('preserves legacy agentConfig options when creating a custom transport agent', () => {
+    const customAgent = new http.Agent({ keepAlive: true, timeout: 7654 })
+    const createAgent = jest.fn().mockReturnValue(customAgent)
+
+    endpointHealthComponentOptions.agentConfig = { timeout: 4321, maxSockets: 7 }
+    endpointHealthComponentOptions.transport = { createAgent }
+
+    new EndpointHealthComponent(logger, componentName, endpointHealthComponentOptions)
+
+    expect(createAgent).toHaveBeenCalledWith({
+      url: nock.baseUrl,
+      healthPath: nock.uniquePath,
+      agentConfig: expect.objectContaining({ timeout: 4321, maxSockets: 7 }),
+    })
   })
 
   it('accepts hmpps-rest-client style agent config under the agent field', () => {

@@ -1,6 +1,7 @@
 import {
   RestClient,
-  type AgentConfig,
+  AgentConfig,
+  type AgentOptions,
   type ApiConfig,
   type SanitisedError,
   type TransportConfig,
@@ -143,6 +144,7 @@ export default class EndpointHealthComponent implements HealthComponent {
   private createApiConfig(options: EndpointHealthComponentOptions): ApiConfig {
     const transportOptions = options.transport
     const createAgent = transportOptions?.createAgent
+    const agentConfig: AgentOptions = options.agent ?? options.agentConfig ?? new AgentConfig()
     const timeout =
       typeof options.timeout === 'number'
         ? { response: options.timeout, deadline: options.timeout }
@@ -168,7 +170,7 @@ export default class EndpointHealthComponent implements HealthComponent {
     return {
       url: options.url,
       timeout,
-      agent: (options.agentConfig ?? options.agent) as AgentConfig,
+      agent: agentConfig,
       transport,
     }
   }
