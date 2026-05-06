@@ -9,7 +9,8 @@ describe('EndpointHealthComponent', () => {
   let endpointHealthComponentOptions: EndpointHealthComponentOptions
   const originalNodeUseEnvProxy = process.env.NODE_USE_ENV_PROXY
   const originalNodeOptions = process.env.NODE_OPTIONS
-  const nodeSupportsEnvProxy = Number.parseInt(process.versions.node.split('.')[0], 10) >= 24
+  const getMajorNodeVersion = () => Number.parseInt(process.version.split('.')[0].replace('v', ''), 10)
+  const nodeSupportsEnvProxy = getMajorNodeVersion() >= 24
 
   const restoreEnvVar = (name: 'NODE_USE_ENV_PROXY' | 'NODE_OPTIONS', value: string | undefined) => {
     if (value === undefined) {

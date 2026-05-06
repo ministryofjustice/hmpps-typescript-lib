@@ -10,8 +10,10 @@ import { Call, Request, RequestWithBody, StreamRequest } from './types/Request'
 import { AuthenticationClient } from './types/AuthenticationClient'
 import { RetryError, SanitisedError } from './types/Errors'
 
+const getMajorNodeVersion = () => Number.parseInt(process.version.split('.')[0].replace('v', ''), 10)
+
 const usesNodeEnvProxy = () => {
-  const majorNodeVersion = Number.parseInt(process.versions.node.split('.')[0], 10)
+  const majorNodeVersion = getMajorNodeVersion()
 
   if (!Number.isInteger(majorNodeVersion) || majorNodeVersion < 24) {
     return false

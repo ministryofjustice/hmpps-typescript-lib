@@ -152,18 +152,19 @@ export default class EndpointHealthComponent implements HealthComponent {
             response: options.timeout?.response ?? this.defaultOptions.timeout.response,
             deadline: options.timeout?.deadline ?? this.defaultOptions.timeout.deadline,
           }
+    const transportCreateAgent = createAgent
+      ? ({ url, agentConfig }: { url: string; agentConfig: AgentOptions }) =>
+          createAgent({
+            url,
+            healthPath: options.healthPath,
+            agentConfig,
+          })
+      : undefined
 
     const transport: TransportConfig | undefined = transportOptions
       ? {
           agent: transportOptions.agent,
-          createAgent: createAgent
-            ? ({ url, agentConfig: transportAgentConfig }) =>
-                createAgent({
-                  url,
-                  healthPath: options.healthPath,
-                  agentConfig: transportAgentConfig,
-                })
-            : undefined,
+          createAgent: transportCreateAgent,
         }
       : undefined
 
