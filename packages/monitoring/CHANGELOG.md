@@ -1,5 +1,10 @@
 # Change log
 
+## 1.0.2
+
+Reuse `@ministryofjustice/hmpps-rest-client` for endpoint health-check transport while preserving the existing health
+check behavior and result shape.
+
 ## 1.0.1
 
 Allow all 2xx response codes to be successful for endpoint health components
