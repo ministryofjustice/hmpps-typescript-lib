@@ -34,10 +34,23 @@ export interface EndpointHealthComponentOptions {
       }
   /** (Optional) The number of retry attempts for the component's health check. Defaults to 2 */
   retries?: number
-  /** (Optional) Agent configuration options for HTTP/HTTPS requests to the service. */
+  /**
+   * (Optional) Preferred agent configuration options for HTTP/HTTPS requests to the service.
+   *
+   * When both `agent` and `agentConfig` are supplied, `agent` takes precedence.
+   */
   agent?: AgentOptions
-  /** (Optional) Agent configuration options for HTTP/HTTPS requests to the service. */
+  /**
+   * (Optional) Legacy alias for `agent`.
+   *
+   * This is retained for backwards compatibility. When both `agent` and `agentConfig` are supplied, `agent` takes
+   * precedence.
+   */
   agentConfig?: AgentOptions
-  /** (Optional) Explicit transport override for health checks. */
+  /**
+   * (Optional) Explicit transport override for health checks.
+   *
+   * `transport.agent` and `transport.createAgent` take precedence over both `agent` and `agentConfig`.
+   */
   transport?: EndpointHealthTransportOptions
 }

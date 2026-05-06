@@ -40,6 +40,17 @@ export interface ApiConfig {
     // If the response isn't fully downloaded within that time, the request will be aborted.
     deadline: number
   }
+  /**
+   * Configuration for the default keepalive agent created by hmpps-rest-client.
+   *
+   * This is ignored when `transport.agent` or `transport.createAgent` is supplied, and it is also ignored when Node
+   * env proxy mode is active and no explicit transport override is configured.
+   */
   agent: AgentOptions
+  /**
+   * Explicit transport override for callers that need to supply or construct their own agent.
+   *
+   * `transport.agent` and `transport.createAgent` take precedence over `agent`.
+   */
   transport?: TransportConfig
 }
