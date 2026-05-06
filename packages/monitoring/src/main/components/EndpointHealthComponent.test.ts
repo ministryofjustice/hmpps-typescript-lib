@@ -85,13 +85,14 @@ describe('EndpointHealthComponent', () => {
     endpointHealthComponentOptions.agentConfig = { timeout: 4321, maxSockets: 7 }
     endpointHealthComponentOptions.transport = { createAgent }
 
-    new EndpointHealthComponent(logger, componentName, endpointHealthComponentOptions)
+    const endpointHealthComponent = new EndpointHealthComponent(logger, componentName, endpointHealthComponentOptions)
 
     expect(createAgent).toHaveBeenCalledWith({
       url: nock.baseUrl,
       healthPath: nock.uniquePath,
       agentConfig: expect.objectContaining({ timeout: 4321, maxSockets: 7 }),
     })
+    expect(getInternalAgent(endpointHealthComponent)).toBe(customAgent)
   })
 
   it('accepts hmpps-rest-client style agent config under the agent field', () => {

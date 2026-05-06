@@ -144,7 +144,7 @@ export default class EndpointHealthComponent implements HealthComponent {
   private createApiConfig(options: EndpointHealthComponentOptions): ApiConfig {
     const transportOptions = options.transport
     const createAgent = transportOptions?.createAgent
-    const agentConfig: AgentOptions = options.agent ?? options.agentConfig ?? new AgentConfig()
+    const resolvedAgentConfig: AgentOptions = options.agent ?? options.agentConfig ?? new AgentConfig()
     const timeout =
       typeof options.timeout === 'number'
         ? { response: options.timeout, deadline: options.timeout }
@@ -157,11 +157,11 @@ export default class EndpointHealthComponent implements HealthComponent {
       ? {
           agent: transportOptions.agent,
           createAgent: createAgent
-            ? ({ url, agentConfig }) =>
+            ? ({ url, agentConfig: transportAgentConfig }) =>
                 createAgent({
                   url,
                   healthPath: options.healthPath,
-                  agentConfig,
+                  agentConfig: transportAgentConfig,
                 })
             : undefined,
         }
@@ -170,7 +170,7 @@ export default class EndpointHealthComponent implements HealthComponent {
     return {
       url: options.url,
       timeout,
-      agent: agentConfig,
+      agent: resolvedAgentConfig,
       transport,
     }
   }
