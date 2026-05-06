@@ -1,5 +1,13 @@
 # Change log
 
+## 1.2.0
+
+Add proxy-aware health check transport options, including support for preferred `agent`, legacy `agentConfig`, and explicit `transport` overrides that pass through to `@ministryofjustice/hmpps-rest-client`.
+
+## 1.1.0
+
+Update package metadata to align with the published 1.1.0 release.
+
 ## 1.0.2
 
 Reuse `@ministryofjustice/hmpps-rest-client` for endpoint health-check transport while preserving the existing health
