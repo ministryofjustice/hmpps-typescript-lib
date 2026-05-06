@@ -11,6 +11,14 @@ describe('EndpointHealthComponent', () => {
   const originalNodeOptions = process.env.NODE_OPTIONS
   const nodeSupportsEnvProxy = Number.parseInt(process.versions.node.split('.')[0], 10) >= 24
 
+  const restoreEnvVar = (name: 'NODE_USE_ENV_PROXY' | 'NODE_OPTIONS', value: string | undefined) => {
+    if (value === undefined) {
+      delete process.env[name]
+    } else {
+      process.env[name] = value
+    }
+  }
+
   const messages = jest.fn()
   const logger = {
     info: messages,
@@ -33,8 +41,8 @@ describe('EndpointHealthComponent', () => {
   })
 
   afterEach(() => {
-    process.env.NODE_USE_ENV_PROXY = originalNodeUseEnvProxy
-    process.env.NODE_OPTIONS = originalNodeOptions
+    restoreEnvVar('NODE_USE_ENV_PROXY', originalNodeUseEnvProxy)
+    restoreEnvVar('NODE_OPTIONS', originalNodeOptions)
     nock.done()
   })
 
@@ -95,12 +103,17 @@ describe('EndpointHealthComponent', () => {
     expect(getInternalAgent(endpointHealthComponent)).toBe(customAgent)
   })
 
-  it('accepts hmpps-rest-client style agent config under the agent field', () => {
-    endpointHealthComponentOptions.agent = { timeout: 4321 }
+  it('accepts agent options under the agent field', () => {
+    endpointHealthComponentOptions.agent = { timeout: 4321, maxSockets: 7 }
 
     const endpointHealthComponent = new EndpointHealthComponent(logger, componentName, endpointHealthComponentOptions)
 
-    expect((getInternalAgent(endpointHealthComponent) as { options: { timeout?: number } }).options.timeout).toBe(4321)
+    expect(
+      (getInternalAgent(endpointHealthComponent) as { options: { timeout?: number; maxSockets?: number } }).options,
+    ).toMatchObject({
+      timeout: 4321,
+      maxSockets: 7,
+    })
   })
 
   it.each([[200], [201], [204]])(

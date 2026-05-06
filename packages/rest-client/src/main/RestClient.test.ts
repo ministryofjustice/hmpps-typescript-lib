@@ -32,6 +32,14 @@ const originalNodeUseEnvProxy = process.env.NODE_USE_ENV_PROXY
 const originalNodeOptions = process.env.NODE_OPTIONS
 const nodeSupportsEnvProxy = Number.parseInt(process.versions.node.split('.')[0], 10) >= 24
 
+const restoreEnvVar = (name: 'NODE_USE_ENV_PROXY' | 'NODE_OPTIONS', value: string | undefined) => {
+  if (value === undefined) {
+    delete process.env[name]
+  } else {
+    process.env[name] = value
+  }
+}
+
 const systemAuthOptions: AuthOptions = {
   tokenType: TokenType.SYSTEM_TOKEN,
   user: {
@@ -61,8 +69,8 @@ describe('RestClient', () => {
   const getInternalAgent = (client: RestClient) => (client as unknown as { agent?: unknown }).agent
 
   afterEach(() => {
-    process.env.NODE_USE_ENV_PROXY = originalNodeUseEnvProxy
-    process.env.NODE_OPTIONS = originalNodeOptions
+    restoreEnvVar('NODE_USE_ENV_PROXY', originalNodeUseEnvProxy)
+    restoreEnvVar('NODE_OPTIONS', originalNodeOptions)
   })
 
   it('only defers to Node env proxy mode when the runtime supports it', () => {

@@ -1,4 +1,4 @@
-import type { AgentConfig, AgentOptions, TransportConfig } from '@ministryofjustice/hmpps-rest-client'
+import type { AgentOptions, TransportConfig } from '@ministryofjustice/hmpps-rest-client'
 import type http from 'http'
 
 export interface EndpointHealthTransportOptions extends Omit<TransportConfig, 'createAgent'> {
@@ -34,8 +34,8 @@ export interface EndpointHealthComponentOptions {
       }
   /** (Optional) The number of retry attempts for the component's health check. Defaults to 2 */
   retries?: number
-  /** (Optional) Agent configuration from hmpps-rest-client ApiConfig. */
-  agent?: AgentConfig
+  /** (Optional) Agent configuration options for HTTP/HTTPS requests to the service. */
+  agent?: AgentOptions
   /** (Optional) Agent configuration options for HTTP/HTTPS requests to the service. */
   agentConfig?: AgentOptions
   /** (Optional) Explicit transport override for health checks. */
