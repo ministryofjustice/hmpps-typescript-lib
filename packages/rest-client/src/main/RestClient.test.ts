@@ -30,8 +30,8 @@ class TestRestClient extends RestClient {
 const restClient = new TestRestClient()
 const originalNodeUseEnvProxy = process.env.NODE_USE_ENV_PROXY
 const originalNodeOptions = process.env.NODE_OPTIONS
-const getMajorNodeVersion = () => Number.parseInt(process.version.split('.')[0].replace('v', ''), 10)
-const nodeSupportsEnvProxy = getMajorNodeVersion() >= 24
+const [, major = '0'] = process.version.match(/^v(\d+)\.(\d+)\.(\d+)/) ?? []
+const nodeSupportsEnvProxy = Number(major) >= 24
 
 const restoreEnvVar = (name: 'NODE_USE_ENV_PROXY' | 'NODE_OPTIONS', value: string | undefined) => {
   if (value === undefined) {
