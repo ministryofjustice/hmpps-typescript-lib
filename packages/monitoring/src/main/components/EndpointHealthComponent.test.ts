@@ -63,7 +63,7 @@ describe('EndpointHealthComponent', () => {
     process.env.NODE_USE_ENV_PROXY = '1'
 
     const customAgent = new http.Agent({ keepAlive: true, timeout: 6543 })
-    endpointHealthComponentOptions.transport = { agent: customAgent }
+    endpointHealthComponentOptions = { ...endpointHealthComponentOptions, transport: { agent: customAgent } }
 
     const endpointHealthComponent = new EndpointHealthComponent(logger, componentName, endpointHealthComponentOptions)
 
@@ -75,7 +75,7 @@ describe('EndpointHealthComponent', () => {
 
     const customAgent = new http.Agent({ keepAlive: true, timeout: 7654 })
     const createAgent = jest.fn().mockReturnValue(customAgent)
-    endpointHealthComponentOptions.transport = { createAgent }
+    endpointHealthComponentOptions = { ...endpointHealthComponentOptions, transport: { createAgent } }
 
     const endpointHealthComponent = new EndpointHealthComponent(logger, componentName, endpointHealthComponentOptions)
 
@@ -91,8 +91,11 @@ describe('EndpointHealthComponent', () => {
     const customAgent = new http.Agent({ keepAlive: true, timeout: 7654 })
     const createAgent = jest.fn().mockReturnValue(customAgent)
 
-    endpointHealthComponentOptions.agentConfig = { timeout: 4321, maxSockets: 7 }
-    endpointHealthComponentOptions.transport = { createAgent }
+    endpointHealthComponentOptions = {
+      ...endpointHealthComponentOptions,
+      agentConfig: { timeout: 4321, maxSockets: 7 },
+      transport: { createAgent },
+    }
 
     const endpointHealthComponent = new EndpointHealthComponent(logger, componentName, endpointHealthComponentOptions)
 
@@ -105,7 +108,10 @@ describe('EndpointHealthComponent', () => {
   })
 
   it('accepts agent options under the agent field', () => {
-    endpointHealthComponentOptions.agent = { timeout: 4321, maxSockets: 7 }
+    endpointHealthComponentOptions = {
+      ...endpointHealthComponentOptions,
+      agent: { timeout: 4321, maxSockets: 7 },
+    }
 
     const endpointHealthComponent = new EndpointHealthComponent(logger, componentName, endpointHealthComponentOptions)
 

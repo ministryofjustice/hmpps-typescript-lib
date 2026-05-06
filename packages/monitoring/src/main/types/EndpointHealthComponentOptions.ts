@@ -18,7 +18,7 @@ export interface EndpointHealthTransportOptions extends Omit<TransportConfig, 'c
   createAgent?: (options: { url: string; healthPath: string; agentConfig?: AgentOptions }) => http.Agent
 }
 
-export interface EndpointHealthComponentOptions {
+type EndpointHealthSharedOptions = {
   /** The root URL of the external service to be health-checked. */
   url: string
   /** The path that represents the endpoint that will be called on the external service to be health-checked. The full endpoint url that will be called is `${url}${healthPath}`. */
@@ -34,12 +34,21 @@ export interface EndpointHealthComponentOptions {
       }
   /** (Optional) The number of retry attempts for the component's health check. Defaults to 2 */
   retries?: number
+}
+
+type EndpointHealthDefaultOptions = EndpointHealthSharedOptions & {
+  agent?: undefined
+  agentConfig?: undefined
+  transport?: undefined
+}
+
+type EndpointHealthAgentOptions = EndpointHealthSharedOptions & {
   /**
    * (Optional) Preferred agent configuration options for HTTP/HTTPS requests to the service.
    *
    * When both `agent` and `agentConfig` are supplied, `agent` takes precedence.
    */
-  agent?: AgentOptions
+  agent: AgentOptions
   /**
    * (Optional) Legacy alias for `agent`.
    *
@@ -47,10 +56,33 @@ export interface EndpointHealthComponentOptions {
    * precedence.
    */
   agentConfig?: AgentOptions
+  transport?: undefined
+}
+
+type EndpointHealthLegacyAgentConfigOptions = EndpointHealthSharedOptions & {
+  agent?: undefined
+  /**
+   * (Optional) Legacy alias for `agent`.
+   *
+   * This is retained for backwards compatibility.
+   */
+  agentConfig: AgentOptions
+  transport?: undefined
+}
+
+type EndpointHealthTransportOverrideComponentOptions = EndpointHealthSharedOptions & {
+  agent?: AgentOptions
+  agentConfig?: AgentOptions
   /**
    * (Optional) Explicit transport override for health checks.
    *
    * `transport.agent` and `transport.createAgent` take precedence over both `agent` and `agentConfig`.
    */
-  transport?: EndpointHealthTransportOptions
+  transport: EndpointHealthTransportOptions
 }
+
+export type EndpointHealthComponentOptions =
+  | EndpointHealthDefaultOptions
+  | EndpointHealthAgentOptions
+  | EndpointHealthLegacyAgentConfigOptions
+  | EndpointHealthTransportOverrideComponentOptions
