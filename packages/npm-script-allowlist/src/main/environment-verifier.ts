@@ -24,7 +24,7 @@ export const environmentVerifier = (log: (...args: unknown[]) => void = console.
 
   if (failedChecks.length) {
     throw new Error(
-      `Environment verification failed:\n * ${failedChecks.join('\n *')}\n\n\nSee the hmpps-template-typescript repository for example setup or ask #typescript for support.`,
+      `\n🚨 Allowlist environment verification failed! 🚨:\nThese checks ensure that the current environment will be protected by the script allowlist package.\n\n * ${failedChecks.join('\n * ')}\n\n\nSee https://github.com/ministryofjustice/hmpps-typescript-lib/tree/main/packages/npm-script-allowlist for more info or ask #typescript for support.\n`,
     )
   }
 }
