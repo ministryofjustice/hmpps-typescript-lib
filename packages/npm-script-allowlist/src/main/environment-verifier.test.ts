@@ -233,7 +233,7 @@ describe('environmentVerifier', () => {
     it('should throw when runChecks returns errors', () => {
       setupValidEnvironment({ npmrcExists: false })
 
-      expect(() => environmentVerifier(mockLog)).toThrow(/Environment verification failed/)
+      expect(() => environmentVerifier(mockLog)).toThrow(/Allowlist environment verification failed/)
     })
 
     it('should not throw when runChecks returns no errors', () => {
