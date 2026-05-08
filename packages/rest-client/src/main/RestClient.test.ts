@@ -3,7 +3,7 @@ import express from 'express'
 import { Response } from 'superagent'
 import { PassThrough } from 'stream'
 import { NotFound } from 'http-errors'
-import RestClient from './RestClient'
+import RestClient, { resetUnsupportedProxyConfigurationWarning } from './RestClient'
 import { AgentConfig, type ApiConfig } from './types/ApiConfig'
 import { AuthOptions, TokenType } from './types/AuthOptions'
 import { SanitisedError } from './types/Errors'
@@ -62,6 +62,7 @@ describe('RestClient', () => {
 
   afterEach(() => {
     setNodeVersion(originalNodeVersion)
+    resetUnsupportedProxyConfigurationWarning()
     jest.restoreAllMocks()
   })
 
