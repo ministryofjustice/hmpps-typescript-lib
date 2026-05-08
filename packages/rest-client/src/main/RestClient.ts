@@ -9,16 +9,17 @@ import { AuthOptions, TokenType } from './types/AuthOptions'
 import { Call, Request, RequestWithBody, StreamRequest } from './types/Request'
 import { AuthenticationClient } from './types/AuthenticationClient'
 import { RetryError, SanitisedError } from './types/Errors'
+import type { AgentOptions } from './types/ApiConfig'
 
 const getMajorNodeVersion = () => Number.parseInt(process.version.split('.')[0].replace('v', ''), 10)
 
-const usesNodeEnvProxy = () => {
+const runtimeSupportsProxyAwareAgents = () => {
   const majorNodeVersion = getMajorNodeVersion()
 
-  if (!Number.isInteger(majorNodeVersion) || majorNodeVersion < 24) {
-    return false
-  }
+  return Number.isInteger(majorNodeVersion) && majorNodeVersion >= 24
+}
 
+const usesNodeEnvProxy = () => {
   const nodeUseEnvProxy = process.env.NODE_USE_ENV_PROXY?.toLowerCase()
 
   return (
@@ -29,11 +30,34 @@ const usesNodeEnvProxy = () => {
   )
 }
 
+const hasConfiguredProxyEnv = (agentOptions: AgentOptions) => {
+  const { proxyEnv } = agentOptions as AgentOptions & { proxyEnv?: NodeJS.ProcessEnv }
+
+  return Object.values(proxyEnv ?? {}).some(value => Boolean(value))
+}
+
+let hasWarnedAboutUnsupportedProxyConfiguration = false
+
+const warnIfUnsupportedProxyConfiguration = (name: string, agentOptions: AgentOptions, logger: Logger | Console) => {
+  if (runtimeSupportsProxyAwareAgents() || hasWarnedAboutUnsupportedProxyConfiguration) {
+    return
+  }
+
+  if (!hasConfiguredProxyEnv(agentOptions) && !usesNodeEnvProxy()) {
+    return
+  }
+
+  hasWarnedAboutUnsupportedProxyConfiguration = true
+  logger.warn(
+    `Proxy-aware keepalive agent settings for '${name}' require Node.js v24 or later. Detected ${process.version}; configured proxy settings may be ignored on this runtime.`,
+  )
+}
+
 /**
  * Base class for REST API clients.
  */
 export default class RestClient {
-  private readonly agent?: http.Agent
+  private readonly agent: http.Agent
 
   /**
    * Creates an instance of RestClient.
@@ -49,13 +73,8 @@ export default class RestClient {
     protected readonly logger: Logger | Console,
     private readonly authenticationClient?: AuthenticationClient,
   ) {
-    if (config.transport?.agent) {
-      this.agent = config.transport.agent
-    } else if (config.transport?.createAgent) {
-      this.agent = config.transport.createAgent({ url: config.url, agentConfig: config.agent })
-    } else if (!usesNodeEnvProxy()) {
-      this.agent = config.url.startsWith('https') ? new HttpsAgent(config.agent) : new HttpAgent(config.agent)
-    }
+    warnIfUnsupportedProxyConfiguration(name, config.agent, logger)
+    this.agent = config.url.startsWith('https') ? new HttpsAgent(config.agent) : new HttpAgent(config.agent)
   }
 
   /**
@@ -177,14 +196,11 @@ export default class RestClient {
       const req = superagent
         .get(`${this.apiUrl()}${path}`)
         .query(query)
+        .agent(this.agent)
         .retry(retries, retryHandler.bind(this)())
         .set(headers)
         .responseType(responseType)
         .timeout(this.timeoutConfig())
-
-      if (this.agent) {
-        req.agent(this.agent)
-      }
 
       if (token) {
         req.auth(token, { type: 'bearer' })
@@ -236,14 +252,11 @@ export default class RestClient {
         req = superagent[method](`${this.apiUrl()}${path}`)
           .type('form')
           .query(query)
+          .agent(this.agent)
           .retry(2, retryHandler.bind(this)(retry))
           .set(headers)
           .responseType(responseType)
           .timeout(this.timeoutConfig())
-
-        if (this.agent) {
-          req.agent(this.agent)
-        }
 
         if (multipartData) {
           Object.entries(multipartData).forEach(([key, value]) => {
@@ -260,14 +273,11 @@ export default class RestClient {
         req = superagent[method](`${this.apiUrl()}${path}`)
           .query(query)
           .send(data)
+          .agent(this.agent)
           .retry(2, retryHandler.bind(this)(retry))
           .set(headers)
           .responseType(responseType)
           .timeout(this.timeoutConfig())
-
-        if (this.agent) {
-          req.agent(this.agent)
-        }
       }
 
       if (token) {
@@ -360,14 +370,11 @@ export default class RestClient {
       const req = superagent
         .delete(`${this.apiUrl()}${path}`)
         .query(query)
+        .agent(this.agent)
         .retry(retries, retryHandler.bind(this)())
         .set(headers)
         .responseType(responseType)
         .timeout(this.timeoutConfig())
-
-      if (this.agent) {
-        req.agent(this.agent)
-      }
 
       if (token) {
         req.auth(token, { type: 'bearer' })
@@ -400,13 +407,10 @@ export default class RestClient {
     return new Promise((resolve, reject) => {
       const req = superagent
         .get(`${this.apiUrl()}${path}`)
+        .agent(this.agent)
         .retry(2, this.handleRetry())
         .timeout(this.timeoutConfig())
         .set(headers)
-
-      if (this.agent) {
-        req.agent(this.agent)
-      }
 
       if (token) {
         req.auth(token, { type: 'bearer' })

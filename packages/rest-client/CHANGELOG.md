@@ -1,8 +1,8 @@
 # Change log
 
 # 1.3.0
-- Add proxy-aware transport handling so the client defers to Node env-proxy mode on supported runtimes instead of always constructing a keepalive agent.
-- Add `transport.agent` and `transport.createAgent` overrides for callers that need to supply or construct their own agent.
+- Allow proxy-aware keepalive agent options to be passed through to the underlying `agentkeepalive` agent.
+- Warn when proxy-aware keepalive agent settings are configured on Node.js versions earlier than v24.
 
 # 1.1.0
 - Add support for multipart form data requests [PR-143](https://github.com/ministryofjustice/hmpps-typescript-lib/pull/143)

@@ -1,5 +1,4 @@
 import nock from 'nock'
-import http from 'http'
 import express from 'express'
 import { Response } from 'superagent'
 import { PassThrough } from 'stream'
@@ -28,18 +27,10 @@ class TestRestClient extends RestClient {
 }
 
 const restClient = new TestRestClient()
-const originalNodeUseEnvProxy = process.env.NODE_USE_ENV_PROXY
-const originalNodeOptions = process.env.NODE_OPTIONS
-const [, major = '0'] = process.version.match(/^v(\d+)\.(\d+)\.(\d+)/) ?? []
-const nodeSupportsEnvProxy = Number(major) >= 24
+const originalNodeVersion = process.version
 
-const restoreEnvVar = (name: 'NODE_USE_ENV_PROXY' | 'NODE_OPTIONS', value: string | undefined) => {
-  if (value === undefined) {
-    delete process.env[name]
-  } else {
-    process.env[name] = value
-  }
-}
+const setNodeVersion = (nodeVersion: string) =>
+  Object.defineProperty(process, 'version', { value: nodeVersion, configurable: true })
 
 const systemAuthOptions: AuthOptions = {
   tokenType: TokenType.SYSTEM_TOKEN,
@@ -70,49 +61,45 @@ describe('RestClient', () => {
   const getInternalAgent = (client: RestClient) => (client as unknown as { agent?: unknown }).agent
 
   afterEach(() => {
-    restoreEnvVar('NODE_USE_ENV_PROXY', originalNodeUseEnvProxy)
-    restoreEnvVar('NODE_OPTIONS', originalNodeOptions)
+    setNodeVersion(originalNodeVersion)
+    jest.restoreAllMocks()
   })
 
-  it('only defers to Node env proxy mode when the runtime supports it', () => {
-    process.env.NODE_USE_ENV_PROXY = '1'
-
-    const client = new TestRestClient()
-
-    if (nodeSupportsEnvProxy) {
-      expect(getInternalAgent(client)).toBeUndefined()
-    } else {
-      expect(getInternalAgent(client)).toBeDefined()
+  it('passes proxy settings through to the underlying keepalive agent', () => {
+    const proxyEnv = {
+      HTTPS_PROXY: 'http://envoy.local:3128',
+      NO_PROXY: 'localhost,127.0.0.1',
     }
-  })
-
-  it('uses an explicitly supplied transport agent when Node env proxy mode is enabled', () => {
-    process.env.NODE_USE_ENV_PROXY = '1'
-
-    const customAgent = new http.Agent({ keepAlive: true, timeout: 6543 })
     const client = new TestRestClient({
       ...baseApiConfig,
-      transport: { agent: customAgent },
+      agent: {
+        timeout: 6543,
+        proxyEnv,
+      },
     })
 
-    expect(getInternalAgent(client)).toBe(customAgent)
+    expect(
+      (getInternalAgent(client) as { options: { proxyEnv?: typeof proxyEnv; timeout?: number } }).options,
+    ).toMatchObject({ timeout: 6543, proxyEnv })
   })
 
-  it('uses a transport.createAgent factory when Node env proxy mode is enabled', () => {
-    process.env.NODE_USE_ENV_PROXY = '1'
+  it('warns when proxy settings are configured on runtimes before Node.js v24', () => {
+    setNodeVersion('v22.11.0')
 
-    const customAgent = new http.Agent({ keepAlive: true, timeout: 7654 })
-    const createAgent = jest.fn().mockReturnValue(customAgent)
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined)
+
     const client = new TestRestClient({
       ...baseApiConfig,
-      transport: { createAgent },
+      agent: {
+        timeout: 7654,
+        proxyEnv: { HTTPS_PROXY: 'http://envoy.local:3128' },
+      },
     })
 
-    expect(createAgent).toHaveBeenCalledWith({
-      url: baseApiConfig.url,
-      agentConfig: baseApiConfig.agent,
-    })
-    expect(getInternalAgent(client)).toBe(customAgent)
+    expect(client).toBeDefined()
+    expect(warn).toHaveBeenCalledWith(
+      "Proxy-aware keepalive agent settings for 'api-name' require Node.js v24 or later. Detected v22.11.0; configured proxy settings may be ignored on this runtime.",
+    )
   })
 
   describe.each(['get', 'patch', 'post', 'put', 'delete'] as const)('%s', method => {
@@ -677,15 +664,10 @@ describe('RestClient', () => {
       const receivedData = await restClient.makeRestClientCall<string>(
         systemAuthOptions,
         async ({ superagent, token, agent }: CallContext): Promise<string> => {
-          const request = superagent
+          const result = await superagent
             .get(`http://localhost:8080/api/some-path`)
             .auth(token as string, { type: 'bearer' })
-
-          if (agent) {
-            request.agent(agent)
-          }
-
-          const result = await request
+            .agent(agent)
 
           return result.body.message
         },

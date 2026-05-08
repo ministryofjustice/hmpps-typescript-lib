@@ -2,7 +2,7 @@
 
 ## 1.2.0
 
-Add proxy-aware health check transport options, including support for preferred `agent`, legacy `agentConfig`, and explicit `transport` overrides that pass through to `@ministryofjustice/hmpps-rest-client`.
+Add support for preferred `agent` health-check options while retaining legacy `agentConfig` compatibility.
 
 ## 1.1.0
 

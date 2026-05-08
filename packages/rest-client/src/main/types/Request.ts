@@ -51,7 +51,7 @@ export interface StreamRequest<ErrorData> {
 export interface CallContext {
   superagent: superagent.SuperAgent
   token: string | undefined
-  agent?: http.Agent
+  agent: http.Agent
 }
 
 export interface Call<Response = unknown> {

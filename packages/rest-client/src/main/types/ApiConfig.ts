@@ -1,4 +1,3 @@
-import type http from 'http'
 import type { HttpOptions, HttpsOptions } from 'agentkeepalive'
 
 export class AgentConfig {
@@ -12,24 +11,6 @@ export class AgentConfig {
 
 export type AgentOptions = AgentConfig | HttpOptions | HttpsOptions
 
-export interface TransportConfig {
-  /**
-   * Explicit agent instance to use for all requests.
-   *
-   * When provided, the rest client will always use this agent, even when Node env proxy mode is enabled.
-   * The caller is responsible for ensuring the supplied agent is compatible with any required proxying.
-   */
-  agent?: http.Agent
-  /**
-   * Factory for creating an explicit agent instance.
-   *
-   * This is evaluated during client construction and overrides both the default keepalive agent and Node env proxy
-   * auto-detection. The caller is responsible for ensuring the supplied agent is compatible with any required
-   * proxying.
-   */
-  createAgent?: (options: { url: string; agentConfig: AgentOptions }) => http.Agent
-}
-
 export interface ApiConfig {
   url: string
   timeout: {
@@ -41,16 +22,11 @@ export interface ApiConfig {
     deadline: number
   }
   /**
-   * Configuration for the default keepalive agent created by hmpps-rest-client.
+   * Configuration for the keepalive agent created by hmpps-rest-client.
    *
-   * This is ignored when `transport.agent` or `transport.createAgent` is supplied, and it is also ignored when Node
-   * env proxy mode is active and no explicit transport override is configured.
+   * On Node.js v24 and later, proxy-aware settings such as `proxyEnv` are passed through to the underlying keepalive
+   * agent. On earlier Node.js versions, hmpps-rest-client will log a warning if proxy settings are configured because
+   * they may be ignored by the runtime.
    */
   agent: AgentOptions
-  /**
-   * Explicit transport override for callers that need to supply or construct their own agent.
-   *
-   * `transport.agent` and `transport.createAgent` take precedence over `agent`.
-   */
-  transport?: TransportConfig
 }

@@ -1,4 +1,3 @@
-import http from 'http'
 import { createTestNock } from '../../test/utils'
 import EndpointHealthComponent from './EndpointHealthComponent'
 import type { EndpointHealthComponentOptions } from '../types/EndpointHealthComponentOptions'
@@ -7,18 +6,6 @@ describe('EndpointHealthComponent', () => {
   let nock: ReturnType<typeof createTestNock>
   const componentName = 'test-component'
   let endpointHealthComponentOptions: EndpointHealthComponentOptions
-  const originalNodeUseEnvProxy = process.env.NODE_USE_ENV_PROXY
-  const originalNodeOptions = process.env.NODE_OPTIONS
-  const [, major = '0'] = process.version.match(/^v(\d+)\.(\d+)\.(\d+)/) ?? []
-  const nodeSupportsEnvProxy = Number(major) >= 24
-
-  const restoreEnvVar = (name: 'NODE_USE_ENV_PROXY' | 'NODE_OPTIONS', value: string | undefined) => {
-    if (value === undefined) {
-      delete process.env[name]
-    } else {
-      process.env[name] = value
-    }
-  }
 
   const messages = jest.fn()
   const logger = {
@@ -27,7 +14,8 @@ describe('EndpointHealthComponent', () => {
   } as unknown as jest.Mocked<Console>
 
   const getInternalAgent = (component: EndpointHealthComponent) =>
-    (component as unknown as { healthClient: { agent?: unknown } }).healthClient.agent
+    (component as unknown as { healthClient: { agent: { options: { timeout?: number; maxSockets?: number } } } })
+      .healthClient.agent
 
   beforeEach(() => {
     nock = createTestNock({ method: 'get', baseUrl: 'https://test.local', path: '/some-path' })
@@ -42,69 +30,21 @@ describe('EndpointHealthComponent', () => {
   })
 
   afterEach(() => {
-    restoreEnvVar('NODE_USE_ENV_PROXY', originalNodeUseEnvProxy)
-    restoreEnvVar('NODE_OPTIONS', originalNodeOptions)
     nock.done()
   })
 
-  it('only defers to Node env proxy mode when the runtime supports it', () => {
-    process.env.NODE_USE_ENV_PROXY = '1'
-
-    const endpointHealthComponent = new EndpointHealthComponent(logger, componentName, endpointHealthComponentOptions)
-
-    if (nodeSupportsEnvProxy) {
-      expect(getInternalAgent(endpointHealthComponent)).toBeUndefined()
-    } else {
-      expect(getInternalAgent(endpointHealthComponent)).toBeDefined()
-    }
-  })
-
-  it('uses an explicitly supplied custom agent when Node env proxy mode is enabled', () => {
-    process.env.NODE_USE_ENV_PROXY = '1'
-
-    const customAgent = new http.Agent({ keepAlive: true, timeout: 6543 })
-    endpointHealthComponentOptions = { ...endpointHealthComponentOptions, transport: { agent: customAgent } }
-
-    const endpointHealthComponent = new EndpointHealthComponent(logger, componentName, endpointHealthComponentOptions)
-
-    expect(getInternalAgent(endpointHealthComponent)).toBe(customAgent)
-  })
-
-  it('uses a custom agent created by transport.createAgent when Node env proxy mode is enabled', () => {
-    process.env.NODE_USE_ENV_PROXY = '1'
-
-    const customAgent = new http.Agent({ keepAlive: true, timeout: 7654 })
-    const createAgent = jest.fn().mockReturnValue(customAgent)
-    endpointHealthComponentOptions = { ...endpointHealthComponentOptions, transport: { createAgent } }
-
-    const endpointHealthComponent = new EndpointHealthComponent(logger, componentName, endpointHealthComponentOptions)
-
-    expect(createAgent).toHaveBeenCalledWith({
-      url: nock.baseUrl,
-      healthPath: nock.uniquePath,
-      agentConfig: expect.objectContaining({ timeout: 8000 }),
-    })
-    expect(getInternalAgent(endpointHealthComponent)).toBe(customAgent)
-  })
-
-  it('preserves legacy agentConfig options when creating a custom transport agent', () => {
-    const customAgent = new http.Agent({ keepAlive: true, timeout: 7654 })
-    const createAgent = jest.fn().mockReturnValue(customAgent)
-
+  it('preserves legacy agentConfig options', () => {
     endpointHealthComponentOptions = {
       ...endpointHealthComponentOptions,
       agentConfig: { timeout: 4321, maxSockets: 7 },
-      transport: { createAgent },
     }
 
     const endpointHealthComponent = new EndpointHealthComponent(logger, componentName, endpointHealthComponentOptions)
 
-    expect(createAgent).toHaveBeenCalledWith({
-      url: nock.baseUrl,
-      healthPath: nock.uniquePath,
-      agentConfig: expect.objectContaining({ timeout: 4321, maxSockets: 7 }),
+    expect(getInternalAgent(endpointHealthComponent).options).toMatchObject({
+      timeout: 4321,
+      maxSockets: 7,
     })
-    expect(getInternalAgent(endpointHealthComponent)).toBe(customAgent)
   })
 
   it('accepts agent options under the agent field', () => {
@@ -115,9 +55,7 @@ describe('EndpointHealthComponent', () => {
 
     const endpointHealthComponent = new EndpointHealthComponent(logger, componentName, endpointHealthComponentOptions)
 
-    expect(
-      (getInternalAgent(endpointHealthComponent) as { options: { timeout?: number; maxSockets?: number } }).options,
-    ).toMatchObject({
+    expect(getInternalAgent(endpointHealthComponent).options).toMatchObject({
       timeout: 4321,
       maxSockets: 7,
     })
