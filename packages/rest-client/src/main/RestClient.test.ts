@@ -3,7 +3,7 @@ import express from 'express'
 import { Response } from 'superagent'
 import { PassThrough } from 'stream'
 import { NotFound } from 'http-errors'
-import RestClient, { resetUnsupportedProxyConfigurationWarning } from './RestClient'
+import RestClient from './RestClient'
 import { AgentConfig, type ApiConfig } from './types/ApiConfig'
 import { AuthOptions, TokenType } from './types/AuthOptions'
 import { SanitisedError } from './types/Errors'
@@ -62,11 +62,13 @@ describe('RestClient', () => {
 
   afterEach(() => {
     setNodeVersion(originalNodeVersion)
-    resetUnsupportedProxyConfigurationWarning()
     jest.restoreAllMocks()
   })
 
   it('passes proxy settings through to the underlying keepalive agent', () => {
+    setNodeVersion('v24.9.0')
+
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined)
     const proxyEnv = {
       HTTPS_PROXY: 'http://envoy.local:3128',
       NO_PROXY: 'localhost,127.0.0.1',
@@ -82,6 +84,7 @@ describe('RestClient', () => {
     expect(
       (getInternalAgent(client) as { options: { proxyEnv?: typeof proxyEnv; timeout?: number } }).options,
     ).toMatchObject({ timeout: 6543, proxyEnv })
+    expect(warn).not.toHaveBeenCalled()
   })
 
   it('warns when proxy settings are configured on runtimes before Node.js v24', () => {

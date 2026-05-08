@@ -38,10 +38,6 @@ const hasConfiguredProxyEnv = (agentOptions: AgentOptions) => {
 
 let hasWarnedAboutUnsupportedProxyConfiguration = false
 
-export const resetUnsupportedProxyConfigurationWarning = () => {
-  hasWarnedAboutUnsupportedProxyConfiguration = false
-}
-
 const warnIfUnsupportedProxyConfiguration = (name: string, agentOptions: AgentOptions, logger: Logger | Console) => {
   if (runtimeSupportsProxyAwareAgents() || hasWarnedAboutUnsupportedProxyConfiguration) {
     return
