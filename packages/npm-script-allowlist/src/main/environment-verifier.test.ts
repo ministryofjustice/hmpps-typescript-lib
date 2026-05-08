@@ -1,140 +1,251 @@
-import { existsSync, readFileSync } from 'fs'
-import { environmentVerifier } from './environment-verifier'
+import { existsSync, PathLike, PathOrFileDescriptor, readFileSync } from 'fs'
+import { environmentVerifier, ERRORS, runChecks } from './environment-verifier'
 
 jest.mock('fs')
 
 describe('environmentVerifier', () => {
+  const mockLog = jest.fn()
+
+  // Valid file contents for a passing environment
+  const validFileContents = {
+    npmrc: 'registry=https://registry.npmjs.org\nignore-scripts=true\n',
+    dockerfile: 'FROM node:18\nCOPY .npmrc .\nCOPY .allowed-scripts.mjs .\nRUN npm install\n',
+    dockerignore: 'node_modules/\n!.npmrc\n!.allowed-scripts.mjs\n',
+  }
+
   beforeEach(() => {
     jest.clearAllMocks()
     delete process.env.NPM_SCRIPT_ALLOWLIST_VERIFICATION_DISABLED
+    jest.mocked(existsSync).mockReturnValue(false)
+    jest.mocked(readFileSync).mockReturnValue('')
   })
 
-  it('should log and return early when NPM_SCRIPT_ALLOWLIST_VERIFICATION_DISABLED is true', () => {
-    process.env.NPM_SCRIPT_ALLOWLIST_VERIFICATION_DISABLED = 'true'
-    const mockLog = jest.fn()
+  /**
+   * Sets up mocks for a valid environment with all checks passing.
+   * Can be customized by providing overrides for specific file contents and existence.
+   */
+  const setupValidEnvironment = (overrides?: {
+    npmrcExists?: boolean
+    dockerfileExists?: boolean
+    dockerignoreExists?: boolean
+    npmrcContent?: string
+    dockerfileContent?: string
+    dockerignoreContent?: string
+  }) => {
+    const fileContents = {
+      npmrc: overrides?.npmrcContent ?? validFileContents.npmrc,
+      dockerfile: overrides?.dockerfileContent ?? validFileContents.dockerfile,
+      dockerignore: overrides?.dockerignoreContent ?? validFileContents.dockerignore,
+    }
 
-    environmentVerifier(mockLog)
+    jest.mocked(existsSync).mockImplementation((path: PathLike) => {
+      const pathStr = path.toString()
+      if (pathStr.includes('.npmrc')) return overrides?.npmrcExists ?? true
+      if (pathStr.includes('Dockerfile')) return overrides?.dockerfileExists ?? true
+      if (pathStr.includes('.dockerignore')) return overrides?.dockerignoreExists ?? true
+      return false
+    })
 
-    expect(mockLog).toHaveBeenCalledWith('Environment verification is disabled.')
+    jest.mocked(readFileSync).mockImplementation((path: PathOrFileDescriptor) => {
+      const pathStr = path.toString()
+      if (pathStr.includes('.npmrc')) return fileContents.npmrc
+      if (pathStr.includes('Dockerfile')) return fileContents.dockerfile
+      if (pathStr.includes('.dockerignore')) return fileContents.dockerignore
+      return ''
+    })
+  }
+
+  describe('when verification is disabled', () => {
+    it('should skip verification when NPM_SCRIPT_ALLOWLIST_VERIFICATION_DISABLED is true', () => {
+      process.env.NPM_SCRIPT_ALLOWLIST_VERIFICATION_DISABLED = 'true'
+      jest.mocked(existsSync).mockReturnValue(false)
+
+      expect(() => environmentVerifier(mockLog)).not.toThrow()
+      expect(mockLog).toHaveBeenCalledWith('Environment verification is disabled.')
+    })
+
+    it('should not call any file checks when verification is disabled', () => {
+      process.env.NPM_SCRIPT_ALLOWLIST_VERIFICATION_DISABLED = 'true'
+
+      environmentVerifier(mockLog)
+
+      expect(jest.mocked(existsSync)).not.toHaveBeenCalled()
+      expect(jest.mocked(readFileSync)).not.toHaveBeenCalled()
+    })
   })
 
-  it('should throw error when .npmrc file does not exist', () => {
-    ;(existsSync as jest.Mock).mockReturnValueOnce(false)
+  describe('.npmrc file checks', () => {
+    describe('checkNpmrcFileExists', () => {
+      it('should return no error when .npmrc file does not exist', () => {
+        setupValidEnvironment({ npmrcExists: true })
 
-    expect(() => environmentVerifier()).toThrow(
-      '.npmrc file not found. Please ensure you have an .npmrc file in the root of your project with the correct ignore-scripts setting.',
-    )
+        expect(runChecks()).toStrictEqual([])
+      })
+      it('should return NPMRC_NOT_FOUND when .npmrc file does not exist', () => {
+        setupValidEnvironment({ npmrcExists: false })
+
+        expect(runChecks()).toStrictEqual([ERRORS.NPMRC_NOT_FOUND])
+      })
+    })
+
+    describe('checkIgnoreScriptsSet', () => {
+      it('should return no errors when ignore-scripts=true is among other configuration', () => {
+        setupValidEnvironment({
+          npmrcContent: 'registry=https://registry.npmjs.org\nignore-scripts=true\nother-config=value\n',
+        })
+
+        expect(runChecks()).toStrictEqual([])
+      })
+
+      it('should return NPMRC_IGNORE_SCRIPTS_NOT_SET when ignore-scripts is not set', () => {
+        setupValidEnvironment({ npmrcContent: 'registry=https://registry.npmjs.org\nother-config=value\n' })
+
+        expect(runChecks()).toStrictEqual([ERRORS.NPMRC_IGNORE_SCRIPTS_NOT_SET])
+      })
+
+      it('should return NPMRC_IGNORE_SCRIPTS_NOT_SET when ignore-scripts is set to false', () => {
+        setupValidEnvironment({ npmrcContent: 'ignore-scripts=false\n' })
+
+        expect(runChecks()).toStrictEqual([ERRORS.NPMRC_IGNORE_SCRIPTS_NOT_SET])
+      })
+    })
   })
 
-  it('should throw error when .npmrc does not have ignore-scripts=true', () => {
-    ;(existsSync as jest.Mock).mockReturnValueOnce(true)
-    ;(readFileSync as jest.Mock).mockReturnValueOnce('some-other-config=value')
+  describe('Dockerfile checks', () => {
+    it('should return no Dockerfile errors when Dockerfile does not exist', () => {
+      setupValidEnvironment({ dockerfileExists: false })
 
-    expect(() => environmentVerifier()).toThrow(
-      'Incorrect .npmrc configuration. Please ensure your .npmrc file has "ignore-scripts=true" set.',
-    )
+      const errors = runChecks()
+      expect(errors).toStrictEqual([])
+    })
+
+    it('should return no Dockerfile errors when Dockerfile references both files', () => {
+      setupValidEnvironment({
+        dockerfileContent: 'FROM node:18\nCOPY .npmrc .\nCOPY .allowed-scripts.mjs .\nRUN npm install\n',
+      })
+
+      const errors = runChecks()
+      expect(errors).toStrictEqual([])
+    })
+
+    it('should return DOCKERFILE_MISSING_NPMRC when Dockerfile does not reference .npmrc', () => {
+      setupValidEnvironment({ dockerfileContent: 'FROM node:18\nCOPY .allowed-scripts.mjs .\n' })
+
+      expect(runChecks()).toStrictEqual([ERRORS.DOCKERFILE_MISSING_NPMRC])
+    })
+
+    it('should return DOCKERFILE_MISSING_ALLOWED_SCRIPTS when Dockerfile does not reference .allowed-scripts.mjs', () => {
+      setupValidEnvironment({ dockerfileContent: 'FROM node:18\nCOPY .npmrc .\n' })
+
+      expect(runChecks()).toStrictEqual([ERRORS.DOCKERFILE_MISSING_ALLOWED_SCRIPTS])
+    })
+
+    it('should return both Dockerfile errors when neither file is referenced', () => {
+      setupValidEnvironment({ dockerfileContent: 'FROM node:18\nRUN npm install\n' })
+
+      const errors = runChecks()
+      expect(errors).toStrictEqual([ERRORS.DOCKERFILE_MISSING_NPMRC, ERRORS.DOCKERFILE_MISSING_ALLOWED_SCRIPTS])
+    })
   })
 
-  it('should not throw when .npmrc exists with correct configuration and no Dockerfile', () => {
-    ;(existsSync as jest.Mock)
-      .mockReturnValueOnce(true) // .npmrc exists
-      .mockReturnValueOnce(false) // Dockerfile does not exist
-    ;(readFileSync as jest.Mock).mockReturnValueOnce('ignore-scripts=true')
+  describe('.dockerignore checks', () => {
+    it('should return no dockerignore errors when file does not exist', () => {
+      setupValidEnvironment({ dockerignoreExists: false })
 
-    expect(() => environmentVerifier()).not.toThrow()
+      const errors = runChecks()
+      expect(errors).toStrictEqual([])
+    })
+
+    it('should return no dockerignore errors when both exceptions are present', () => {
+      setupValidEnvironment({ dockerignoreContent: 'node_modules/\n!.npmrc\n!.allowed-scripts.mjs\n' })
+
+      const errors = runChecks()
+      expect(errors).toStrictEqual([])
+    })
+
+    it('should return no dockerignore errors when exceptions have leading/trailing whitespace', () => {
+      setupValidEnvironment({ dockerignoreContent: '  !  .npmrc  \n  !  .allowed-scripts.mjs  \n' })
+
+      const errors = runChecks()
+      expect(errors).toStrictEqual([])
+    })
+
+    it('should return DOCKERIGNORE_MISSING_NPMRC when !.npmrc exception is missing', () => {
+      setupValidEnvironment({ dockerignoreContent: 'node_modules/\n!.allowed-scripts.mjs\n' })
+
+      expect(runChecks()).toStrictEqual([ERRORS.DOCKERIGNORE_MISSING_NPMRC])
+    })
+
+    it('should return DOCKERIGNORE_MISSING_ALLOWED_SCRIPTS when !.allowed-scripts.mjs exception is missing', () => {
+      setupValidEnvironment({ dockerignoreContent: 'node_modules/\n!.npmrc\n' })
+
+      expect(runChecks()).toStrictEqual([ERRORS.DOCKERIGNORE_MISSING_ALLOWED_SCRIPTS])
+    })
+
+    it('should return both dockerignore errors when neither exception exists', () => {
+      setupValidEnvironment({ dockerignoreContent: 'node_modules/\n*.log\n' })
+
+      const errors = runChecks()
+      expect(errors).toStrictEqual([ERRORS.DOCKERIGNORE_MISSING_NPMRC, ERRORS.DOCKERIGNORE_MISSING_ALLOWED_SCRIPTS])
+    })
   })
 
-  it('should throw error when Dockerfile exists but does not reference .npmrc', () => {
-    ;(existsSync as jest.Mock)
-      .mockReturnValueOnce(true) // .npmrc exists
-      .mockReturnValueOnce(true) // Dockerfile exists
-    ;(readFileSync as jest.Mock)
-      .mockReturnValueOnce('ignore-scripts=true') // .npmrc content
-      .mockReturnValueOnce('FROM node:18') // Dockerfile content without .npmrc reference
+  describe('error aggregation', () => {
+    it('should return all applicable errors when everything fails', () => {
+      setupValidEnvironment({
+        npmrcExists: false,
+        dockerfileContent: 'FROM node:18\n',
+        dockerignoreContent: 'node_modules/\n',
+      })
 
-    expect(() => environmentVerifier()).toThrow(
-      /Please ensure your Dockerfile copies the \.npmrc file to the container\./,
-    )
+      const errors = runChecks()
+      expect(errors).toContain(ERRORS.NPMRC_NOT_FOUND)
+      expect(errors).toContain(ERRORS.DOCKERFILE_MISSING_NPMRC)
+      expect(errors).toContain(ERRORS.DOCKERFILE_MISSING_ALLOWED_SCRIPTS)
+      expect(errors).toContain(ERRORS.DOCKERIGNORE_MISSING_NPMRC)
+      expect(errors).toContain(ERRORS.DOCKERIGNORE_MISSING_ALLOWED_SCRIPTS)
+    })
+
+    it('should return only relevant errors when npmrc exists but content is invalid', () => {
+      setupValidEnvironment({
+        npmrcContent: 'some invalid content',
+        dockerfileContent: 'some invalid content',
+        dockerignoreContent: 'some invalid content',
+      })
+
+      const errors = runChecks()
+      expect(errors).not.toContain(ERRORS.NPMRC_NOT_FOUND)
+      expect(errors).toContain(ERRORS.NPMRC_IGNORE_SCRIPTS_NOT_SET)
+      expect(errors).toContain(ERRORS.DOCKERFILE_MISSING_NPMRC)
+      expect(errors).toContain(ERRORS.DOCKERFILE_MISSING_ALLOWED_SCRIPTS)
+      expect(errors).toContain(ERRORS.DOCKERIGNORE_MISSING_NPMRC)
+      expect(errors).toContain(ERRORS.DOCKERIGNORE_MISSING_ALLOWED_SCRIPTS)
+    })
+
+    it('should return empty array when all checks pass', () => {
+      setupValidEnvironment()
+
+      expect(runChecks()).toEqual([])
+    })
   })
 
-  it('should not throw when both .npmrc and Dockerfile exist with correct configuration', () => {
-    ;(existsSync as jest.Mock)
-      .mockReturnValueOnce(true) // .npmrc exists
-      .mockReturnValueOnce(true) // Dockerfile exists
-    ;(readFileSync as jest.Mock)
-      .mockReturnValueOnce('ignore-scripts=true') // .npmrc content
-      .mockReturnValueOnce('COPY .npmrc /app/.npmrc') // Dockerfile content with .npmrc reference
+  describe('environmentVerifier throws aggregated errors', () => {
+    it('should throw when runChecks returns errors', () => {
+      setupValidEnvironment({ npmrcExists: false })
 
-    expect(() => environmentVerifier()).not.toThrow()
-  })
+      expect(() => environmentVerifier(mockLog)).toThrow(/Allowlist environment verification failed/)
+    })
 
-  it('should use custom log function when provided', () => {
-    const mockLog = jest.fn()
-    ;(existsSync as jest.Mock).mockReturnValueOnce(false)
+    it('should not throw when runChecks returns no errors', () => {
+      setupValidEnvironment()
 
-    expect(() => environmentVerifier(mockLog)).toThrow()
+      expect(() => environmentVerifier(mockLog)).not.toThrow()
+    })
 
-    expect(mockLog).not.toHaveBeenCalled()
-  })
+    it('should include all error messages in thrown error', () => {
+      setupValidEnvironment({ dockerfileContent: 'FROM node:18\n', dockerignoreContent: 'node_modules/\n' })
 
-  it('should call process.cwd() to construct file paths', () => {
-    jest.spyOn(process, 'cwd').mockReturnValue('/test/project')
-    ;(existsSync as jest.Mock)
-      .mockReturnValueOnce(true) // .npmrc exists
-      .mockReturnValueOnce(false) // Dockerfile does not exist
-    ;(readFileSync as jest.Mock).mockReturnValueOnce('ignore-scripts=true')
-
-    environmentVerifier()
-
-    expect(process.cwd).toHaveBeenCalled()
-    expect(existsSync).toHaveBeenCalledWith('/test/project/.npmrc')
-    expect(readFileSync).toHaveBeenCalledWith('/test/project/.npmrc', 'utf-8')
-
-    jest.restoreAllMocks()
-  })
-
-  it('should ignore whitespace around the equals sign', () => {
-    ;(existsSync as jest.Mock)
-      .mockReturnValueOnce(true) // .npmrc exists
-      .mockReturnValueOnce(false) // Dockerfile does not exist
-    ;(readFileSync as jest.Mock).mockReturnValueOnce('ignore-scripts = true')
-
-    expect(() => environmentVerifier()).not.toThrow()
-  })
-
-  it('should ignore multiple spaces around the equals sign', () => {
-    ;(existsSync as jest.Mock)
-      .mockReturnValueOnce(true) // .npmrc exists
-      .mockReturnValueOnce(false) // Dockerfile does not exist
-    ;(readFileSync as jest.Mock).mockReturnValueOnce('ignore-scripts  =  true')
-
-    expect(() => environmentVerifier()).not.toThrow()
-  })
-
-  it('should find ignore-scripts=true among multiple configuration lines', () => {
-    ;(existsSync as jest.Mock)
-      .mockReturnValueOnce(true) // .npmrc exists
-      .mockReturnValueOnce(false) // Dockerfile does not exist
-    ;(readFileSync as jest.Mock).mockReturnValueOnce('legacy-peer-deps=true\nignore-scripts=true\nautosave-tag=latest')
-
-    expect(() => environmentVerifier()).not.toThrow()
-  })
-
-  it('should handle leading and trailing whitespace on the line', () => {
-    ;(existsSync as jest.Mock)
-      .mockReturnValueOnce(true) // .npmrc exists
-      .mockReturnValueOnce(false) // Dockerfile does not exist
-    ;(readFileSync as jest.Mock).mockReturnValueOnce('  ignore-scripts=true  ')
-
-    expect(() => environmentVerifier()).not.toThrow()
-  })
-
-  it('should reject ignore-scripts with value other than true', () => {
-    ;(existsSync as jest.Mock).mockReturnValueOnce(true)
-    ;(readFileSync as jest.Mock).mockReturnValueOnce('ignore-scripts=false')
-
-    expect(() => environmentVerifier()).toThrow(
-      'Incorrect .npmrc configuration. Please ensure your .npmrc file has "ignore-scripts=true" set.',
-    )
+      expect(() => environmentVerifier(mockLog)).toThrow(ERRORS.DOCKERFILE_MISSING_NPMRC)
+    })
   })
 })
