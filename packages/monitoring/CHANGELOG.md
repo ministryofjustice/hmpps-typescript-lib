@@ -1,5 +1,9 @@
 # Change log
 
+## 2.0.0
+
+Drops support for node engine 20 (no longer maintained) and adds 26 (will be LTS later this year).
+
 ## 1.0.2
 
 Reuse `@ministryofjustice/hmpps-rest-client` for endpoint health-check transport while preserving the existing health
@@ -23,7 +27,7 @@ No functional change - testing trusted publishing
 
 ## 0.0.1
 
-Initial release 
+Initial release
 
  @types/express  ^4.17.21 →  ^5.0.3
  nock            ^13.5.6" →  ^14.0.5

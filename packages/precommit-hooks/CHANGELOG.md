@@ -1,12 +1,16 @@
 # Change log
 
+## 3.0.0
+
+Drops support for node engine 20 (no longer maintained) and adds 26 (will be LTS later this year).
+
 ## 2.0.2
 
-Change default precommit config to run linting, typechecks and tests if the package-lock.json file changes 
+Change default precommit config to run linting, typechecks and tests if the package-lock.json file changes
 
 ## 2.0.1
 
-Fixing config.toml location 
+Fixing config.toml location
 
 ## 2.0.0
 
@@ -16,8 +20,8 @@ Fixing config.toml location
   - Husky is automatically uninstalled during `npm install` if present
   - Existing husky hooks are automatically removed
   - prek is installed via Homebrew
-  - installs and configures [devsecops-hooks](https://github.com/ministryofjustice/devsecops-hooks) by default 
-  
+  - installs and configures [devsecops-hooks](https://github.com/ministryofjustice/devsecops-hooks) by default
+
 ### New Features
 
 - Added `.pre-commit-config.yaml` configuration file with default hooks
