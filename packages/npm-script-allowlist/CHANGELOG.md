@@ -7,32 +7,11 @@
   - Validates Dockerfile properly references both `.npmrc` and `.allowed-scripts.mjs` files for container environments (when Dockerfile exists)
   - Validates `.dockerignore` file contains exceptions for both `!.npmrc` and `!.allowed-scripts.mjs` (when .dockerignore exists)
   - Can be disabled via `NPM_SCRIPT_ALLOWLIST_VERIFICATION_DISABLED` environment variable for testing
+- Drops support for node engine 20 (no longer maintained) and adds 26 (will be LTS later this year).
 
 ### Reference
 
 For a complete example of proper project configuration, see [hmpps-template-typescript PR #719](https://github.com/ministryofjustice/hmpps-template-typescript/pull/719).
-
-## 0.0.1-alpha.5
-
-Move to node 24
-
-@npmcli/run-script ^10.0.0 → ^10.0.2
-
-## 0.0.1-alpha.1
-
-Pre-releases which should not be used in projects.
-
-## 0.0.1
-
-Initial release
-
-## 0.0.2
-
-Adding prepare script to default allowed scripts - this required locally for husky precommit hooks
-
-## 0.0.3
-
-Fixing issue where it errored when trying to retrieve info for nested packages
 
 ## 0.0.4
 
@@ -49,3 +28,25 @@ export default configureAllowedScripts({
   },
 })
 ```
+
+## 0.0.3
+
+Fixing issue where it errored when trying to retrieve info for nested packages
+
+## 0.0.2
+
+Adding prepare script to default allowed scripts - this required locally for husky precommit hooks
+
+## 0.0.1
+
+Initial release
+
+## 0.0.1-alpha.5
+
+Move to node 24
+
+@npmcli/run-script ^10.0.0 → ^10.0.2
+
+## 0.0.1-alpha.1
+
+Pre-releases which should not be used in projects.

@@ -83,7 +83,7 @@ These require:
 Dependending on how your Api Configuration is organised in `config.ts`it might be possible to automatically map this to the correct form required by the `endpointHealthComponent` as demonstrated below:
 
 ```ts
-const apis: Array<[name: string, config: EndpointHealthComponentOptions]> =  ...
+const apis: Array<[name: string, config: EndpointHealthComponentOptions]> = ...
 
 const middleware = monitoringMiddleware({
   applicationInfo,

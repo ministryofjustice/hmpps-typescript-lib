@@ -1,5 +1,9 @@
 # Change log
 
+## 2.0.0
+
+Drops support for node engine 20 (no longer maintained) and adds 26 (will be LTS later this year).
+
 ## 1.0.0
 
 Updated the GOV.UK frontend types file to allow the `ConfigurableComponent` config field to be a `NestedObject`.

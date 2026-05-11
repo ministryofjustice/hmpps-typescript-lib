@@ -1,5 +1,9 @@
 # Change log
 
+## 2.0.0
+
+Drops support for node engine 20 (no longer maintained) and adds 26 (will be LTS later this year).
+
 ## 1.0.1
 
 RedisTokenStore defaults Redis key prefix as `systemToken:`, optional constructor arg to override this to allow setting

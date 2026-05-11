@@ -114,11 +114,11 @@ initialiseTelemetry({ ... })
 
 ## Built-in processors
 
-| Processor | Type | Description |
-|---|---|---|
-| `filterSpanWhereClient()` | Filter | Drops outgoing HTTP calls (CLIENT spans / `AppDependencies`). Trace context is still propagated. |
-| `filterSpanWherePath(paths)` | Filter | Drops requests to specified paths. Supports exact matches and prefix matches ending with `*`. |
-| `modifySpanNameWithHttpRoute()` | Modifier | Renames HTTP spans to use the route pattern, e.g. `GET` becomes `GET /users/:id`. |
+| Processor                           | Type     | Description                                                                                                               |
+|-------------------------------------|----------|---------------------------------------------------------------------------------------------------------------------------|
+| `filterSpanWhereClient()`           | Filter   | Drops outgoing HTTP calls (CLIENT spans / `AppDependencies`). Trace context is still propagated.                          |
+| `filterSpanWherePath(paths)`        | Filter   | Drops requests to specified paths. Supports exact matches and prefix matches ending with `*`.                             |
+| `modifySpanNameWithHttpRoute()`     | Modifier | Renames HTTP spans to use the route pattern, e.g. `GET` becomes `GET /users/:id`.                                         |
 | `modifySpanWithObfuscation(config)` | Modifier | Obfuscates sensitive data in span attributes using HMAC-SHA256. Same input always produces the same hash for correlation. |
 
 ## Developing this package

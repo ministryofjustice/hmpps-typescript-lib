@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/hmpps-azure-telemetry",
-  "version": "0.0.1-alpha.3",
+  "version": "0.0.1-alpha.4",
   "description": "Azure Application Insights telemetry using OpenTelemetry",
   "author": "hmpps-developers",
   "license": "MIT",
@@ -22,7 +22,7 @@
     "src/**/*"
   ],
   "engines": {
-    "node": "20 || 22 || 24"
+    "node": "22 || 24 || 26"
   },
   "scripts": {
     "build": "rollup -c rollup.config.ts --bundleConfigAsCjs",
@@ -41,7 +41,7 @@
     "@opentelemetry/instrumentation-express": "0.59.0",
     "@opentelemetry/instrumentation-http": "0.212.0",
     "@opentelemetry/resources": "2.5.1",
-    "@opentelemetry/sdk-logs": "0.215.0", 
+    "@opentelemetry/sdk-logs": "0.215.0",
     "@opentelemetry/sdk-trace-base": "2.5.1",
     "@opentelemetry/sdk-trace-node": "2.5.1",
     "@opentelemetry/semantic-conventions": "1.39.0"
