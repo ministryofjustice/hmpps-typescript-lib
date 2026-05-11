@@ -1,8 +1,20 @@
 # Change log
 
-# 1.3.0
+# 2.1.0
 - Allow proxy-aware keepalive agent options to be passed through to the underlying `agentkeepalive` agent.
 - Warn when proxy-aware keepalive agent settings are configured on Node.js versions earlier than v24.
+
+# 2.0.0
+
+Drops support for node engine 20 (no longer maintained) and adds 26 (will be LTS later this year).
+
+# 1.2.1
+
+Handle network timeouts when sanitising errors.
+
+# 1.2.0
+
+Change rest-client logging levels to better reflect issues and be less verbose.
 
 # 1.1.0
 - Add support for multipart form data requests [PR-143](https://github.com/ministryofjustice/hmpps-typescript-lib/pull/143)
@@ -16,7 +28,6 @@ Move to node 24
 # 0.0.3
 
  superagent     ^10.2.1 →  ^10.2.3
-
 
 # 0.0.2
 - Add support for providing a custom retryHandler function which overrides built-in retry handler [PR-89](https://github.com/ministryofjustice/hmpps-typescript-lib/pull/89)

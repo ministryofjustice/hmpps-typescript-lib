@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/frontend-types",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "",
   "author": "hmpps-developers",
   "license": "MIT",
@@ -20,7 +20,7 @@
     "dist/**/*"
   ],
   "engines": {
-    "node": "20 || 22 || 24"
+    "node": "22 || 24 || 26"
   },
   "scripts": {
     "build": "mkdir -p ./dist && cat ./src/@types/*.d.ts > ./dist/index.d.ts",

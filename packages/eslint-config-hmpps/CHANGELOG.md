@@ -1,5 +1,17 @@
 # Change log
 
+## 2.0.0-alpha.2
+
+Drops support for node engine 20 (no longer maintained) and adds 26 (will be LTS later this year).
+
+## 2.0.0-alpha.1
+
+Updating to use modern eslint typescript plugins desgined for eslint v9.
+
+## 1.0.3
+
+Updated dependencies.
+
 ## 1.0.2
 
 Marking `.allowed-scripts.mjs` as allowing dev dependencies.

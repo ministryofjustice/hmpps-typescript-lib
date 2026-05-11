@@ -1,12 +1,12 @@
 # Change log
 
-## 1.2.0
+## 2.1.0
 
 Add support for preferred `agent` health-check options while retaining legacy `agentConfig` compatibility.
 
-## 1.1.0
+## 2.0.0
 
-Update package metadata to align with the published 1.1.0 release.
+Drops support for node engine 20 (no longer maintained) and adds 26 (will be LTS later this year).
 
 ## 1.0.2
 
@@ -31,7 +31,7 @@ No functional change - testing trusted publishing
 
 ## 0.0.1
 
-Initial release 
+Initial release
 
  @types/express  ^4.17.21 →  ^5.0.3
  nock            ^13.5.6" →  ^14.0.5
