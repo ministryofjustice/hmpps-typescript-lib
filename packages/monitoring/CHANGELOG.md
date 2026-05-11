@@ -1,5 +1,9 @@
 # Change log
 
+## 2.1.0
+
+Add support for preferred `agent` health-check options while retaining legacy `agentConfig` compatibility.
+
 ## 2.0.0
 
 Drops support for node engine 20 (no longer maintained) and adds 26 (will be LTS later this year).
