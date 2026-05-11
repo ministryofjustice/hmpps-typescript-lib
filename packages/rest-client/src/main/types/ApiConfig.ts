@@ -1,3 +1,5 @@
+import type { HttpOptions, HttpsOptions } from 'agentkeepalive'
+
 export class AgentConfig {
   // Sets the working socket to timeout after timeout milliseconds of inactivity on the working socket.
   timeout: number
@@ -6,6 +8,8 @@ export class AgentConfig {
     this.timeout = timeout
   }
 }
+
+export type AgentOptions = AgentConfig | HttpOptions | HttpsOptions
 
 export interface ApiConfig {
   url: string
@@ -17,5 +21,12 @@ export interface ApiConfig {
     // If the response isn't fully downloaded within that time, the request will be aborted.
     deadline: number
   }
-  agent: AgentConfig
+  /**
+   * Configuration for the keepalive agent created by hmpps-rest-client.
+   *
+   * On Node.js v24 and later, proxy-aware settings such as `proxyEnv` are passed through to the underlying keepalive
+   * agent. On earlier Node.js versions, hmpps-rest-client will log a warning if proxy settings are configured because
+   * they may be ignored by the runtime.
+   */
+  agent: AgentOptions
 }

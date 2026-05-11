@@ -1,3 +1,4 @@
+import type http from 'http'
 import { HttpAgent, HttpsAgent } from 'agentkeepalive'
 import superagent, { Response, ResponseError, Request as SuperAgentRequest } from 'superagent'
 import { Readable } from 'stream'
@@ -8,12 +9,55 @@ import { AuthOptions, TokenType } from './types/AuthOptions'
 import { Call, Request, RequestWithBody, StreamRequest } from './types/Request'
 import { AuthenticationClient } from './types/AuthenticationClient'
 import { RetryError, SanitisedError } from './types/Errors'
+import type { AgentOptions } from './types/ApiConfig'
+
+const getMajorNodeVersion = () => Number.parseInt(process.version.split('.')[0].replace('v', ''), 10)
+
+const runtimeSupportsProxyAwareAgents = () => {
+  const majorNodeVersion = getMajorNodeVersion()
+
+  return Number.isInteger(majorNodeVersion) && majorNodeVersion >= 24
+}
+
+const usesNodeEnvProxy = () => {
+  const nodeUseEnvProxy = process.env.NODE_USE_ENV_PROXY?.toLowerCase()
+
+  return (
+    nodeUseEnvProxy === '1' ||
+    nodeUseEnvProxy === 'true' ||
+    process.env.NODE_OPTIONS?.includes('--use-env-proxy') ||
+    process.execArgv.includes('--use-env-proxy')
+  )
+}
+
+const hasConfiguredProxyEnv = (agentOptions: AgentOptions) => {
+  const { proxyEnv } = agentOptions as AgentOptions & { proxyEnv?: NodeJS.ProcessEnv }
+
+  return Object.values(proxyEnv ?? {}).some(value => Boolean(value))
+}
+
+let hasWarnedAboutUnsupportedProxyConfiguration = false
+
+const warnIfUnsupportedProxyConfiguration = (name: string, agentOptions: AgentOptions, logger: Logger | Console) => {
+  if (runtimeSupportsProxyAwareAgents() || hasWarnedAboutUnsupportedProxyConfiguration) {
+    return
+  }
+
+  if (!hasConfiguredProxyEnv(agentOptions) && !usesNodeEnvProxy()) {
+    return
+  }
+
+  hasWarnedAboutUnsupportedProxyConfiguration = true
+  logger.warn(
+    `Proxy-aware keepalive agent settings for '${name}' require Node.js v24 or later. Detected ${process.version}; configured proxy settings may be ignored on this runtime.`,
+  )
+}
 
 /**
  * Base class for REST API clients.
  */
 export default class RestClient {
-  private readonly agent: HttpAgent
+  private readonly agent: http.Agent
 
   /**
    * Creates an instance of RestClient.
@@ -29,6 +73,7 @@ export default class RestClient {
     protected readonly logger: Logger | Console,
     private readonly authenticationClient?: AuthenticationClient,
   ) {
+    warnIfUnsupportedProxyConfiguration(name, config.agent, logger)
     this.agent = config.url.startsWith('https') ? new HttpsAgent(config.agent) : new HttpAgent(config.agent)
   }
 

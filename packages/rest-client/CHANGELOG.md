@@ -1,5 +1,9 @@
 # Change log
 
+# 2.1.0
+- Allow proxy-aware keepalive agent options to be passed through to the underlying `agentkeepalive` agent.
+- Warn when proxy-aware keepalive agent settings are configured on Node.js versions earlier than v24.
+
 # 2.0.0
 
 Drops support for node engine 20 (no longer maintained) and adds 26 (will be LTS later this year).
