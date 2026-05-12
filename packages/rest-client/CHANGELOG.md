@@ -1,8 +1,9 @@
 # Change log
 
 # 2.1.0
-- Allow proxy-aware keepalive agent options to be passed through to the underlying `agentkeepalive` agent.
-- Warn when proxy-aware keepalive agent settings are configured on Node.js versions earlier than v24.
+Allow client to be proxy-aware
+ - keepalive agent options can be passed through to the underlying `agentkeepalive` agent configuration.
+-  alternatively the `NODE_USE_ENV_PROXY` environment variable will be detected to automatically read proxy variables (`HTTPS_PROXY`, `HTTP_PROXY` and `NO_PROXY`) from the environment. 
 
 # 2.0.0
 
