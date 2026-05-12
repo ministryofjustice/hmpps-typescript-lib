@@ -1,5 +1,10 @@
 # Change log
 
+# 2.1.0
+Allow client to be proxy-aware
+ - keepalive agent options can be passed through to the underlying `agentkeepalive` agent configuration.
+-  alternatively the `NODE_USE_ENV_PROXY` environment variable will be detected to automatically read proxy variables (`HTTPS_PROXY`, `HTTP_PROXY` and `NO_PROXY`) from the environment. 
+
 # 2.0.0
 
 Drops support for node engine 20 (no longer maintained) and adds 26 (will be LTS later this year).

@@ -4,28 +4,25 @@ import { Response } from 'superagent'
 import { PassThrough } from 'stream'
 import { NotFound } from 'http-errors'
 import RestClient from './RestClient'
-import { AgentConfig } from './types/ApiConfig'
+import { AgentConfig, type ApiConfig } from './types/ApiConfig'
 import { AuthOptions, TokenType } from './types/AuthOptions'
 import { SanitisedError } from './types/Errors'
 import { CallContext } from './types/Request'
 
+const baseApiConfig: ApiConfig = {
+  url: 'http://localhost:8080/api',
+  timeout: {
+    response: 200,
+    deadline: 200,
+  },
+  agent: new AgentConfig(200),
+}
+
 class TestRestClient extends RestClient {
-  constructor() {
-    super(
-      'api-name',
-      {
-        url: 'http://localhost:8080/api',
-        timeout: {
-          response: 200,
-          deadline: 200,
-        },
-        agent: new AgentConfig(200),
-      },
-      console,
-      {
-        getToken: jest.fn().mockResolvedValue('some_system_jwt'),
-      },
-    )
+  constructor(config: ApiConfig = baseApiConfig) {
+    super('api-name', config, console, {
+      getToken: jest.fn().mockResolvedValue('some_system_jwt'),
+    })
   }
 }
 
@@ -57,6 +54,30 @@ async function readAll(stream: NodeJS.ReadableStream): Promise<string> {
 }
 
 describe('RestClient', () => {
+  const getInternalAgent = (client: RestClient) => (client as unknown as { agent?: unknown }).agent
+
+  afterEach(() => {
+    jest.restoreAllMocks()
+  })
+
+  it('passes proxy settings through to the underlying keepalive agent', () => {
+    const proxyEnv = {
+      HTTPS_PROXY: 'http://envoy.local:3128',
+      NO_PROXY: 'localhost,127.0.0.1',
+    }
+    const client = new TestRestClient({
+      ...baseApiConfig,
+      agent: {
+        timeout: 6543,
+        proxyEnv,
+      },
+    })
+
+    expect(
+      (getInternalAgent(client) as { options: { proxyEnv?: typeof proxyEnv; timeout?: number } }).options,
+    ).toMatchObject({ timeout: 6543, proxyEnv })
+  })
+
   describe.each(['get', 'patch', 'post', 'put', 'delete'] as const)('%s', method => {
     afterEach(() => {
       nock.cleanAll()

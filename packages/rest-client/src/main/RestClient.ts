@@ -1,3 +1,4 @@
+import type http from 'http'
 import { HttpAgent, HttpsAgent } from 'agentkeepalive'
 import superagent, { Response, ResponseError, Request as SuperAgentRequest } from 'superagent'
 import { Readable } from 'stream'
@@ -8,12 +9,13 @@ import { AuthOptions, TokenType } from './types/AuthOptions'
 import { Call, Request, RequestWithBody, StreamRequest } from './types/Request'
 import { AuthenticationClient } from './types/AuthenticationClient'
 import { RetryError, SanitisedError } from './types/Errors'
+import { getProxyEnv } from './proxySupport'
 
 /**
  * Base class for REST API clients.
  */
 export default class RestClient {
-  private readonly agent: HttpAgent
+  private readonly agent: http.Agent
 
   /**
    * Creates an instance of RestClient.
@@ -29,7 +31,23 @@ export default class RestClient {
     protected readonly logger: Logger | Console,
     private readonly authenticationClient?: AuthenticationClient,
   ) {
-    this.agent = config.url.startsWith('https') ? new HttpsAgent(config.agent) : new HttpAgent(config.agent)
+    this.agent = this.createAgent(config)
+  }
+
+  /**
+   * Creates a keepalive agent based on the API configuration. If the API URL starts with 'https', an HttpsAgent is created; otherwise, an HttpAgent is used.
+   * Proxy information will be read from the environment if present.
+   *
+   * protected to allow clients to override to provide their own agent inst
+   *
+   * @param config
+   * @returns a http agent
+   */
+  protected createAgent(config: ApiConfig): http.Agent {
+    const proxyEnv = getProxyEnv(config)
+    return config.url.startsWith('https')
+      ? new HttpsAgent({ ...config.agent, proxyEnv })
+      : new HttpAgent({ ...config.agent, proxyEnv })
   }
 
   /**

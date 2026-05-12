@@ -4,6 +4,7 @@ export { default as asSystem } from './helpers/asSystem'
 
 export type { ApiConfig } from './types/ApiConfig'
 export { AgentConfig } from './types/ApiConfig'
+export type { AgentOptions } from './types/ApiConfig'
 
 export type { AuthOptions } from './types/AuthOptions'
 

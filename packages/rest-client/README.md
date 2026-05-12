@@ -86,6 +86,32 @@ const authClient = new AuthenticationClient(config.apis.hmppsAuth, logger, token
 const client = new ExampleApiClient(authClient)
 ```
 
+### Proxy-Aware Keepalive Agents
+
+If you need outbound requests to use a proxy while still reusing keepalive sockets, pass proxy settings as part of the
+`agent` configuration.
+
+```ts
+const apiConfig: ApiConfig = {
+  url: 'https://example.com/api',
+  timeout: {
+    response: 5000,
+    deadline: 10000,
+  },
+  agent: {
+    timeout: 5000,
+    proxyEnv: {
+      HTTPS_PROXY: process.env.HTTPS_PROXY,
+      NO_PROXY: process.env.NO_PROXY,
+    },
+  },
+}
+```
+
+Alternatively, the rest client supports the `NODE_USE_ENV_PROXY` environment variable to automatically read proxy variables (`HTTPS_PROXY`, `HTTP_PROXY` and `NO_PROXY`) from the environment. 
+
+Setting `NODE_USE_ENV_PROXY` will override any proxy configuration that is programatically configured.
+
 ### Authentication
 
 This library accepts an optional `AuthenticationClient` provider which implements
