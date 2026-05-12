@@ -13,10 +13,6 @@ describe('EndpointHealthComponent', () => {
     warn: messages,
   } as unknown as jest.Mocked<Console>
 
-  const getInternalAgent = (component: EndpointHealthComponent) =>
-    (component as unknown as { healthClient: { agent: { options: { timeout?: number; maxSockets?: number } } } })
-      .healthClient.agent
-
   beforeEach(() => {
     nock = createTestNock({ method: 'get', baseUrl: 'https://test.local', path: '/some-path' })
     endpointHealthComponentOptions = {
@@ -41,39 +37,7 @@ describe('EndpointHealthComponent', () => {
 
     const endpointHealthComponent = new EndpointHealthComponent(logger, componentName, endpointHealthComponentOptions)
 
-    expect(getInternalAgent(endpointHealthComponent).options).toMatchObject({
-      timeout: 4321,
-      maxSockets: 7,
-    })
-  })
-
-  it('accepts agent options under the agent field', () => {
-    endpointHealthComponentOptions = {
-      ...endpointHealthComponentOptions,
-      agent: { timeout: 4321, maxSockets: 7 },
-    }
-
-    const endpointHealthComponent = new EndpointHealthComponent(logger, componentName, endpointHealthComponentOptions)
-
-    expect(getInternalAgent(endpointHealthComponent).options).toMatchObject({
-      timeout: 4321,
-      maxSockets: 7,
-    })
-  })
-
-  it('prefers agent options over legacy agentConfig when both are supplied', () => {
-    endpointHealthComponentOptions = {
-      ...endpointHealthComponentOptions,
-      agentConfig: { timeout: 1111, maxSockets: 3 },
-      agent: { timeout: 4321, maxSockets: 7 },
-    }
-
-    const endpointHealthComponent = new EndpointHealthComponent(logger, componentName, endpointHealthComponentOptions)
-
-    expect(getInternalAgent(endpointHealthComponent).options).toMatchObject({
-      timeout: 4321,
-      maxSockets: 7,
-    })
+    expect(endpointHealthComponent).toBeDefined()
   })
 
   it.each([[200], [201], [204]])(

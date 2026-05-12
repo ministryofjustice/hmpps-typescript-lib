@@ -1,4 +1,4 @@
-import type { AgentOptions } from '@ministryofjustice/hmpps-rest-client'
+import type { HttpOptions, HttpsOptions } from 'agentkeepalive'
 
 export interface EndpointHealthComponentOptions {
   /** The root URL of the external service to be health-checked. */
@@ -16,17 +16,6 @@ export interface EndpointHealthComponentOptions {
       }
   /** (Optional) The number of retry attempts for the component's health check. Defaults to 2 */
   retries?: number
-  /**
-   * (Optional) Preferred agent configuration options for HTTP/HTTPS requests to the service.
-   *
-   * When both `agent` and `agentConfig` are supplied, `agent` takes precedence.
-   */
-  agent?: AgentOptions
-  /**
-   * (Optional) Legacy alias for `agent`.
-   *
-   * This is retained for backwards compatibility. When both `agent` and `agentConfig` are supplied, `agent` takes
-   * precedence.
-   */
-  agentConfig?: AgentOptions
+  /** (Optional) Agent configuration options for HTTP/HTTPS requests to the service. */
+  agentConfig?: HttpsOptions | HttpOptions
 }

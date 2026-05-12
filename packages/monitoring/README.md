@@ -80,14 +80,6 @@ These require:
 - The name of your API that you rely on
 - `EndpointHealthComponentOptions`
 
-`EndpointHealthComponentOptions` accepts the same keepalive agent settings as `@ministryofjustice/hmpps-rest-client`.
-Use the preferred `agent` field to pass through rest-client agent options, including proxy-aware settings such as
-`proxyEnv`. The legacy `agentConfig` field continues to work for existing callers. When both are supplied, `agent`
-takes precedence.
-
-If `@ministryofjustice/hmpps-rest-client` is using `NODE_USE_ENV_PROXY`, endpoint health checks inherit that
-process-level proxy behaviour automatically.
-
 Depending on how your API configuration is organised in `config.ts` it might be possible to automatically map this to the correct form required by the `endpointHealthComponent` as demonstrated below:
 
 ```ts

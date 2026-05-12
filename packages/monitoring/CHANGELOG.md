@@ -2,8 +2,8 @@
 
 ## 2.1.0
 
-Add support for preferred `agent` health-check options, reusing rest-client proxy-aware agent settings while retaining
-legacy `agentConfig` compatibility.
+Require `@ministryofjustice/hmpps-rest-client` 2.1.0 so endpoint health checks can use the proxy-aware rest-client
+transport.
 
 ## 2.0.0
 
