@@ -23,10 +23,6 @@ export interface ApiConfig {
   }
   /**
    * Configuration for the keepalive agent created by hmpps-rest-client.
-   *
-   * On Node.js v24 and later, proxy-aware settings such as `proxyEnv` are passed through to the underlying keepalive
-   * agent. On earlier Node.js versions, hmpps-rest-client will log a warning if proxy settings are configured because
-   * they may be ignored by the runtime.
    */
   agent: AgentOptions
 }
