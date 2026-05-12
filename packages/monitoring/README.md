@@ -80,7 +80,7 @@ These require:
 - The name of your API that you rely on
 - `EndpointHealthComponentOptions`
 
-Dependending on how your Api Configuration is organised in `config.ts`it might be possible to automatically map this to the correct form required by the `endpointHealthComponent` as demonstrated below:
+Depending on how your API configuration is organised in `config.ts` it might be possible to automatically map this to the correct form required by the `endpointHealthComponent` as demonstrated below:
 
 ```ts
 const apis: Array<[name: string, config: EndpointHealthComponentOptions]> = ...

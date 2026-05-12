@@ -1,5 +1,10 @@
 # Change log
 
+## 2.1.0
+
+Require `@ministryofjustice/hmpps-rest-client` 2.1.0 so endpoint health checks can use the proxy-aware rest-client
+transport.
+
 ## 2.0.0
 
 Drops support for node engine 20 (no longer maintained) and adds 26 (will be LTS later this year).
