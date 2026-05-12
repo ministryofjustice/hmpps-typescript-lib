@@ -6,7 +6,7 @@ import {
   type SanitisedError,
 } from '@ministryofjustice/hmpps-rest-client'
 import type { Response as SuperAgentResponse } from 'superagent'
-// annoyingly, eslint doesn't automatically consider @types/bunyuan a dev depdendency, it's not even directly referenced here
+// annoyingly, eslint doesn't automatically consider @types/bunyan a dev depdendency, it's not even directly referenced here
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Logger from 'bunyan'
 
