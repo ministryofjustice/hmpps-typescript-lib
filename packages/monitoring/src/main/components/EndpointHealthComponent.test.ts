@@ -61,6 +61,21 @@ describe('EndpointHealthComponent', () => {
     })
   })
 
+  it('prefers agent options over legacy agentConfig when both are supplied', () => {
+    endpointHealthComponentOptions = {
+      ...endpointHealthComponentOptions,
+      agentConfig: { timeout: 1111, maxSockets: 3 },
+      agent: { timeout: 4321, maxSockets: 7 },
+    }
+
+    const endpointHealthComponent = new EndpointHealthComponent(logger, componentName, endpointHealthComponentOptions)
+
+    expect(getInternalAgent(endpointHealthComponent).options).toMatchObject({
+      timeout: 4321,
+      maxSockets: 7,
+    })
+  })
+
   it.each([[200], [201], [204]])(
     'should return UP status if the external service responds successfully (%s)',
     async (status: number) => {

@@ -2,7 +2,8 @@
 
 ## 2.1.0
 
-Add support for preferred `agent` health-check options while retaining legacy `agentConfig` compatibility.
+Add support for preferred `agent` health-check options, reusing rest-client proxy-aware agent settings while retaining
+legacy `agentConfig` compatibility.
 
 ## 2.0.0
 
