@@ -9,49 +9,7 @@ import { AuthOptions, TokenType } from './types/AuthOptions'
 import { Call, Request, RequestWithBody, StreamRequest } from './types/Request'
 import { AuthenticationClient } from './types/AuthenticationClient'
 import { RetryError, SanitisedError } from './types/Errors'
-import type { AgentOptions } from './types/ApiConfig'
-
-const getMajorNodeVersion = () => Number.parseInt(process.version.split('.')[0].replace('v', ''), 10)
-
-const runtimeSupportsProxyAwareAgents = () => {
-  const majorNodeVersion = getMajorNodeVersion()
-
-  return Number.isInteger(majorNodeVersion) && majorNodeVersion >= 24
-}
-
-const usesNodeEnvProxy = () => {
-  const nodeUseEnvProxy = process.env.NODE_USE_ENV_PROXY?.toLowerCase()
-
-  return (
-    nodeUseEnvProxy === '1' ||
-    nodeUseEnvProxy === 'true' ||
-    process.env.NODE_OPTIONS?.includes('--use-env-proxy') ||
-    process.execArgv.includes('--use-env-proxy')
-  )
-}
-
-const hasConfiguredProxyEnv = (agentOptions: AgentOptions) => {
-  const { proxyEnv } = agentOptions as AgentOptions & { proxyEnv?: NodeJS.ProcessEnv }
-
-  return Object.values(proxyEnv ?? {}).some(value => Boolean(value))
-}
-
-let hasWarnedAboutUnsupportedProxyConfiguration = false
-
-const warnIfUnsupportedProxyConfiguration = (name: string, agentOptions: AgentOptions, logger: Logger | Console) => {
-  if (runtimeSupportsProxyAwareAgents() || hasWarnedAboutUnsupportedProxyConfiguration) {
-    return
-  }
-
-  if (!hasConfiguredProxyEnv(agentOptions) && !usesNodeEnvProxy()) {
-    return
-  }
-
-  hasWarnedAboutUnsupportedProxyConfiguration = true
-  logger.warn(
-    `Proxy-aware keepalive agent settings for '${name}' require Node.js v24 or later. Detected ${process.version}; configured proxy settings may be ignored on this runtime.`,
-  )
-}
+import { getProxyEnv } from './proxySupport'
 
 /**
  * Base class for REST API clients.
@@ -73,8 +31,23 @@ export default class RestClient {
     protected readonly logger: Logger | Console,
     private readonly authenticationClient?: AuthenticationClient,
   ) {
-    warnIfUnsupportedProxyConfiguration(name, config.agent, logger)
-    this.agent = config.url.startsWith('https') ? new HttpsAgent(config.agent) : new HttpAgent(config.agent)
+    this.agent = this.createAgent(config)
+  }
+
+  /**
+   * Creates a keepalive agent based on the API configuration. If the API URL starts with 'https', an HttpsAgent is created; otherwise, an HttpAgent is used.
+   * Proxy information will be read from the environment if present.
+   *
+   * protected to allow clients to override to provide their own agent inst
+   *
+   * @param config
+   * @returns a http agent
+   */
+  protected createAgent(config: ApiConfig): http.Agent {
+    const proxyEnv = getProxyEnv(config)
+    return config.url.startsWith('https')
+      ? new HttpsAgent({ ...config.agent, proxyEnv })
+      : new HttpAgent({ ...config.agent, proxyEnv })
   }
 
   /**
