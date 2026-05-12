@@ -27,10 +27,6 @@ class TestRestClient extends RestClient {
 }
 
 const restClient = new TestRestClient()
-const originalNodeVersion = process.version
-
-const setNodeVersion = (nodeVersion: string) =>
-  Object.defineProperty(process, 'version', { value: nodeVersion, configurable: true })
 
 const systemAuthOptions: AuthOptions = {
   tokenType: TokenType.SYSTEM_TOKEN,
@@ -61,14 +57,10 @@ describe('RestClient', () => {
   const getInternalAgent = (client: RestClient) => (client as unknown as { agent?: unknown }).agent
 
   afterEach(() => {
-    setNodeVersion(originalNodeVersion)
     jest.restoreAllMocks()
   })
 
   it('passes proxy settings through to the underlying keepalive agent', () => {
-    setNodeVersion('v24.9.0')
-
-    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined)
     const proxyEnv = {
       HTTPS_PROXY: 'http://envoy.local:3128',
       NO_PROXY: 'localhost,127.0.0.1',
@@ -84,26 +76,6 @@ describe('RestClient', () => {
     expect(
       (getInternalAgent(client) as { options: { proxyEnv?: typeof proxyEnv; timeout?: number } }).options,
     ).toMatchObject({ timeout: 6543, proxyEnv })
-    expect(warn).not.toHaveBeenCalled()
-  })
-
-  it('warns when proxy settings are configured on runtimes before Node.js v24', () => {
-    setNodeVersion('v22.11.0')
-
-    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined)
-
-    const client = new TestRestClient({
-      ...baseApiConfig,
-      agent: {
-        timeout: 7654,
-        proxyEnv: { HTTPS_PROXY: 'http://envoy.local:3128' },
-      },
-    })
-
-    expect(client).toBeDefined()
-    expect(warn).toHaveBeenCalledWith(
-      "Proxy-aware keepalive agent settings for 'api-name' require Node.js v24 or later. Detected v22.11.0; configured proxy settings may be ignored on this runtime.",
-    )
   })
 
   describe.each(['get', 'patch', 'post', 'put', 'delete'] as const)('%s', method => {

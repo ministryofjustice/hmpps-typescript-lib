@@ -108,8 +108,9 @@ const apiConfig: ApiConfig = {
 }
 ```
 
-Proxy-aware keepalive agent settings rely on Node.js v24 or later. On earlier Node.js versions, hmpps-rest-client
-will log a warning because proxy settings may be ignored by the runtime.
+Alternatively, the rest client supports the `NODE_USE_ENV_PROXY` environment variable to automatically read proxy variables (`HTTPS_PROXY`, `HTTP_PROXY` and `NO_PROXY`) from the environment. 
+
+Setting `NODE_USE_ENV_PROXY` will override any proxy configuration that is programatically configured.
 
 ### Authentication
 
