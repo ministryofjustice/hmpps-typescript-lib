@@ -88,7 +88,7 @@ takes precedence.
 If `@ministryofjustice/hmpps-rest-client` is using `NODE_USE_ENV_PROXY`, endpoint health checks inherit that
 process-level proxy behaviour automatically.
 
-Dependending on how your Api Configuration is organised in `config.ts`it might be possible to automatically map this to the correct form required by the `endpointHealthComponent` as demonstrated below:
+Depending on how your API configuration is organised in `config.ts` it might be possible to automatically map this to the correct form required by the `endpointHealthComponent` as demonstrated below:
 
 ```ts
 const apis: Array<[name: string, config: EndpointHealthComponentOptions]> = ...
