@@ -1,5 +1,9 @@
 # Change log
 
+## 3.0.1
+
+Excludes snapshot test files from trailing-whitespace hook
+
 ## 3.0.0
 
 Drops support for node engine 20 (no longer maintained) and adds 26 (will be LTS later this year).
