@@ -1,5 +1,9 @@
 # Change log
 
+## 0.0.6
+
+No functional change - moved to publish as `latest` version
+
 ## 0.0.5
 
 - **Environment verification feature**: New `environmentVerifier` function validates project configuration for secure npm script execution
