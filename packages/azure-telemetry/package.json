@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/hmpps-azure-telemetry",
-  "version": "0.0.1-alpha.4",
+  "version": "1.0.0",
   "description": "Azure Application Insights telemetry using OpenTelemetry",
   "author": "hmpps-developers",
   "license": "MIT",
@@ -11,7 +11,7 @@
   },
   "publishConfig": {
     "access": "public",
-    "tag": "alpha"
+    "tag": "latest"
   },
   "main": "./dist/index.cjs.js",
   "module": "./dist/index.esm.js",
