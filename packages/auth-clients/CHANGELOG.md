@@ -1,5 +1,10 @@
 # Change log
 
+## 3.0.0
+
+Updates redis node library to version 6, which changes type definitions of the client class.
+Defaults to the `RESP3` protocol which servers 6+ support.
+
 ## 2.0.0
 
 Drops support for node engine 20 (no longer maintained) and adds 26 (will be LTS later this year).

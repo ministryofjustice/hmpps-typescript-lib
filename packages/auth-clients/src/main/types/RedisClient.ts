@@ -1,3 +1,3 @@
-import type { createClient } from 'redis'
+import type { RedisClientType } from 'redis'
 
-export type RedisClient = ReturnType<typeof createClient>
+export type RedisClient = RedisClientType
