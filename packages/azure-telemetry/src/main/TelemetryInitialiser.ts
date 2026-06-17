@@ -11,7 +11,7 @@ import { BatchSpanProcessor, ConsoleSpanExporter } from '@opentelemetry/sdk-trac
 import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node'
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions'
 import { AzureMonitorLogExporter, AzureMonitorTraceExporter } from '@azure/monitor-opentelemetry-exporter'
-import type { TelemetryConfig } from './types/TelemetryConfig'
+import type { ExporterClientOptions, TelemetryConfig } from './types/TelemetryConfig'
 import type { SpanFilterFn, SpanModifierFn } from './types/SpanProcessor'
 import { FilteringSpanProcessor } from './FilteringSpanProcessor'
 import { setConfig } from './config'
@@ -29,6 +29,46 @@ export interface TelemetryBuilder {
   addModifier(modifier: SpanModifierFn): TelemetryBuilder
   setInstrumentations(instrumentations: Instrumentation[]): TelemetryBuilder
   startRecording(): void
+}
+
+const hasProxyConfig = (): boolean => {
+  const hasUppercaseProxyConfig = Boolean(process.env.HTTP_PROXY && process.env.HTTPS_PROXY)
+  const hasLowercaseProxyConfig = Boolean(process.env.http_proxy && process.env.https_proxy)
+  return hasUppercaseProxyConfig || hasLowercaseProxyConfig
+}
+
+function buildProxyOptionsFromUrl(proxyUrl: string | undefined): ExporterClientOptions['proxyOptions'] {
+  if (!proxyUrl) {
+    return undefined
+  }
+
+  try {
+    const url = new URL(proxyUrl)
+
+    return {
+      host: `${url.protocol}//${url.hostname}`,
+      port: url.port ? Number(url.port) : url.protocol === 'https:' ? 443 : 80,
+      username: url.username ? decodeURIComponent(url.username) : undefined,
+      password: url.password ? decodeURIComponent(url.password) : undefined,
+    }
+  } catch {
+    console.warn(`Telemetry: Ignoring invalid proxy url: ${proxyUrl}`)
+    return undefined
+  }
+}
+
+function createExporterClientOptions(config: TelemetryConfig): ExporterClientOptions | undefined {
+  const proxyUrl = process.env.HTTPS_PROXY || process.env.http_proxy || process.env.HTTP_PROXY || process.env.https_proxy
+  const proxyOptions = config.exporterClientOptions?.proxyOptions ?? buildProxyOptionsFromUrl(hasProxyConfig() ? proxyUrl : undefined)
+
+  if (!proxyOptions && !config.exporterClientOptions) {
+    return undefined
+  }
+
+  return {
+    ...config.exporterClientOptions,
+    ...(proxyOptions ? { proxyOptions } : {}),
+  }
 }
 
 /**
@@ -65,8 +105,14 @@ export async function flushTelemetry(): Promise<void> {
   }
 }
 
-function createCompatibleAzureLogExporter(connectionString: string): LogRecordExporter {
-  const exporter = new AzureMonitorLogExporter({ connectionString })
+function createCompatibleAzureLogExporter(
+  connectionString: string,
+  exporterClientOptions?: ExporterClientOptions,
+): LogRecordExporter {
+  const exporter = new AzureMonitorLogExporter({
+    ...exporterClientOptions,
+    connectionString,
+  })
 
   return {
     export(logRecords: ReadableLogRecord[], resultCallback) {
@@ -93,6 +139,7 @@ function initialiseWithAzureMonitor(
 ): void {
   console.info(`Telemetry: Initialising Azure Monitor for ${config.serviceName}`)
   const connectionString = config.connectionString as string
+  const exporterClientOptions = createExporterClientOptions(config)
 
   const resource = resourceFromAttributes({
     [ATTR_SERVICE_NAME]: config.serviceName,
@@ -100,6 +147,7 @@ function initialiseWithAzureMonitor(
   })
 
   const azureExporter = new AzureMonitorTraceExporter({
+    ...exporterClientOptions,
     connectionString,
   })
 
@@ -119,7 +167,9 @@ function initialiseWithAzureMonitor(
 
   provider.register()
 
-  const logProcessors = [new BatchLogRecordProcessor(createCompatibleAzureLogExporter(connectionString))]
+  const logProcessors = [
+    new BatchLogRecordProcessor(createCompatibleAzureLogExporter(connectionString, exporterClientOptions)),
+  ]
 
   if (config.debug) {
     logProcessors.push(new BatchLogRecordProcessor(new ConsoleLogRecordExporter()))
