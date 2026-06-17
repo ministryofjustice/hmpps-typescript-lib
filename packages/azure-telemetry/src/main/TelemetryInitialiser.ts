@@ -44,10 +44,11 @@ function buildProxyOptionsFromUrl(proxyUrl: string | undefined): ExporterClientO
 
   try {
     const url = new URL(proxyUrl)
+    const defaultPort = url.protocol === 'https:' ? 443 : 80
 
     return {
       host: `${url.protocol}//${url.hostname}`,
-      port: url.port ? Number(url.port) : url.protocol === 'https:' ? 443 : 80,
+      port: url.port ? Number(url.port) : defaultPort,
       username: url.username ? decodeURIComponent(url.username) : undefined,
       password: url.password ? decodeURIComponent(url.password) : undefined,
     }
@@ -58,8 +59,10 @@ function buildProxyOptionsFromUrl(proxyUrl: string | undefined): ExporterClientO
 }
 
 function createExporterClientOptions(config: TelemetryConfig): ExporterClientOptions | undefined {
-  const proxyUrl = process.env.HTTPS_PROXY || process.env.http_proxy || process.env.HTTP_PROXY || process.env.https_proxy
-  const proxyOptions = config.exporterClientOptions?.proxyOptions ?? buildProxyOptionsFromUrl(hasProxyConfig() ? proxyUrl : undefined)
+  const proxyUrl =
+    process.env.HTTPS_PROXY || process.env.http_proxy || process.env.HTTP_PROXY || process.env.https_proxy
+  const proxyOptions =
+    config.exporterClientOptions?.proxyOptions ?? buildProxyOptionsFromUrl(hasProxyConfig() ? proxyUrl : undefined)
 
   if (!proxyOptions && !config.exporterClientOptions) {
     return undefined
