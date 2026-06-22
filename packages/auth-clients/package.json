@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/hmpps-auth-clients",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Clients for authenticating and verifying tokens using the HMPPS Authentication estate",
   "author": "hmpps-developers",
   "license": "MIT",
@@ -37,7 +37,7 @@
     "@types/express": "^5.0.6",
     "@types/superagent": "^8.1.9",
     "nock": "14.0.14",
-    "redis": "^5.10.0"
+    "redis": "6.0.0"
   },
   "dependencies": {
     "@ministryofjustice/hmpps-rest-client": "^1.2.1 || ^2.0.0"
