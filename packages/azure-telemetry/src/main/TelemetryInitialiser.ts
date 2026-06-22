@@ -17,7 +17,7 @@ import { FilteringSpanProcessor } from './FilteringSpanProcessor'
 import { setConfig } from './config'
 
 export const defaultInstrumentations: Instrumentation[] = [
-  new BunyanInstrumentation({ disableLogSending: true }),
+  new BunyanInstrumentation({ disableLogSending: false }),
   new HttpInstrumentation(),
   new ExpressInstrumentation({
     ignoreLayersType: [ExpressLayerType.MIDDLEWARE, ExpressLayerType.ROUTER, ExpressLayerType.REQUEST_HANDLER],
