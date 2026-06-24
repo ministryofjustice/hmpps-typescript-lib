@@ -1,5 +1,9 @@
 # Change log
 
+# 2.2.0
+
+Adds support for call-specific custom timeout
+
 # 2.1.0
 Allow client to be proxy-aware
  - keepalive agent options can be passed through to the underlying `agentkeepalive` agent configuration.
