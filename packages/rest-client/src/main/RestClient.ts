@@ -154,6 +154,7 @@ export default class RestClient {
       responseType = '',
       raw = false,
       retries = 2,
+      timeout = this.timeoutConfig(),
       errorHandler = this.handleError,
       retryHandler = this.handleRetry,
     }: Request<Response, ErrorData>,
@@ -173,7 +174,7 @@ export default class RestClient {
         .retry(retries, retryHandler.bind(this)())
         .set(headers)
         .responseType(responseType)
-        .timeout(this.timeoutConfig())
+        .timeout(timeout)
 
       if (token) {
         req.auth(token, { type: 'bearer' })
@@ -209,6 +210,7 @@ export default class RestClient {
       files,
       raw = false,
       retry = false,
+      timeout = this.timeoutConfig(),
       errorHandler = this.handleError,
       retryHandler = this.handleRetry,
     }: RequestWithBody<Response, ErrorData>,
@@ -229,7 +231,7 @@ export default class RestClient {
           .retry(2, retryHandler.bind(this)(retry))
           .set(headers)
           .responseType(responseType)
-          .timeout(this.timeoutConfig())
+          .timeout(timeout)
 
         if (multipartData) {
           Object.entries(multipartData).forEach(([key, value]) => {
@@ -250,7 +252,7 @@ export default class RestClient {
           .retry(2, retryHandler.bind(this)(retry))
           .set(headers)
           .responseType(responseType)
-          .timeout(this.timeoutConfig())
+          .timeout(timeout)
       }
 
       if (token) {
@@ -330,6 +332,7 @@ export default class RestClient {
       responseType = '',
       raw = false,
       retries = 2,
+      timeout = this.timeoutConfig(),
       errorHandler = this.handleError,
       retryHandler = this.handleRetry,
     }: Request<Response, ErrorData>,
@@ -347,7 +350,7 @@ export default class RestClient {
         .retry(retries, retryHandler.bind(this)())
         .set(headers)
         .responseType(responseType)
-        .timeout(this.timeoutConfig())
+        .timeout(timeout)
 
       if (token) {
         req.auth(token, { type: 'bearer' })
@@ -370,7 +373,7 @@ export default class RestClient {
    *          type SanitisedError<ErrorData>.
    */
   async stream<ErrorData = unknown>(
-    { path, headers = {}, errorLogger = this.logError }: StreamRequest<ErrorData>,
+    { path, headers = {}, errorLogger = this.logError, timeout = this.timeoutConfig() }: StreamRequest<ErrorData>,
     authOptions?: AuthOptions | string,
   ): Promise<Readable> {
     this.logger.debug(`${this.name} streaming: ${path}`)
@@ -382,7 +385,7 @@ export default class RestClient {
         .get(`${this.apiUrl()}${path}`)
         .agent(this.agent)
         .retry(2, this.handleRetry())
-        .timeout(this.timeoutConfig())
+        .timeout(timeout)
         .set(headers)
 
       if (token) {

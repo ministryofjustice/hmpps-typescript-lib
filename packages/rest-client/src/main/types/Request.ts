@@ -2,6 +2,7 @@ import type superagent from 'superagent'
 import type http from 'http'
 import { Response as SuperAgentResponse } from 'superagent'
 import { ErrorHandler, ErrorLogger } from './Errors'
+import { type ApiConfig } from './ApiConfig'
 
 export interface Request<Response, ErrorData> {
   path: string
@@ -9,6 +10,7 @@ export interface Request<Response, ErrorData> {
   headers?: Record<string, string>
   responseType?: string
   retries?: number
+  timeout?: ApiConfig['timeout']
   raw?: boolean
   errorHandler?: ErrorHandler<Response, ErrorData>
   retryHandler?: (retry?: boolean) => (err: Error, res: SuperAgentResponse) => boolean | undefined
@@ -46,6 +48,7 @@ export interface StreamRequest<ErrorData> {
   path: string
   headers?: Record<string, string>
   errorLogger?: ErrorLogger<ErrorData>
+  timeout?: ApiConfig['timeout']
 }
 
 export interface CallContext {

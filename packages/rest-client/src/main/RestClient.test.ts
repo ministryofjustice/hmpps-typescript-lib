@@ -125,6 +125,29 @@ describe('RestClient', () => {
       })
     })
 
+    it('should support a custom timeout when provided', async () => {
+      nock('http://localhost:8080', {
+        reqheaders: { authorization: 'Bearer some_system_jwt' },
+      })
+        [method]('/api/test')
+        .delay(250)
+        .reply(200, { success: true })
+
+      const result = await restClient[method](
+        {
+          path: '/test',
+          timeout: {
+            response: 300,
+            deadline: 350,
+          },
+        },
+        systemAuthOptions,
+      )
+
+      expect(nock.isDone()).toBe(true)
+      expect(result).toStrictEqual({ success: true })
+    })
+
     it('should support custom error handling when provided', async () => {
       nock('http://localhost:8080', {
         reqheaders: { authorization: 'Bearer some_system_jwt' },
@@ -621,6 +644,24 @@ describe('RestClient', () => {
 
       await expect(restClient.stream({ path: '/test-file' }, systemAuthOptions)).rejects.toThrow()
 
+      expect(nock.isDone()).toBe(true)
+    })
+
+    it('should support a custom timeout if provided', async () => {
+      nock('http://localhost:8080', {
+        reqheaders: { authorization: 'Bearer some_system_jwt' },
+      })
+        .get('/api/test-file')
+        .delay(250)
+        .reply(200, 'this is some file content', { 'Content-Type': 'application/x-zip-compressed' })
+
+      const readable = await restClient.stream(
+        { path: '/test-file', timeout: { response: 300, deadline: 350 } },
+        systemAuthOptions,
+      )
+      const receivedData = await readAll(readable)
+
+      expect(receivedData).toEqual('this is some file content')
       expect(nock.isDone()).toBe(true)
     })
   })
