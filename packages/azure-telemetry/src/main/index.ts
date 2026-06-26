@@ -6,6 +6,7 @@ import { modifySpanWithObfuscation } from './processors/modifySpanWithObfuscatio
 
 /** Export types */
 export { initialiseTelemetry, flushTelemetry, defaultInstrumentations, trace } from './TelemetryInitialiser'
+export { populateOperationNameLogHook } from './populateOperationNameLogHook'
 export type { TelemetryBuilder } from './TelemetryInitialiser'
 export type { SpanInfo, ModifiableSpan, SpanFilterFn, SpanModifierFn } from './types/SpanProcessor'
 export type { TelemetryConfig } from './types/TelemetryConfig'
