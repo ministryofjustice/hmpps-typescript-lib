@@ -5,9 +5,9 @@ Offers a few useful processors and helpers by default.
 
 ## Status
 
-**This library is currently: alpha.**
+**This library is currently: ready to adopt.**
 
-Please provide feedback via slack to the #typescript channel.
+Teams are encouraged to use this library. Please provide feedback via slack to the #typescript channel.
 
 ## Setup
 
@@ -24,7 +24,6 @@ initialiseTelemetry({
   connectionString: process.env.APPLICATIONINSIGHTS_CONNECTION_STRING,
   debug: process.env.DEBUG_TELEMETRY // Log telemetry to the console for debugging/developing
 })
-  .addFilter(telemetry.processors.filterSpanWhereClient())
   .addFilter(telemetry.processors.filterSpanWherePath(['/health', '/ping', '/assets/*']))
   .addModifier(telemetry.processors.modifySpanNameWithHttpRoute())
   .startRecording()
@@ -114,11 +113,11 @@ initialiseTelemetry({ ... })
 
 ## Built-in processors
 
-| Processor | Type | Description |
-|---|---|---|
-| `filterSpanWhereClient()` | Filter | Drops outgoing HTTP calls (CLIENT spans / `AppDependencies`). Trace context is still propagated. |
-| `filterSpanWherePath(paths)` | Filter | Drops requests to specified paths. Supports exact matches and prefix matches ending with `*`. |
-| `modifySpanNameWithHttpRoute()` | Modifier | Renames HTTP spans to use the route pattern, e.g. `GET` becomes `GET /users/:id`. |
+| Processor                           | Type     | Description                                                                                                               |
+|-------------------------------------|----------|---------------------------------------------------------------------------------------------------------------------------|
+| `filterSpanWhereClient()`           | Filter   | Drops outgoing HTTP calls (CLIENT spans / `AppDependencies`). Trace context is still propagated.                          |
+| `filterSpanWherePath(paths)`        | Filter   | Drops requests to specified paths. Supports exact matches and prefix matches ending with `*`.                             |
+| `modifySpanNameWithHttpRoute()`     | Modifier | Renames HTTP spans to use the route pattern, e.g. `GET` becomes `GET /users/:id`.                                         |
 | `modifySpanWithObfuscation(config)` | Modifier | Obfuscates sensitive data in span attributes using HMAC-SHA256. Same input always produces the same hash for correlation. |
 
 ## Developing this package

@@ -29,6 +29,17 @@ describe('EndpointHealthComponent', () => {
     nock.done()
   })
 
+  it('preserves legacy agentConfig options', () => {
+    endpointHealthComponentOptions = {
+      ...endpointHealthComponentOptions,
+      agentConfig: { timeout: 4321, maxSockets: 7 },
+    }
+
+    const endpointHealthComponent = new EndpointHealthComponent(logger, componentName, endpointHealthComponentOptions)
+
+    expect(endpointHealthComponent).toBeDefined()
+  })
+
   it.each([[200], [201], [204]])(
     'should return UP status if the external service responds successfully (%s)',
     async (status: number) => {

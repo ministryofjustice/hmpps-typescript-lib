@@ -3,7 +3,6 @@
 
 # root project
 /node_modules/
-/package-lock.json
 /.eslintcache
 
 # packages

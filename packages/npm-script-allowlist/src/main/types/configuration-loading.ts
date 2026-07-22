@@ -1,4 +1,5 @@
 export type ScriptRunMode = 'ALLOW' | 'FORBID'
+export type ScriptRunStatus = '<MISSING>' | '<REMOVED>'
 
 export type Config = {
   localScriptsToRun?: string[]
@@ -18,7 +19,7 @@ export type PackageLock = {
 
 export type ConfiguredPackage = {
   configured: boolean
-  status: string
+  status: ScriptRunMode | ScriptRunStatus
   nameWithVersion: string
   name: string
   version: string

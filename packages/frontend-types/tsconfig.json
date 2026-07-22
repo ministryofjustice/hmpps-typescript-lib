@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "sourceMap": false,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "noEmit": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "target": "es2020",
+    "lib": ["dom", "dom.iterable", "es2020"],
+    "typeRoots": [],
+  },
+  "include": ["./src/**/*.ts"],
+}

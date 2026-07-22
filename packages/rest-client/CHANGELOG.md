@@ -1,5 +1,29 @@
 # Change log
 
+# 2.2.0
+
+Adds support for call-specific custom timeout
+
+# 2.1.0
+Allow client to be proxy-aware
+ - keepalive agent options can be passed through to the underlying `agentkeepalive` agent configuration.
+-  alternatively the `NODE_USE_ENV_PROXY` environment variable will be detected to automatically read proxy variables (`HTTPS_PROXY`, `HTTP_PROXY` and `NO_PROXY`) from the environment. 
+
+# 2.0.0
+
+Drops support for node engine 20 (no longer maintained) and adds 26 (will be LTS later this year).
+
+# 1.2.1
+
+Handle network timeouts when sanitising errors.
+
+# 1.2.0
+
+Change rest-client logging levels to better reflect issues and be less verbose.
+
+# 1.1.0
+- Add support for multipart form data requests [PR-143](https://github.com/ministryofjustice/hmpps-typescript-lib/pull/143)
+
 # 1.0.0
 
 Move to node 24
@@ -10,14 +34,13 @@ Move to node 24
 
  superagent     ^10.2.1 →  ^10.2.3
 
-
 # 0.0.2
 - Add support for providing a custom retryHandler function which overrides built-in retry handler [PR-89](https://github.com/ministryofjustice/hmpps-typescript-lib/pull/89)
 - Updated built-in retry handler to match SuperAgent's default retry behaviours [PR-90](https://github.com/ministryofjustice/hmpps-typescript-lib/pull/90)
 
 # 0.0.1
 
-Initial release 
+Initial release
 
  @types/express  ^4.17.21 →  ^5.0.3
  nock            ^13.5.6" →  ^14.0.5

@@ -2,6 +2,7 @@ import type superagent from 'superagent'
 import type http from 'http'
 import { Response as SuperAgentResponse } from 'superagent'
 import { ErrorHandler, ErrorLogger } from './Errors'
+import { type ApiConfig } from './ApiConfig'
 
 export interface Request<Response, ErrorData> {
   path: string
@@ -9,20 +10,45 @@ export interface Request<Response, ErrorData> {
   headers?: Record<string, string>
   responseType?: string
   retries?: number
+  timeout?: ApiConfig['timeout']
   raw?: boolean
   errorHandler?: ErrorHandler<Response, ErrorData>
   retryHandler?: (retry?: boolean) => (err: Error, res: SuperAgentResponse) => boolean | undefined
 }
 
-export interface RequestWithBody<Response, ErrorData> extends Request<Response, ErrorData> {
+type JsonBody = {
   data?: Record<string, unknown> | string | Array<unknown> | undefined
-  retry?: boolean
+  multipartData?: never
+  files?: never
 }
+
+type MultipartBody =
+  | {
+      data?: never
+      multipartData: object | string[]
+      files: { [key: string]: { buffer: Buffer; originalname: string } }
+    }
+  | {
+      data?: never
+      multipartData?: never
+      files: { [key: string]: { buffer: Buffer; originalname: string } }
+    }
+  | {
+      data?: never
+      multipartData: object | string[]
+      files?: never
+    }
+
+export type RequestWithBody<Response, ErrorData> = Request<Response, ErrorData> & { retry?: boolean } & (
+    | JsonBody
+    | MultipartBody
+  )
 
 export interface StreamRequest<ErrorData> {
   path: string
   headers?: Record<string, string>
   errorLogger?: ErrorLogger<ErrorData>
+  timeout?: ApiConfig['timeout']
 }
 
 export interface CallContext {

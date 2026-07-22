@@ -7,7 +7,11 @@ updates:
     ignore:
       - dependency-name: "@types/node"
         versions:
-          - ">=23"
+          - ">=25"
+    cooldown:
+      default-days: 7
+      exclude:
+        - "@ministryofjustice/*"
     schedule:
       interval: weekly
       day: wednesday
@@ -17,6 +21,10 @@ updates:
 
   - package-ecosystem: github-actions
     directory: /
+    cooldown:
+      default-days: 7
+      exclude:
+        - "ministryofjustice/*"
     schedule:
       interval: weekly
       day: wednesday

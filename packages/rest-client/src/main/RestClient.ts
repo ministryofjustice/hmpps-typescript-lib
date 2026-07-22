@@ -1,5 +1,6 @@
+import type http from 'http'
 import { HttpAgent, HttpsAgent } from 'agentkeepalive'
-import superagent, { Response, ResponseError } from 'superagent'
+import superagent, { Response, ResponseError, Request as SuperAgentRequest } from 'superagent'
 import { Readable } from 'stream'
 import type Logger from 'bunyan'
 import sanitiseError from './helpers/sanitiseError'
@@ -8,12 +9,13 @@ import { AuthOptions, TokenType } from './types/AuthOptions'
 import { Call, Request, RequestWithBody, StreamRequest } from './types/Request'
 import { AuthenticationClient } from './types/AuthenticationClient'
 import { RetryError, SanitisedError } from './types/Errors'
+import { getProxyEnv } from './proxySupport'
 
 /**
  * Base class for REST API clients.
  */
 export default class RestClient {
-  private readonly agent: HttpAgent
+  private readonly agent: http.Agent
 
   /**
    * Creates an instance of RestClient.
@@ -29,7 +31,23 @@ export default class RestClient {
     protected readonly logger: Logger | Console,
     private readonly authenticationClient?: AuthenticationClient,
   ) {
-    this.agent = config.url.startsWith('https') ? new HttpsAgent(config.agent) : new HttpAgent(config.agent)
+    this.agent = this.createAgent(config)
+  }
+
+  /**
+   * Creates a keepalive agent based on the API configuration. If the API URL starts with 'https', an HttpsAgent is created; otherwise, an HttpAgent is used.
+   * Proxy information will be read from the environment if present.
+   *
+   * protected to allow clients to override to provide their own agent inst
+   *
+   * @param config
+   * @returns a http agent
+   */
+  protected createAgent(config: ApiConfig): http.Agent {
+    const proxyEnv = getProxyEnv(config)
+    return config.url.startsWith('https')
+      ? new HttpsAgent({ ...config.agent, proxyEnv })
+      : new HttpAgent({ ...config.agent, proxyEnv })
   }
 
   /**
@@ -100,12 +118,12 @@ export default class RestClient {
       }
 
       if (res && this.STATUS_CODES.has(res.status)) {
-        this.logger.info(`Retry handler found API error with status code ${res.status}`)
+        this.logger.warn(`Retry handler found API error with status code ${res.status}`)
         return true
       }
 
       if (error) {
-        this.logger.info(`Retry handler found API error with ${error.name} - ${error.message}`)
+        this.logger.warn(`Retry handler found API error with ${error.name} - ${error.message}`)
         if (
           (error?.code && this.ERROR_CODES.has(error.code)) ||
           (error.timeout && error?.code === 'ECONNABORTED') ||
@@ -136,12 +154,13 @@ export default class RestClient {
       responseType = '',
       raw = false,
       retries = 2,
+      timeout = this.timeoutConfig(),
       errorHandler = this.handleError,
       retryHandler = this.handleRetry,
     }: Request<Response, ErrorData>,
     authOptions?: AuthOptions | string,
   ): Promise<Response> {
-    this.logger.info(`${this.name} GET: ${path}`)
+    this.logger.debug(`${this.name} GET: ${path}`)
 
     // 1) Resolve the token (if any)
     const token = await this.resolveToken(authOptions)
@@ -155,7 +174,7 @@ export default class RestClient {
         .retry(retries, retryHandler.bind(this)())
         .set(headers)
         .responseType(responseType)
-        .timeout(this.timeoutConfig())
+        .timeout(timeout)
 
       if (token) {
         req.auth(token, { type: 'bearer' })
@@ -187,26 +206,54 @@ export default class RestClient {
       headers = {},
       responseType = '',
       data,
+      multipartData,
+      files,
       raw = false,
       retry = false,
+      timeout = this.timeoutConfig(),
       errorHandler = this.handleError,
       retryHandler = this.handleRetry,
     }: RequestWithBody<Response, ErrorData>,
     authOptions?: AuthOptions | string,
   ): Promise<Response> {
-    this.logger.info(`${this.name} ${method.toUpperCase()}: ${path}`)
+    this.logger.debug(`${this.name} ${method.toUpperCase()}: ${path}`)
 
     const token = await this.resolveToken(authOptions)
 
     try {
-      const req = superagent[method](`${this.apiUrl()}${path}`)
-        .query(query)
-        .send(data)
-        .agent(this.agent)
-        .retry(2, retryHandler.bind(this)(retry))
-        .set(headers)
-        .responseType(responseType)
-        .timeout(this.timeoutConfig())
+      let req: SuperAgentRequest
+
+      if (multipartData || files) {
+        req = superagent[method](`${this.apiUrl()}${path}`)
+          .type('form')
+          .query(query)
+          .agent(this.agent)
+          .retry(2, retryHandler.bind(this)(retry))
+          .set(headers)
+          .responseType(responseType)
+          .timeout(timeout)
+
+        if (multipartData) {
+          Object.entries(multipartData).forEach(([key, value]) => {
+            req.field(key, value)
+          })
+        }
+
+        if (files) {
+          Object.entries(files).forEach(([key, file]) => {
+            req.attach(key, file.buffer, file.originalname?.replaceAll("'", ''))
+          })
+        }
+      } else {
+        req = superagent[method](`${this.apiUrl()}${path}`)
+          .query(query)
+          .send(data)
+          .agent(this.agent)
+          .retry(2, retryHandler.bind(this)(retry))
+          .set(headers)
+          .responseType(responseType)
+          .timeout(timeout)
+      }
 
       if (token) {
         req.auth(token, { type: 'bearer' })
@@ -285,12 +332,13 @@ export default class RestClient {
       responseType = '',
       raw = false,
       retries = 2,
+      timeout = this.timeoutConfig(),
       errorHandler = this.handleError,
       retryHandler = this.handleRetry,
     }: Request<Response, ErrorData>,
     authOptions?: AuthOptions | string,
   ): Promise<Response> {
-    this.logger.info(`${this.name} DELETE: ${path}`)
+    this.logger.debug(`${this.name} DELETE: ${path}`)
 
     const token = await this.resolveToken(authOptions)
 
@@ -302,7 +350,7 @@ export default class RestClient {
         .retry(retries, retryHandler.bind(this)())
         .set(headers)
         .responseType(responseType)
-        .timeout(this.timeoutConfig())
+        .timeout(timeout)
 
       if (token) {
         req.auth(token, { type: 'bearer' })
@@ -325,10 +373,10 @@ export default class RestClient {
    *          type SanitisedError<ErrorData>.
    */
   async stream<ErrorData = unknown>(
-    { path, headers = {}, errorLogger = this.logError }: StreamRequest<ErrorData>,
+    { path, headers = {}, errorLogger = this.logError, timeout = this.timeoutConfig() }: StreamRequest<ErrorData>,
     authOptions?: AuthOptions | string,
   ): Promise<Readable> {
-    this.logger.info(`${this.name} streaming: ${path}`)
+    this.logger.debug(`${this.name} streaming: ${path}`)
 
     const token = await this.resolveToken(authOptions)
 
@@ -337,7 +385,7 @@ export default class RestClient {
         .get(`${this.apiUrl()}${path}`)
         .agent(this.agent)
         .retry(2, this.handleRetry())
-        .timeout(this.timeoutConfig())
+        .timeout(timeout)
         .set(headers)
 
       if (token) {

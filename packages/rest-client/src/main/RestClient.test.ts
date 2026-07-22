@@ -4,28 +4,25 @@ import { Response } from 'superagent'
 import { PassThrough } from 'stream'
 import { NotFound } from 'http-errors'
 import RestClient from './RestClient'
-import { AgentConfig } from './types/ApiConfig'
+import { AgentConfig, type ApiConfig } from './types/ApiConfig'
 import { AuthOptions, TokenType } from './types/AuthOptions'
 import { SanitisedError } from './types/Errors'
 import { CallContext } from './types/Request'
 
+const baseApiConfig: ApiConfig = {
+  url: 'http://localhost:8080/api',
+  timeout: {
+    response: 200,
+    deadline: 200,
+  },
+  agent: new AgentConfig(200),
+}
+
 class TestRestClient extends RestClient {
-  constructor() {
-    super(
-      'api-name',
-      {
-        url: 'http://localhost:8080/api',
-        timeout: {
-          response: 200,
-          deadline: 200,
-        },
-        agent: new AgentConfig(200),
-      },
-      console,
-      {
-        getToken: jest.fn().mockResolvedValue('some_system_jwt'),
-      },
-    )
+  constructor(config: ApiConfig = baseApiConfig) {
+    super('api-name', config, console, {
+      getToken: jest.fn().mockResolvedValue('some_system_jwt'),
+    })
   }
 }
 
@@ -57,6 +54,30 @@ async function readAll(stream: NodeJS.ReadableStream): Promise<string> {
 }
 
 describe('RestClient', () => {
+  const getInternalAgent = (client: RestClient) => (client as unknown as { agent?: unknown }).agent
+
+  afterEach(() => {
+    jest.restoreAllMocks()
+  })
+
+  it('passes proxy settings through to the underlying keepalive agent', () => {
+    const proxyEnv = {
+      HTTPS_PROXY: 'http://envoy.local:3128',
+      NO_PROXY: 'localhost,127.0.0.1',
+    }
+    const client = new TestRestClient({
+      ...baseApiConfig,
+      agent: {
+        timeout: 6543,
+        proxyEnv,
+      },
+    })
+
+    expect(
+      (getInternalAgent(client) as { options: { proxyEnv?: typeof proxyEnv; timeout?: number } }).options,
+    ).toMatchObject({ timeout: 6543, proxyEnv })
+  })
+
   describe.each(['get', 'patch', 'post', 'put', 'delete'] as const)('%s', method => {
     afterEach(() => {
       nock.cleanAll()
@@ -102,6 +123,29 @@ describe('RestClient', () => {
         status: 200,
         text: '{"success":true}',
       })
+    })
+
+    it('should support a custom timeout when provided', async () => {
+      nock('http://localhost:8080', {
+        reqheaders: { authorization: 'Bearer some_system_jwt' },
+      })
+        [method]('/api/test')
+        .delay(250)
+        .reply(200, { success: true })
+
+      const result = await restClient[method](
+        {
+          path: '/test',
+          timeout: {
+            response: 300,
+            deadline: 350,
+          },
+        },
+        systemAuthOptions,
+      )
+
+      expect(nock.isDone()).toBe(true)
+      expect(result).toStrictEqual({ success: true })
     })
 
     it('should support custom error handling when provided', async () => {
@@ -445,6 +489,66 @@ describe('RestClient', () => {
     })
   })
 
+  describe.each(['patch', 'post', 'put'] as const)('%s request with body', method => {
+    afterEach(() => {
+      nock.cleanAll()
+    })
+
+    it('should handle json request body', async () => {
+      let interceptedRequestBody: unknown
+
+      nock('http://localhost:8080', {
+        reqheaders: { authorization: 'Bearer some_system_jwt' },
+      })
+        [method]('/api/test', body => {
+          interceptedRequestBody = body
+          return true
+        })
+        .reply(200, { success: true })
+
+      const result = await restClient[method](
+        {
+          path: '/test',
+          data: { test: 'data' },
+        },
+        systemAuthOptions,
+      )
+
+      expect(nock.isDone()).toBe(true)
+      expect(result).toStrictEqual({ success: true })
+      expect(interceptedRequestBody).toStrictEqual({ test: 'data' })
+    })
+
+    it('should handle multipart request body', async () => {
+      let interceptedRequestBody: unknown
+
+      nock('http://localhost:8080', {
+        reqheaders: { authorization: 'Bearer some_system_jwt' },
+      })
+        [method]('/api/test', body => {
+          interceptedRequestBody = body
+          return true
+        })
+        .reply(200, { success: true })
+
+      const result = await restClient[method](
+        {
+          path: '/test',
+          multipartData: { test: 'data' },
+          files: { sample: { originalname: 'sample.txt', buffer: Buffer.from('Lorem ipsum', 'utf8') } },
+        },
+        systemAuthOptions,
+      )
+
+      expect(nock.isDone()).toBe(true)
+      expect(result).toStrictEqual({ success: true })
+      expect(interceptedRequestBody).toMatch(/Content-Disposition: form-data; name="test"\s+data/)
+      expect(interceptedRequestBody).toMatch(
+        /Content-Disposition: form-data; name="sample"; filename="sample.txt"\s+Content-Type: text\/plain\s+Lorem ipsum/,
+      )
+    })
+  })
+
   describe('stream', () => {
     afterEach(() => {
       nock.cleanAll()
@@ -540,6 +644,24 @@ describe('RestClient', () => {
 
       await expect(restClient.stream({ path: '/test-file' }, systemAuthOptions)).rejects.toThrow()
 
+      expect(nock.isDone()).toBe(true)
+    })
+
+    it('should support a custom timeout if provided', async () => {
+      nock('http://localhost:8080', {
+        reqheaders: { authorization: 'Bearer some_system_jwt' },
+      })
+        .get('/api/test-file')
+        .delay(250)
+        .reply(200, 'this is some file content', { 'Content-Type': 'application/x-zip-compressed' })
+
+      const readable = await restClient.stream(
+        { path: '/test-file', timeout: { response: 300, deadline: 350 } },
+        systemAuthOptions,
+      )
+      const receivedData = await readAll(readable)
+
+      expect(receivedData).toEqual('this is some file content')
       expect(nock.isDone()).toBe(true)
     })
   })

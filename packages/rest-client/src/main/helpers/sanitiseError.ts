@@ -6,9 +6,12 @@ import { SanitisedError, type UnsanitisedError } from '../types/Errors'
  */
 export default function sanitiseError<ErrorData = unknown>(error: UnsanitisedError): SanitisedError<ErrorData> {
   const e = new SanitisedError<ErrorData>()
+  const networkError = error as unknown as NodeJS.ErrnoException
 
   e.message = error.message
   e.stack = <string>error.stack
+  e.code = networkError.code
+  e.errno = networkError.errno
 
   if (error.response) {
     e.text = error.response.text

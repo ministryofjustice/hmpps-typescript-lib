@@ -14,7 +14,7 @@ export interface EndpointHealthComponentOptions {
         response?: number
         deadline?: number
       }
-  /** (Optional) The number of retry attempts for the health check. Defaults to 2 */
+  /** (Optional) The number of retry attempts for the component's health check. Defaults to 2 */
   retries?: number
   /** (Optional) Agent configuration options for HTTP/HTTPS requests to the service. */
   agentConfig?: HttpsOptions | HttpOptions

@@ -1,6 +1,6 @@
 # @ministryofjustice/hmpps-npm-script-allowlist
 
-This package aims to restrict npm scripts from running unless as part of a predefined allowlist. 
+This package aims to restrict npm scripts from running unless as part of a predefined allowlist.
 
 ## Status
 
@@ -29,13 +29,41 @@ This will:
 - Add a new npm script called `setup`
 - Run the tool, which will likely fail allowing the developer to complete configuration
 
-The tool can then be configured with a list of packages and their associated versions that should run be allowed to run scripts post install.
+The tool can then be configured with a list of packages that should be allowed to run scripts post install.
+Entries can target an exact version, a semver range, or the package path with no version to match all installed versions at that path.
 
-To work with the project after that: 
+To work with the project after that:
+
 - `npm install` will install packages but no longer executes any scripts due to the defaults set in `.npmrc`
 - `npm run setup` runs `npm ci` (without scripts) and then executes only those scripts that have been explicitly allowed.
 
 A manual step is required to move CI and docker over to use `npm run setup` instead of `npm ci`
+
+## Verifying the environment
+
+The environment verification ensures:
+
+1. **.npmrc configuration** - Verifies that your `.npmrc` file exists and contains `ignore-scripts=true` to prevent unauthorized scripts from executing during `npm install`
+2. **Dockerfile setup** - If a Dockerfile exists in your project, verification ensures it copies both:
+   - `.npmrc` file to the container
+   - `.allowed-scripts.mjs` file to the container
+3. **.dockerignore exceptions** - If a `.dockerignore` file exists, verification ensures it contains exceptions for:
+   - `!.npmrc` to allow the .npmrc file to be copied into the container
+   - `!.allowed-scripts.mjs` to allow the allowed scripts configuration to be copied into the container
+
+### Why this matters
+
+These checks ensure that the security settings required by the allowlist system are consistently applied across development and deployment environments. Docker containers will bypass security restrictions if the `.npmrc` and `.allowed-scripts.mjs` files aren't properly configured and copied during the build process.
+
+See the [hmpps-template-typescript PR #719](https://github.com/ministryofjustice/hmpps-template-typescript/pull/719) for a complete example of how to properly configure your project to pass these checks.
+
+### Disabling verification
+
+```bash
+NPM_SCRIPT_ALLOWLIST_VERIFICATION_DISABLED=true npm run setup
+```
+
+**Note:** Disabling verification should only be done in exceptional circumstances and is not recommended in production environments. If you encounter verification failures, it's better to fix the underlying configuration issues - please raise any issues on #typescript.
 
 ## Configuration
 
@@ -46,11 +74,11 @@ import configureAllowedScripts from '@ministryofjustice/hmpps-npm-script-allowli
 
 export default configureAllowedScripts({
    allowlist: {
-      "node_modules/@parcel/watcher@2.5.1": "ALLOW",
-      "node_modules/cypress@14.5.4": "FORBID",
+      "node_modules/@parcel/watcher@^2.5.1": "ALLOW",
+      "node_modules/cypress@~14.5.4": "FORBID",
       "node_modules/dtrace-provider@0.8.8": "ALLOW",
       "node_modules/fsevents@2.3.3": "FORBID",
-      "node_modules/unrs-resolver@1.11.1": "ALLOW"
+      "node_modules/unrs-resolver": "ALLOW"
    },
 })
 ```
@@ -64,7 +92,7 @@ By default hmpps-npm-script-allowlist will only manage and run the following scr
 - `prepare`
 - `postinstall`
 
-Scripts bound to other lifecycles will not be executed. 
+Scripts bound to other lifecycles will not be executed.
 This list can be expand by specifying the following options in `./allowed-scripts.mjs`:
 
 - `localScriptsToRun`: The list of the current service's scripts to run post install
@@ -77,8 +105,8 @@ This is heavily inspired by [lavamoat's allowscripts](https://github.com/LavaMoa
 This works slightly differently:
 
 - Scripts need to be explicitly configured either to be included or not or the script will fail
-- This uses the explicit version in the package-lock.json to key whether a script should run or not, rather than just the name of the package
-- It provides some extra contextual information about the packages that need to be allowlisted - details about the script and when the package was published. 
+- This supports using the explicit version in the package-lock.json to key whether a script should run or not, rather than just the name of the package
+- It provides some extra contextual information about the packages that need to be allowlisted - details about the script and when the package was published.
 
 ## Example output:
 
@@ -119,10 +147,10 @@ Copy the "Current Configuration" from above and use it to update: some-project/.
 
 This generally requires a bit of investigation!
 
-* There's a list of common vetted packages at specific versions in the hmpps-template-typescript project [here](https://github.com/ministryofjustice/hmpps-template-typescript/blob/main/.allowed-scripts.mjs).
-* One of the developers of lavamoat has curated a list of scripts which you likely can forbid [here](https://github.com/naugtur/can-i-ignore-scripts)
-* Otherwise you really need to determine what the specific flagged `preinstall`, `install`, `prepare` or `postinstall` scripts are doing.
-* If in doubt please ask the #typescript channel for help
+- There's a list of common vetted packages at specific versions in the hmpps-template-typescript project [here](https://github.com/ministryofjustice/hmpps-template-typescript/blob/main/.allowed-scripts.mjs).
+- One of the developers of lavamoat has curated a list of scripts which you likely can forbid [here](https://github.com/naugtur/can-i-ignore-scripts)
+- Otherwise you really need to determine what the specific flagged `preinstall`, `install`, `prepare` or `postinstall` scripts are doing.
+- If in doubt please ask the #typescript channel for help
 
 ### Testing
 

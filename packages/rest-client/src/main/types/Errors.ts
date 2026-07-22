@@ -8,6 +8,10 @@ export class SanitisedError<ErrorData = unknown> extends Error {
 
   responseStatus?: number
 
+  code?: string
+
+  errno?: string | number
+
   headers?: Record<string, string>
 
   data?: ErrorData

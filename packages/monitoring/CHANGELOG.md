@@ -1,5 +1,19 @@
 # Change log
 
+## 2.1.0
+
+Require `@ministryofjustice/hmpps-rest-client` 2.1.0 so endpoint health checks can use the proxy-aware rest-client
+transport.
+
+## 2.0.0
+
+Drops support for node engine 20 (no longer maintained) and adds 26 (will be LTS later this year).
+
+## 1.0.2
+
+Reuse `@ministryofjustice/hmpps-rest-client` for endpoint health-check transport while preserving the existing health
+check behavior and result shape.
+
 ## 1.0.1
 
 Allow all 2xx response codes to be successful for endpoint health components
@@ -18,7 +32,7 @@ No functional change - testing trusted publishing
 
 ## 0.0.1
 
-Initial release 
+Initial release
 
  @types/express  ^4.17.21 →  ^5.0.3
  nock            ^13.5.6" →  ^14.0.5

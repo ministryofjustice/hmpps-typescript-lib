@@ -31,7 +31,7 @@ npm install @ministryofjustice/hmpps-auth-clients
 
 An example of using AuthenticationClient to retrieve a system token or a user token from HMPPS Auth:
 
-```
+```typescript
 import AuthenticationClient from 'hmpps-auth-clients/dist/AuthenticationClient'
 import ConsoleLogger from 'bunyan' // Example logger; you can use your own
 
@@ -55,7 +55,7 @@ const userToken = await authClient.getToken('some-user')
 
 Use VerificationClient to verify tokens against the HMPPS Token Verification API:
 
-```
+```typescript
 import VerificationClient from 'hmpps-auth-clients/dist/VerificationClient'
 import ConsoleLogger from 'bunyan'
 
@@ -77,7 +77,7 @@ const isTokenValid = await verificationClient.verifyToken({
 
 Using RedisTokenStore to persist tokens in Redis (useful for distributed or scalable environments):
 
-```
+```typescript
 import { createClient } from 'redis'
 import RedisTokenStore from 'hmpps-auth-clients/dist/tokenStores/RedisTokenStore'
 
@@ -95,7 +95,7 @@ const token = await redisTokenStore.getToken('some-key') // 'my-token'
 
 The default prefix for values set in Redis using the RedisTokenStore is `systemToken:`, therefore the following code
 will set the value in Redis with the key `systemToken:A_USER_GEN`:
-```
+```typescript
 // token = system token generated from HMPPS Auth
 // key = DPS username, eg: A_USER_GEN
 
@@ -111,7 +111,7 @@ for calling the Curious API. A separate client is created by the HAAR team that 
 call Curious. This client has its own client ID and secret. A separate RedisTokenStore can be created with a specific
 prefix for this purpose:
 
-```
+```typescript
 // token = Curious token generated from HMPPS Auth
 // key = DPS username, eg: A_USER_GEN
 
@@ -123,7 +123,7 @@ await redisTokenStore.setToken(key, token, 3600)
 
 Using InMemoryTokenStore to store tokens in memory (suitable for local development):
 
-```
+```typescript
 import InMemoryTokenStore from 'hmpps-auth-clients/dist/tokenStores/InMemoryTokenStore'
 
 const inMemoryStore = new InMemoryTokenStore()
