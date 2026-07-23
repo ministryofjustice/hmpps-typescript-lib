@@ -41,7 +41,7 @@ export function getProxyUrl(): string | undefined {
  * });
  * ```
  */
-export function createProxyRequestHandler(): { requestHandler?: NodeHttpHandler } | {} {
+export function createProxyRequestHandler(): { requestHandler?: NodeHttpHandler } {
   if (!isProxyEnabled()) {
     return {}
   }

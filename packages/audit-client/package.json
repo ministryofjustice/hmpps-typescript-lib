@@ -34,6 +34,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-sqs": "3.989.0",
+    "@smithy/node-http-handler": "^2.0.0",
     "https-proxy-agent": "^7.0.0"
   },
   "devDependencies": {
