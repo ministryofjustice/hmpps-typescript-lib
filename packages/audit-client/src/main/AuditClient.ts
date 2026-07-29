@@ -5,6 +5,7 @@ import { AuditEvent, AuditEventWithSubject } from './types/AuditEvent'
 import { SqsMessage } from './types/SqsMessage'
 import { MessageOptions } from './types/MessageOptions'
 import { SubjectType } from './types/SubjectType'
+import { createProxyRequestHandler } from './helpers/proxySupport'
 
 /**
  * HMPPS Audit Client for sending audit events to SQS.
@@ -76,7 +77,11 @@ export default class HmppsAuditClient {
     this.enabled = config.enabled
     this.queueUrl = config.queueUrl
     this.serviceName = config.serviceName
-    this.sqsClient = new SQSClient({ region: config.region, ...config.clientConfig })
+    this.sqsClient = new SQSClient({
+      region: config.region,
+      ...createProxyRequestHandler(),
+      ...config.clientConfig,
+    })
 
     if (!this.enabled) {
       logger.warn(`Auditing is disabled (AUDIT_ENABLED=${process.env.AUDIT_ENABLED}), no messages will be sent.`)
