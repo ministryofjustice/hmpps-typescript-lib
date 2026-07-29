@@ -2,15 +2,23 @@ import { NodeHttpHandler } from '@smithy/node-http-handler'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 
 /**
- * Determines if proxy support should be enabled based on environment variables.
+ * Determines if proxy support should be enabled based on Node proxy configuration.
  *
- * Returns true if NODE_USE_ENV_PROXY is set to '1', 'true', 'True', or 'TRUE'.
+ * Returns true when any of the following are set:
+ * - NODE_USE_ENV_PROXY is '1' or 'true' (case-insensitive)
+ * - NODE_OPTIONS contains '--use-env-proxy'
+ * - process.execArgv includes '--use-env-proxy'
  *
  * @returns true if proxy support should be enabled, false otherwise
  */
 export function isProxyEnabled(): boolean {
   const nodeUseEnvProxy = process.env.NODE_USE_ENV_PROXY?.toLowerCase()
-  return nodeUseEnvProxy === '1' || nodeUseEnvProxy === 'true'
+  return (
+    nodeUseEnvProxy === '1' ||
+    nodeUseEnvProxy === 'true' ||
+    process.env.NODE_OPTIONS?.includes('--use-env-proxy') ||
+    process.execArgv.includes('--use-env-proxy')
+  )
 }
 
 /**
@@ -27,7 +35,7 @@ export function getProxyUrl(): string | undefined {
 /**
  * Creates an SQS client request handler with proxy support if configured.
  *
- * When NODE_USE_ENV_PROXY is enabled and a proxy is configured via environment variables,
+ * When proxy support is enabled and a proxy is configured via environment variables,
  * returns a NodeHttpHandler configured with an HttpsProxyAgent. Otherwise returns undefined
  * to allow SQSClient to use its default handler.
  *
