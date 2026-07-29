@@ -25,6 +25,7 @@
     "/packages/frontend-types",
     "/packages/monitoring",
     "/packages/npm-script-allowlist",
+    "/packages/audit-client",
     "/packages/precommit-hooks"
   ],
   "engines": {
