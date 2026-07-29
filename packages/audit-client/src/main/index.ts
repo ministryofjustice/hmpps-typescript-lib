@@ -78,3 +78,5 @@ export type { SubjectType } from './types/SubjectType'
 export type { MessageOptions } from './types/MessageOptions'
 export type { AuditClientConfig } from './types/AuditClientConfig'
 export type { PageViewEventDetails } from './types/PageViewEventDetails'
+
+export { isProxyEnabled, getProxyUrl, createProxyRequestHandler } from './helpers/proxySupport'
