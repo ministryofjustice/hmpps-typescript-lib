@@ -1,4 +1,4 @@
-import { AuditEvent, AuditEventWithSubject } from './AuditEvent'
+import { AuditEvent } from './AuditEvent'
 import { SubjectType } from './SubjectType'
 
 /**
@@ -12,6 +12,4 @@ import { SubjectType } from './SubjectType'
  * @property {string} [correlationId] - Optional correlation identifier for linking related events
  * @property {object} [details] - Optional additional details or metadata about the page view
  */
-export type PageViewEventDetails<T extends string = SubjectType> =
-  | Omit<AuditEvent, 'action'>
-  | Omit<AuditEventWithSubject<T>, 'action'>
+export type PageViewEventDetails<T extends string = SubjectType> = Omit<AuditEvent<T>, 'action'>

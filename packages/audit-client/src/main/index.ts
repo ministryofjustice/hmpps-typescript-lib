@@ -25,7 +25,7 @@
  *   action: 'LOGIN',
  *   who: 'user@example.com',
  *   subjectType: 'NOT_APPLICABLE',
- *   correlationId: 'session-123',
+ *   correlationId: 'request-123',
  * });
  *
  * // Log a page view
@@ -73,7 +73,7 @@ export { default as AuditClient } from './AuditClient'
 export { default as AuditService } from './AuditService'
 export { default as AuditServiceFactory } from './AuditServiceFactory'
 
-export type { AuditEvent, AuditEventWithSubject } from './types/AuditEvent'
+export type { AuditEvent } from './types/AuditEvent'
 export type { SubjectType } from './types/SubjectType'
 export type { MessageOptions } from './types/MessageOptions'
 export type { AuditClientConfig } from './types/AuditClientConfig'

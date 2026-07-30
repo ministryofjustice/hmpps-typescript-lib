@@ -1,5 +1,6 @@
 import HmppsAuditClient from './AuditClient'
-import { AuditEvent, AuditEventWithSubject } from './types/AuditEvent'
+import { AuditEvent } from './types/AuditEvent'
+import { MessageOptions } from './types/MessageOptions'
 import { PageViewEventDetails } from './types/PageViewEventDetails'
 import { SubjectType } from './types/SubjectType'
 
@@ -19,7 +20,7 @@ import { SubjectType } from './types/SubjectType'
  *   who: 'admin@example.com',
  *   subjectType: 'USER_ID',
  *   subjectId: 'user-123',
- *   correlationId: 'request-456',
+ *   correlationId: 'request-123',
  *   details: { email: 'newuser@example.com' }
  * });
  *
@@ -28,7 +29,7 @@ import { SubjectType } from './types/SubjectType'
  *   action: 'LOGIN',
  *   who: 'user@example.com',
  *   subjectType: 'NOT_APPLICABLE',
- *   correlationId: 'session-789',
+ *   correlationId: 'request-123',
  * });
  *
  * // Log a page view event
@@ -36,11 +37,11 @@ import { SubjectType } from './types/SubjectType'
  *   who: 'user@example.com',
  *   subjectType: 'CRN',
  *   subjectId: 'A123456',
- *   correlationId: 'session-789'
+ *   correlationId: 'request-123'
  * });
  * ```
  */
-export default class AuditService {
+export default class AuditService<PAGE_NAME extends string = string, SUBJECT_TYPE extends string = SubjectType> {
   /**
    * Creates a new AuditService instance.
    *
@@ -55,8 +56,7 @@ export default class AuditService {
    * - For events with subjects: include both `subjectType` and `subjectId`
    * - For events without subjects: use `subjectType: 'NOT_APPLICABLE'` (cannot include `subjectId`)
    *
-   * @template T - The type of subject being audited, defaults to SubjectType but can be extended
-   * @param event - The audit event to log (either AuditEvent or AuditEventWithSubject)
+   * @param event - The audit event to log (either AuditEvent)
    * @returns A promise that resolves when the message is sent
    *
    * @example Events with subjects
@@ -78,22 +78,13 @@ export default class AuditService {
    *   who: 'user@example.com',
    *   subjectType: 'NOT_APPLICABLE',
    *   correlationId: 'session-123',
-   * });
+   * },
+   *    { logOnError: true, throwOnError: false }););
    * ```
-   *
-   * @example With extended subject types
-   * ```typescript
-   * type ExtendedSubjectTypes = 'COMPONENT_ID' | SubjectType;
-   * await auditService.logAuditEvent<ExtendedSubjectTypes>({
-   *   action: 'VIEW_COMPONENT',
-   *   who: 'user@example.com',
-   *   subjectType: 'COMPONENT_ID',
-   *   subjectId: 'hmpps-manage-users'
-   * });
    * ```
    */
-  async logAuditEvent<T extends string = SubjectType>(event: AuditEvent | AuditEventWithSubject<T>) {
-    await this.hmppsAuditClient.sendMessage(event)
+  async logAuditEvent(event: AuditEvent<SUBJECT_TYPE>, messageOptions: MessageOptions = {}) {
+    await this.hmppsAuditClient.sendMessage(event, messageOptions)
   }
 
   /**
@@ -102,7 +93,6 @@ export default class AuditService {
    * This is a convenience method for logging when users view pages in your application.
    * The action is automatically prefixed with 'PAGE_VIEW_'.
    *
-   * @template T - The type of subject being viewed, defaults to SubjectType but can be extended
    * @param pageName - The name/identifier of the page being viewed
    * @param eventDetails - Details about who viewed the page and what they viewed
    * @returns A promise that resolves when the message is sent
@@ -116,19 +106,9 @@ export default class AuditService {
    *   subjectId: 'A1234BC',
    *   correlationId: 'session-123'
    * });
-   *
-   * // Log a page view with extended subject types
-   *
-   * type ExtendedSubjectTypes = 'COMPONENT' | SubjectType;
-   * await auditService.logPageView<ExtendedSubjectTypes>('VIEW_COMPONENT', {
-   *   who: 'security@example.com',
-   *   subjectType: 'COMPONENT',
-   *   subjectId: 'hmpps-manage-users',
-   *   details: { }
-   * });
    * ```
    */
-  async logPageView<T extends string = SubjectType>(pageName: string, eventDetails: PageViewEventDetails<T>) {
+  async logPageView(pageName: PAGE_NAME, eventDetails: PageViewEventDetails<SUBJECT_TYPE>) {
     await this.hmppsAuditClient.sendMessage({
       ...eventDetails,
       action: `PAGE_VIEW_${pageName}`,

@@ -37,7 +37,7 @@ describe('hmppsAuditClient', () => {
         who: 'user1',
         subjectId: 'subject123',
         subjectType: 'CRN',
-        correlationId: 'request123',
+        correlationId: 'request-123',
         details: { extraDetails: 'example' },
       })
 
@@ -48,8 +48,8 @@ describe('hmppsAuditClient', () => {
         service: 'hmpps-service',
         subjectId: 'subject123',
         subjectType: 'CRN',
-        correlationId: 'request123',
-        details: { extraDetails: 'example' },
+        correlationId: 'request-123',
+        details: '{"extraDetails":"example"}',
       }
 
       expect(actualResponse).toEqual({ MessageId: '123' })
@@ -85,12 +85,13 @@ describe('hmppsAuditClient', () => {
       sqsMock.on(SendMessageCommand).rejects(new Error('Error sending sqs message'))
       auditClient = new AuditClient({ ...auditClientConfig }, console)
 
-      expect(() =>
+      await expect(() =>
         auditClient.sendMessage(
           {
             action: 'EXAMPLE_EVENT',
             who: 'user1',
-            subjectType: 'NOT_APPLICABLE',
+            subjectId: 'subject123',
+            subjectType: 'CRN',
           },
           { logOnError: true, throwOnError: false },
         ),
@@ -103,7 +104,7 @@ describe('hmppsAuditClient', () => {
       sqsMock.on(SendMessageCommand).rejects(new Error('Error sending sqs message'))
       auditClient = new AuditClient({ ...auditClientConfig }, console)
 
-      expect(() =>
+      await expect(() =>
         auditClient.sendMessage({
           action: 'EXAMPLE_EVENT',
           who: 'user1',

@@ -1,7 +1,7 @@
 import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs'
 import type Logger from 'bunyan'
 import type { AuditClientConfig } from './types/AuditClientConfig'
-import { AuditEvent, AuditEventWithSubject } from './types/AuditEvent'
+import { AuditEvent } from './types/AuditEvent'
 import { SqsMessage } from './types/SqsMessage'
 import { MessageOptions } from './types/MessageOptions'
 import { SubjectType } from './types/SubjectType'
@@ -38,7 +38,7 @@ import { createProxyRequestHandler } from './helpers/proxySupport'
  *   action: 'LOGIN',
  *   who: 'john.doe',
  *   subjectType: 'NOT_APPLICABLE',
- *   correlationId: 'session-123',
+ *   correlationId: 'request-123',
  * });
  * ```
  */
@@ -82,10 +82,6 @@ export default class HmppsAuditClient {
       ...createProxyRequestHandler(),
       ...config.clientConfig,
     })
-
-    if (!this.enabled) {
-      logger.warn(`Auditing is disabled (AUDIT_ENABLED=${process.env.AUDIT_ENABLED}), no messages will be sent.`)
-    }
   }
 
   /**
@@ -96,7 +92,7 @@ export default class HmppsAuditClient {
    * Supports both events with subjects and events without subjects (using `subjectType: 'NOT_APPLICABLE'`).
    *
    * @template T - The type of subject being audited, defaults to SubjectType
-   * @param event - The audit event to send (AuditEvent or AuditEventWithSubject)
+   * @param event - The audit event to send (AuditEvent)
    * @param messageOptions - Options controlling error handling behavior
    * @param messageOptions.logOnError - Whether to log errors (default: false)
    * @param messageOptions.throwOnError - Whether to throw errors (default: true)
@@ -120,7 +116,7 @@ export default class HmppsAuditClient {
    *   action: 'LOGIN',
    *   who: 'user@example.com',
    *   subjectType: 'NOT_APPLICABLE',
-   *   correlationId: 'session-123',
+   *   correlationId: 'request-123',
    * });
    * ```
    *
@@ -136,11 +132,10 @@ export default class HmppsAuditClient {
    * );
    * ```
    */
-  async sendMessage<T extends string = SubjectType>(
-    event: AuditEvent | AuditEventWithSubject<T>,
-    messageOptions: MessageOptions = { logOnError: false, throwOnError: true },
-  ) {
+  async sendMessage<T extends string = SubjectType>(event: AuditEvent<T>, messageOptions: MessageOptions = {}) {
     if (!this.enabled) return null
+
+    const { logOnError = false, throwOnError = true } = messageOptions
 
     const sqsMessage: SqsMessage = {
       what: event.action,
@@ -148,7 +143,7 @@ export default class HmppsAuditClient {
       subjectId: event.subjectId,
       subjectType: event.subjectType,
       correlationId: event.correlationId,
-      details: event.details,
+      details: JSON.stringify(event.details),
       service: this.serviceName,
       when: new Date().toISOString(),
     }
@@ -162,8 +157,8 @@ export default class HmppsAuditClient {
 
       return messageResponse
     } catch (error) {
-      if (messageOptions.logOnError) this.logger.error('Error sending HMPPS Audit SQS message', error)
-      if (messageOptions.throwOnError) throw error
+      if (logOnError) this.logger.error(error, 'Error sending HMPPS Audit SQS message')
+      if (throwOnError) throw error
     }
     return null
   }

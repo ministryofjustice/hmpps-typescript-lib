@@ -21,6 +21,6 @@ export interface SqsMessage {
   subjectType?: string
   /** Optional correlation ID for linking related events */
   correlationId?: string
-  /** Optional additional details about the event */
-  details?: object
+  /** Optional additional details about the event, encoded as JSON */
+  details?: string
 }

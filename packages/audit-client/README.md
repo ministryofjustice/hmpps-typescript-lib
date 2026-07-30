@@ -14,9 +14,9 @@ The HMPPS Audit Client provides a standardized way to send audit events from HMP
 
 - Sending audit messages to AWS SQS
 - Automatic timestamping and service identification
-- Type-safe subject types with extensibility
 - Flexible error handling
 - Convenient methods for common audit patterns (e.g., page views)
+- Proxy support
 
 ## Installation
 
@@ -30,7 +30,9 @@ npm install @ministryofjustice/hmpps-audit-client
 
 #### Using the Factory (Recommended)
 
-The easiest way to set up the audit client is using the `AuditServiceFactory`, which automatically configures from environment variables:
+The `AuditService` is designed to be a singleton and shared across the application.
+ 
+The easiest way to create an instance is using the `AuditServiceFactory`, which automatically configures from environment variables:
 
 ```typescript
 import { AuditServiceFactory } from '@ministryofjustice/hmpps-audit-client'
@@ -67,6 +69,43 @@ const auditService = AuditServiceFactory.createInstance(
   logger,
 )
 ```
+
+#### Proxy support
+
+The audit client sends messages directly to AWS SQS via the `@aws-sdk/client-sqs` package, which does not respect
+Node's built-in proxy handling. To route these SQS requests through a proxy, the client can build an
+[`HttpsProxyAgent`](https://www.npmjs.com/package/https-proxy-agent) request handler from environment variables.
+
+Proxy support is **opt-in** and is only applied when both of the following are true:
+
+1. Proxy support is enabled via one of:
+   - `NODE_USE_ENV_PROXY=true` or `NODE_USE_ENV_PROXY=1`
+   - `NODE_OPTIONS=--use-env-proxy`
+   - `node --use-env-proxy ...`
+2. A proxy URL is configured via one of:
+   - `HTTPS_PROXY` / `https_proxy`
+   - `HTTP_PROXY` / `http_proxy`
+
+   Uppercase environment variables take precedence over lowercase ones, and `HTTPS_PROXY`/`https_proxy` take precedence over the `HTTP_PROXY`/`http_proxy` equivalents.
+
+If proxy support isn't enabled, or no proxy URL is configured, the client falls back to the SQS client's default request handler and requests are made without a proxy.
+
+##### Example
+
+```shell
+export NODE_USE_ENV_PROXY=true
+export HTTPS_PROXY=http://proxy.internal:3128
+```
+
+```typescript
+const auditService = AuditServiceFactory.configureFromEnv(logger)
+```
+
+##### Limitations
+
+- **Only HTTPS traffic is proxied.** The configured proxy agent is only attached as the `httpsAgent` on the SQS request handler, so it has no effect on plain `http://` queue URLs, such as the default `AUDIT_SQS_QUEUE_URL` used for local development against [LocalStack](https://www.localstack.cloud/) (`http://localhost:4566/000000000000/mainQueue`). This is generally the desired behaviour, since local/LocalStack traffic shouldn't be routed through a corporate proxy anyway.
+- **`NO_PROXY`/`no_proxy` is not supported.** Unlike `@ministryofjustice/hmpps-rest-client`'s proxy support, this client has no mechanism for excluding specific hosts from the proxy. If proxy support is enabled and a proxy URL is configured, all HTTPS SQS traffic will be sent through that proxy.
+- You can always override this behaviour entirely by passing your own `requestHandler` via the `clientConfig` option on `AuditServiceFactory.configureFromEnv`/`createInstance` or `AuditClient`, which takes precedence over the automatic proxy configuration.
 
 #### Advanced: Direct Client Usage
 
@@ -109,7 +148,7 @@ await auditService.logAuditEvent({
   who: 'officer@example.com',
   subjectType: 'SEARCH_TERM',
   subjectId: 'john smith',
-  correlationId: 'search-456',
+  correlationId: 'request-123',
 })
 ```
 
@@ -125,13 +164,38 @@ await auditService.logAuditEvent({
 
 ### Logging Page Views
 
+Note: the current facility to log page views is not compliant with the audit specification. 
+The audit specification expects `VERB_RESOURCE` style naming of actions. 
+This capability will likely be reviewed in the future.  
+
 ```typescript
 // Log a page view (automatically prefixes with 'PAGE_VIEW_')
 await auditService.logPageView('PRISONER_PROFILE', {
   who: 'user@example.com',
   subjectType: 'PRISONER_ID',
   subjectId: 'A1234BC',
-  correlationId: 'session-456',
+  correlationId: 'request-123',
+  details: { tab: 'personal-details' },
+})
+```
+
+By default any string can be passed via page views. 
+To enforce a subset of known pages via type safety, then override the generic type when creating an audit service.
+
+```typescript
+enum MyPages {
+  PAGE_ONE = 'page_one',
+  PAGE_TWO = 'page_two',
+}
+
+const auditService = AuditServiceFactory.createInstance<MyPages>(...)
+
+// Log a page view (automatically prefixes with 'PAGE_VIEW_')
+await auditService.logPageView(MyPages.PAGE_ONE, {
+  who: 'user@example.com',
+  subjectType: 'PRISONER_ID',
+  subjectId: 'A1234BC',
+  correlationId: 'request-123',
   details: { tab: 'personal-details' },
 })
 ```
@@ -168,13 +232,14 @@ await auditService.logAuditEvent({
   action: 'LOGIN',
   who: 'user@example.com',
   subjectType: 'NOT_APPLICABLE',
-  correlationId: 'session-123',
+  correlationId: 'request-123',
 })
 ```
 
-**Note:** The `NOT_APPLICABLE` subject type is for events that don't track actions on specific subjects (people, records, etc.). When using `NOT_APPLICABLE`, you cannot provide a `subjectId`.
+**Note:** The `NOT_APPLICABLE` subject type is for events that don't track actions on specific subjects (people, records, etc.). When using `NOT_APPLICABLE`, you should not provide a `subjectId`.
 
-#### Extending Subject Types
+#### Extending Subject Types and providing custom Page types
+
 
 By default you should use one of the existing known `SubjectType`s.
 
@@ -183,22 +248,16 @@ If these don't fit your use-case, talk to the HMPPS Audit & Reporting (HAAR) tea
 If you can't use one of the existing `SubjectType`s, it's possible to extend the standard subject types for service-specific needs:
 
 ```typescript
-// Define custom subject types
-type ExtendedSubjectType = 'COMPONENT_ID' | 'FACILITY_CODE' | SubjectType
+type MySubjectType = 'CUSTOM_TYPE' | SubjectType
 
-// Use with type parameter
-await auditService.logAuditEvent<ExtendedSubjectType>({
-  action: 'VIEW_FACILITY',
-  who: 'admin@example.com',
-  subjectType: 'FACILITY_CODE',
-  subjectId: 'HMP-LEEDS',
-})
+const service = AuditServiceFactory.createInstance<Pages, MySubjectType>(...)
 
-// Works with page views too
-await auditService.logPageView<ExtendedSubjectType>('COMPONENT_DASHBOARD', {
-  who: 'developer@example.com',
-  subjectType: 'COMPONENT_ID',
-  subjectId: 'hmpps-manage-users',
+service.logAuditEvent({
+  action: 'TEST_EVENT',
+  who: 'user1',
+  subjectType: 'CUSTOM_TYPE', // <-- allows use of custom type
+  subjectId: 'subject123',
+  correlationId: 'request-123',
 })
 ```
 
@@ -251,6 +310,7 @@ const auditService = AuditServiceFactory.createInstance(
 
 When disabled, all `sendMessage` calls return `null` immediately without sending to SQS.
 
+
 ## API Reference
 
 ### AuditServiceFactory
@@ -268,8 +328,8 @@ High-level service for logging audit events.
 
 #### Methods
 
-- `logAuditEvent<T>(event: AuditEvent | AuditEventWithSubject<T>)` - Log any audit event (with or without a subject)
-- `logPageView<T>(pageName: string, eventDetails: PageViewEventDetails<T>)` - Log a page view event
+- `logAuditEvent(event: AuditEvent)` - Log any audit event (with or without a subject)
+- `logPageView(pageName: string, eventDetails: PageViewEventDetails<T>)` - Log a page view event
 
 ### AuditClient
 
@@ -277,13 +337,12 @@ Low-level client for sending audit messages to SQS.
 
 #### Methods
 
-- `sendMessage<T>(event: AuditEvent | AuditEventWithSubject<T>, messageOptions?: MessageOptions)` - Send an audit message to SQS
+- `sendMessage(event: AuditEvent, messageOptions?: MessageOptions)` - Send an audit message to SQS
 
 ### Types
 
-- `AuditEvent` - Audit event without a specific subject (requires `subjectType: 'NOT_APPLICABLE'`, cannot have `subjectId`)
-- `AuditEventWithSubject<T>` - Audit event with a subject (requires both `subjectType` and `subjectId`)
-- `PageViewEventDetails<T>` - Page view event details (union of `AuditEvent` and `AuditEventWithSubject` without the `action` field)
+- `AuditEvent` - Audit event
+- `PageViewEventDetails<T>` - Page view event details (`AuditEvent` without the `action` field)
 - `SubjectType` - Standard subject type literals (`'PRISONER_ID' | 'CRN' | 'SEARCH_TERM' | 'USER_ID' | 'NOT_APPLICABLE'`)
 - `MessageOptions` - Error handling options (`logOnError`, `throwOnError`)
 - `AuditClientConfig` - Client configuration

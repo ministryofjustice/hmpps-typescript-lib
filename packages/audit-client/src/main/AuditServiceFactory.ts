@@ -5,6 +5,7 @@ import type { AuditClientConfig } from './types/AuditClientConfig'
 
 import AuditClient from './AuditClient'
 import AuditService from './AuditService'
+import { SubjectType } from './types/SubjectType'
 
 const REQUIRED_IN_PRODUCTION = true
 const production: boolean = process.env.NODE_ENV === 'production'
@@ -37,19 +38,31 @@ function get(name: string, fallback: string, requiredInProd: boolean = false): s
  * const auditService = AuditServiceFactory.createInstance(config, logger);
  */
 const AuditServiceFactory = {
-  configureFromEnv: (logger: Logger | Console, clientConfig: SQSClientConfig = {}): AuditService => {
+  configureFromEnv: <PAGE_NAME extends string = string, SUBJECT_TYPE extends string = SubjectType>(
+    logger: Logger | Console,
+    clientConfig: SQSClientConfig = {},
+  ): AuditService<PAGE_NAME, SUBJECT_TYPE> => {
     const enabled = get('AUDIT_ENABLED', 'true') === 'true'
     const region = get('AUDIT_SQS_REGION', 'eu-west-2', REQUIRED_IN_PRODUCTION)
     const queueUrl = get('AUDIT_SQS_QUEUE_URL', 'http://localhost:4566/000000000000/mainQueue', REQUIRED_IN_PRODUCTION)
-    const serviceName = get('AUDIT_SERVICE_NAME', 'hmpps-manage-users', REQUIRED_IN_PRODUCTION)
+    const serviceName = get('AUDIT_SERVICE_NAME', 'unknown-service', REQUIRED_IN_PRODUCTION)
 
+    if (!enabled) {
+      logger.warn(`Auditing is disabled (AUDIT_ENABLED=${process.env.AUDIT_ENABLED}), no messages will be sent.`)
+    }
     const auditClient = new AuditClient({ enabled, region, queueUrl, serviceName, clientConfig }, logger)
-    return new AuditService(auditClient)
+    return new AuditService<PAGE_NAME, SUBJECT_TYPE>(auditClient)
   },
 
-  createInstance: (config: AuditClientConfig, logger: Logger | Console): AuditService => {
+  createInstance: <PAGE_NAME extends string = string, SUBJECT_TYPE extends string = SubjectType>(
+    config: AuditClientConfig,
+    logger: Logger | Console,
+  ): AuditService<PAGE_NAME, SUBJECT_TYPE> => {
+    if (!config.enabled) {
+      logger.warn(`Auditing is disabled, no messages will be sent.`)
+    }
     const auditClient = new AuditClient(config, logger)
-    return new AuditService(auditClient)
+    return new AuditService<PAGE_NAME, SUBJECT_TYPE>(auditClient)
   },
 }
 
