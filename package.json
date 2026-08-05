@@ -25,7 +25,8 @@
     "/packages/frontend-types",
     "/packages/monitoring",
     "/packages/npm-script-allowlist",
-    "/packages/precommit-hooks"
+    "/packages/precommit-hooks",
+    "/packages/audit-client"
   ],
   "engines": {
     "node": "22 || 24 || 26"
