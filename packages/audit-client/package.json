@@ -35,10 +35,12 @@
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.1092.0",
     "@smithy/node-http-handler": "^4.4.10",
-    "https-proxy-agent": "^7.0.0"
+    "https-proxy-agent": "^7.0.0",
+    "proxy-from-env": "^2.1.0"
   },
   "devDependencies": {
     "@types/bunyan": "^1.8.11",
+    "@types/proxy-from-env": "^1.0.4",
     "aws-sdk-client-mock": "^4.1.0"
   }
 }

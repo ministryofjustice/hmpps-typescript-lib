@@ -79,7 +79,7 @@ export default class HmppsAuditClient {
     this.serviceName = config.serviceName
     this.sqsClient = new SQSClient({
       region: config.region,
-      ...createProxyRequestHandler(),
+      ...createProxyRequestHandler(config.queueUrl),
       ...config.clientConfig,
     })
   }
