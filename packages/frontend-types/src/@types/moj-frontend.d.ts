@@ -1,5 +1,5 @@
 /**
- * MoJ Frontend types based on v9.0.0
+ * MoJ Frontend types based on v10.0.1
  * https://github.com/ministryofjustice/moj-frontend
  *
  * NB: this was recreated manually from javascript sources and may be incomplete!
@@ -11,7 +11,7 @@ declare module '@ministryofjustice/frontend' {
 
   export function initAll(scopeOrConfig?: CreateAllOptions): void
 
-  export class AddAnother extends Component {}
+  export class AddAnother extends ConfigurableComponent {}
   export class Alert extends ConfigurableComponent {}
   export class ButtonMenu extends ConfigurableComponent {}
   export class DatePicker extends ConfigurableComponent {}

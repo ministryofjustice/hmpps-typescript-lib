@@ -1,5 +1,9 @@
 # Change log
 
+## 1.0.2
+
+Populate operation name (HTTP method + route) in Bunyan logs so this is available in AppTraces table.
+
 ## 1.0.1
 
 Enables Bunyan log sending so application logs publish to the Azure Application Insights AppTraces table.

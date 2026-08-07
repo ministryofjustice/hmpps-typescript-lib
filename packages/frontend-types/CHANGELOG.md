@@ -1,5 +1,9 @@
 # Change log
 
+## 2.0.1
+
+Updated peer dependency requirement to permit use with MoJ frontend v10.
+
 ## 2.0.0
 
 Drops support for node engine 20 (no longer maintained) and adds 26 (will be LTS later this year).

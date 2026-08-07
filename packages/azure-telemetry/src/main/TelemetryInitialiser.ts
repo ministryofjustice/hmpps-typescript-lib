@@ -14,10 +14,11 @@ import { AzureMonitorLogExporter, AzureMonitorTraceExporter } from '@azure/monit
 import type { TelemetryConfig } from './types/TelemetryConfig'
 import type { SpanFilterFn, SpanModifierFn } from './types/SpanProcessor'
 import { FilteringSpanProcessor } from './FilteringSpanProcessor'
+import { populateOperationNameLogHook } from './populateOperationNameLogHook'
 import { setConfig } from './config'
 
 export const defaultInstrumentations: Instrumentation[] = [
-  new BunyanInstrumentation({ disableLogSending: false }),
+  new BunyanInstrumentation({ disableLogSending: false, logHook: populateOperationNameLogHook }),
   new HttpInstrumentation(),
   new ExpressInstrumentation({
     ignoreLayersType: [ExpressLayerType.MIDDLEWARE, ExpressLayerType.ROUTER, ExpressLayerType.REQUEST_HANDLER],
