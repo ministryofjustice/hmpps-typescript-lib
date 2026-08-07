@@ -79,4 +79,4 @@ export type { MessageOptions } from './types/MessageOptions'
 export type { AuditClientConfig } from './types/AuditClientConfig'
 export type { PageViewEventDetails } from './types/PageViewEventDetails'
 
-export { isProxyEnabled, getProxyUrl, createProxyRequestHandler } from './helpers/proxySupport'
+export { isProxyEnabled, createProxyRequestHandler } from './helpers/proxySupport'

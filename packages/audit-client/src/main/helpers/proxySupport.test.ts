@@ -1,6 +1,6 @@
 import { NodeHttpHandler } from '@smithy/node-http-handler'
 
-import { createProxyRequestHandler, getProxyUrl, isProxyEnabled } from './proxySupport'
+import { createProxyRequestHandler, isProxyEnabled } from './proxySupport'
 
 describe('isProxyEnabled', () => {
   const originalEnv = process.env
@@ -43,48 +43,10 @@ describe('isProxyEnabled', () => {
   })
 })
 
-describe('getProxyUrl', () => {
-  const originalEnv = process.env
-
-  beforeEach(() => {
-    process.env = { ...originalEnv }
-    delete process.env.HTTPS_PROXY
-    delete process.env.https_proxy
-    delete process.env.HTTP_PROXY
-    delete process.env.http_proxy
-  })
-
-  afterEach(() => {
-    process.env = originalEnv
-  })
-
-  it('returns undefined when no proxy environment variable is set', () => {
-    expect(getProxyUrl()).toBeUndefined()
-  })
-
-  it('returns HTTPS_PROXY when set', () => {
-    process.env.HTTPS_PROXY = 'http://uppercase-https-proxy:3128'
-    expect(getProxyUrl()).toEqual('http://uppercase-https-proxy:3128')
-  })
-
-  it('falls back to lowercase HTTPS proxy', () => {
-    process.env.https_proxy = 'http://lowercase-https-proxy:3128'
-    expect(getProxyUrl()).toEqual('http://lowercase-https-proxy:3128')
-  })
-
-  it('falls back to HTTP proxy values when HTTPS proxy vars are absent', () => {
-    process.env.HTTP_PROXY = 'http://uppercase-http-proxy:3128'
-    expect(getProxyUrl()).toEqual('http://uppercase-http-proxy:3128')
-
-    delete process.env.HTTP_PROXY
-    process.env.http_proxy = 'http://lowercase-http-proxy:3128'
-    expect(getProxyUrl()).toEqual('http://lowercase-http-proxy:3128')
-  })
-})
-
 describe('createProxyRequestHandler', () => {
   const originalEnv = process.env
   const originalExecArgv = process.execArgv
+  const targetUrl = 'https://sqs.eu-west-2.amazonaws.com'
 
   beforeEach(() => {
     process.env = { ...originalEnv }
@@ -94,6 +56,8 @@ describe('createProxyRequestHandler', () => {
     delete process.env.https_proxy
     delete process.env.HTTP_PROXY
     delete process.env.http_proxy
+    delete process.env.NO_PROXY
+    delete process.env.no_proxy
     Object.defineProperty(process, 'execArgv', { value: [], configurable: true })
   })
 
@@ -103,29 +67,59 @@ describe('createProxyRequestHandler', () => {
   })
 
   it('returns an empty object when proxy is disabled', () => {
-    expect(createProxyRequestHandler()).toEqual({})
+    expect(createProxyRequestHandler(targetUrl)).toEqual({})
   })
 
   it('returns an empty object when proxy is enabled but no proxy URL is configured', () => {
     process.env.NODE_USE_ENV_PROXY = 'true'
-    expect(createProxyRequestHandler()).toEqual({})
+    expect(createProxyRequestHandler(targetUrl)).toEqual({})
   })
 
   it('returns a NodeHttpHandler when proxy is enabled and proxy URL is configured', () => {
     process.env.NODE_USE_ENV_PROXY = 'true'
     process.env.HTTPS_PROXY = 'http://proxy.internal:3128'
 
-    const result = createProxyRequestHandler()
+    const result = createProxyRequestHandler(targetUrl)
 
     expect(result.requestHandler).toBeInstanceOf(NodeHttpHandler)
   })
 
   it('returns a NodeHttpHandler when enabled via --use-env-proxy and proxy URL is configured', () => {
     process.env.NODE_OPTIONS = '--use-env-proxy'
-    process.env.HTTP_PROXY = 'http://proxy.internal:3128'
+    process.env.HTTPS_PROXY = 'http://proxy.internal:3128'
 
-    const result = createProxyRequestHandler()
+    const result = createProxyRequestHandler(targetUrl)
 
     expect(result.requestHandler).toBeInstanceOf(NodeHttpHandler)
+  })
+
+  it('does not proxy a target URL matched by NO_PROXY', () => {
+    process.env.NODE_USE_ENV_PROXY = 'true'
+    process.env.HTTPS_PROXY = 'http://proxy.internal:3128'
+    process.env.NO_PROXY = '.amazonaws.com'
+
+    const result = createProxyRequestHandler(targetUrl)
+
+    expect(result).toEqual({})
+  })
+
+  it('still proxies a target URL not matched by NO_PROXY', () => {
+    process.env.NODE_USE_ENV_PROXY = 'true'
+    process.env.HTTPS_PROXY = 'http://proxy.internal:3128'
+    process.env.NO_PROXY = 'other.example.com'
+
+    const result = createProxyRequestHandler(targetUrl)
+
+    expect(result.requestHandler).toBeInstanceOf(NodeHttpHandler)
+  })
+
+  it('does not proxy anything when NO_PROXY is "*"', () => {
+    process.env.NODE_USE_ENV_PROXY = 'true'
+    process.env.HTTPS_PROXY = 'http://proxy.internal:3128'
+    process.env.NO_PROXY = '*'
+
+    const result = createProxyRequestHandler(targetUrl)
+
+    expect(result).toEqual({})
   })
 })
