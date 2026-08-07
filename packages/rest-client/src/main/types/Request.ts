@@ -40,8 +40,7 @@ type MultipartBody =
     }
 
 export type RequestWithBody<Response, ErrorData> = Request<Response, ErrorData> & { retry?: boolean } & (
-    | JsonBody
-    | MultipartBody
+    JsonBody | MultipartBody
   )
 
 export interface StreamRequest<ErrorData> {
