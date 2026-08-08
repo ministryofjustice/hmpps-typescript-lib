@@ -31,7 +31,7 @@
     "check-for-updates": "npx npm-check-updates -u"
   },
   "devDependencies": {
-    "@ministryofjustice/frontend": "10.0.0",
+    "@ministryofjustice/frontend": "10.0.1",
     "accessible-autocomplete": "3.0.1",
     "govuk-frontend": "6.4.0"
   },
