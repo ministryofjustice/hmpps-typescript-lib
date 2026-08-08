@@ -104,7 +104,6 @@ const auditService = AuditServiceFactory.configureFromEnv(logger)
 ##### Limitations
 
 - **Only HTTPS traffic is proxied.** The configured proxy agent is only attached as the `httpsAgent` on the SQS request handler, so it has no effect on plain `http://` queue URLs, such as the default `AUDIT_SQS_QUEUE_URL` used for local development against [LocalStack](https://www.localstack.cloud/) (`http://localhost:4566/000000000000/mainQueue`). This is generally the desired behaviour, since local/LocalStack traffic shouldn't be routed through a corporate proxy anyway.
-- **`NO_PROXY`/`no_proxy` is not supported.** Unlike `@ministryofjustice/hmpps-rest-client`'s proxy support, this client has no mechanism for excluding specific hosts from the proxy. If proxy support is enabled and a proxy URL is configured, all HTTPS SQS traffic will be sent through that proxy.
 - You can always override this behaviour entirely by passing your own `requestHandler` via the `clientConfig` option on `AuditServiceFactory.configureFromEnv`/`createInstance` or `AuditClient`, which takes precedence over the automatic proxy configuration.
 
 #### Advanced: Direct Client Usage

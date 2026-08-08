@@ -1,9 +1,12 @@
 # Change log
 
+## 2.0.0-beta.2
+
+NO_PROXY was being ignored, this has been addressed so it is now also respected and enforced
+
 ## 2.0.0
 
 Initial release of newly migrated hmpps-audit-client over to the typescript lib.
-
 
 ### Changes
 
