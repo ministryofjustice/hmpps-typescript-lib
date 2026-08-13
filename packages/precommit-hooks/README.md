@@ -46,11 +46,11 @@ HMPPS_HOOKS_VERSION: 1
 
 repos:
   - repo: https://github.com/ministryofjustice/devsecops-hooks
-    rev: v1.4.1
+    rev: v2.0.2
     hooks:
       - id: baseline
         env:
-          GITLEAKS_CONFIGURATION_FILE: ./.gitleaks/gitleaks.toml
+          GITLEAKS_CONFIGURATION_FILE: ./.gitleaks/config.toml
           GITLEAKS_IGNORE_FILE: ./.gitleaks/.gitleaksignore
 
   - repo: local
@@ -58,19 +58,29 @@ repos:
       - id: lint
         name: linting code
         language: system
-        entry: npm run lint
+        entry: ./node_modules/.bin/lint-staged
+        files: (\.(ts|js|css)$|^package-lock\.json$)
+        require_serial: true
+        pass_filenames: false
       - id: typecheck
         name: verify types
         language: system
         entry: npm run typecheck
+        files: (\.(ts)$|^package-lock\.json$)
+        require_serial: true
+        pass_filenames: false
       - id: test
         name: running tests
         language: system
         entry: npm run test
+        files: (\.(ts)$|^package-lock\.json$)
+        require_serial: true
+        pass_filenames: false
   - repo: builtin
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
+        exclude: ^.*snap$
       - id: check-json
       - id: check-yaml
       - id: check-merge-conflict
