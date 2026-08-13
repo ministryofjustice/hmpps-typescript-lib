@@ -1,5 +1,9 @@
 # Change log
 
+## 3.0.2
+
+Bump version of `devsecops-hooks` to v2.0.2
+
 ## 3.0.1
 
 Excludes snapshot test files from trailing-whitespace hook
