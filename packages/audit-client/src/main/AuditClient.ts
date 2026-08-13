@@ -153,7 +153,7 @@ export default class HmppsAuditClient {
         new SendMessageCommand({ MessageBody: JSON.stringify(sqsMessage), QueueUrl: this.queueUrl }),
       )
 
-      this.logger.info(`HMPPS Audit SQS message sent (${messageResponse.MessageId})`)
+      this.logger.debug(`HMPPS Audit SQS message sent (${messageResponse.MessageId})`)
 
       return messageResponse
     } catch (error) {
