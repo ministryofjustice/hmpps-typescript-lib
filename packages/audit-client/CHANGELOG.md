@@ -1,5 +1,17 @@
 # Change log
 
+## 2.0.0-beta.4
+
+Couple of API changes:
+* Making subject type ignorable to keep backwards compatibility. (This is a required field but not intending to get clients to update this now.)
+* Making details a record of string to unknown
+
+Also 
+
+## 2.0.0-beta.3
+
+SQS Audit logging was set to INFO resulting in verbose and noisy logging in prod environments with high volume usage of audited journeys. Reduced to DEBUG. 
+
 ## 2.0.0-beta.2
 
 NO_PROXY was being ignored, this has been addressed so it is now also respected and enforced

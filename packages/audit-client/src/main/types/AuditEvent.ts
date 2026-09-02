@@ -57,7 +57,7 @@ export interface AuditEvent<T extends string = SubjectType> {
    * Your service can define what it sends here to provide extra context.
    * If it’s important that you do have a data history for your application then that should be a feature of your service in addition to HMPPS Audit.
    */
-  details?: object
+  details?: Record<string, unknown>
 
   /**
    * Type of the subject (e.g., 'CRN').
@@ -65,7 +65,7 @@ export interface AuditEvent<T extends string = SubjectType> {
    * If, for some reason, you do not have a subjectId, please use the subjectType of NOT_APPLICABLE.
    * Also, please get in contact with us to discuss this use case!
    */
-  subjectType: T
+  subjectType?: T
 
   /**
    * Identifier of the subject of the action.
