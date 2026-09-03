@@ -35,7 +35,7 @@ import { createProxyRequestHandler } from './helpers/proxySupport'
  *
  * // Send an event without a subject
  * await auditClient.sendMessage({
- *   what 'LOGIN',
+ *   what: 'LOGIN',
  *   who: 'john.doe',
  *   subjectType: 'NOT_APPLICABLE',
  *   correlationId: 'request-123',
@@ -113,7 +113,7 @@ export default class AuditClient {
    * @example Send an event without a subject
    * ```typescript
    * await client.sendMessage({
-   *   what 'LOGIN',
+   *   what: 'LOGIN',
    *   who: 'user@example.com',
    *   subjectType: 'NOT_APPLICABLE',
    *   correlationId: 'request-123',
@@ -124,7 +124,7 @@ export default class AuditClient {
    * ```typescript
    * await client.sendMessage(
    *   {
-   *     what 'BACKGROUND_JOB',
+   *     what: 'BACKGROUND_JOB',
    *     who: 'system',
    *     subjectType: 'NOT_APPLICABLE',
    *   },
