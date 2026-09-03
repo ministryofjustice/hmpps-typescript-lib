@@ -16,7 +16,7 @@ import { SubjectType } from './types/SubjectType'
  *
  * // Log an audit event with a subject
  * await auditService.logAuditEvent({
-  *   what: 'CREATE_USER',
+ *   what: 'CREATE_USER',
  *   who: 'admin@example.com',
  *   subjectType: 'USER_ID',
  *   subjectId: 'user-123',
@@ -26,7 +26,7 @@ import { SubjectType } from './types/SubjectType'
  *
  * // Log an audit event without a subject
  * await auditService.logAuditEvent({
- *   what 'LOGIN',
+ *   what: 'LOGIN',
  *   who: 'user@example.com',
  *   subjectType: 'NOT_APPLICABLE',
  *   correlationId: 'request-123',
@@ -74,7 +74,7 @@ export default class AuditService<PAGE_NAME extends string = string, SUBJECT_TYP
    * @example Events without subjects
    * ```typescript
    * await auditService.logAuditEvent({
-   *   what 'LOGIN',
+   *   what: 'LOGIN',
    *   who: 'user@example.com',
    *   subjectType: 'NOT_APPLICABLE',
    *   correlationId: 'session-123',

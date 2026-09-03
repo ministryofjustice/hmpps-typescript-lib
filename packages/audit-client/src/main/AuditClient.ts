@@ -103,7 +103,7 @@ export default class AuditClient {
    * @example Send an event with a subject
    * ```typescript
    * await client.sendMessage({
-    *   what: 'VIEW_PRISONER',
+   *   what: 'VIEW_PRISONER',
    *   who: 'user@example.com',
    *   subjectType: 'PRISONER_ID',
    *   subjectId: 'A1234BC',
