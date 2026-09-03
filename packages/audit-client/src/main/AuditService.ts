@@ -16,7 +16,7 @@ import { SubjectType } from './types/SubjectType'
  *
  * // Log an audit event with a subject
  * await auditService.logAuditEvent({
- *   what 'CREATE_USER',
+  *   what: 'CREATE_USER',
  *   who: 'admin@example.com',
  *   subjectType: 'USER_ID',
  *   subjectId: 'user-123',
