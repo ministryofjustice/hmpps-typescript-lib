@@ -1,4 +1,4 @@
-import HmppsAuditClient from './AuditClient'
+import AuditClient from './AuditClient'
 import { AuditEvent } from './types/AuditEvent'
 import { MessageOptions } from './types/MessageOptions'
 import { PageViewEventDetails } from './types/PageViewEventDetails'
@@ -16,7 +16,7 @@ import { SubjectType } from './types/SubjectType'
  *
  * // Log an audit event with a subject
  * await auditService.logAuditEvent({
- *   action: 'CREATE_USER',
+ *   what: 'CREATE_USER',
  *   who: 'admin@example.com',
  *   subjectType: 'USER_ID',
  *   subjectId: 'user-123',
@@ -26,7 +26,7 @@ import { SubjectType } from './types/SubjectType'
  *
  * // Log an audit event without a subject
  * await auditService.logAuditEvent({
- *   action: 'LOGIN',
+ *   what: 'LOGIN',
  *   who: 'user@example.com',
  *   subjectType: 'NOT_APPLICABLE',
  *   correlationId: 'request-123',
@@ -45,9 +45,9 @@ export default class AuditService<PAGE_NAME extends string = string, SUBJECT_TYP
   /**
    * Creates a new AuditService instance.
    *
-   * @param hmppsAuditClient - The underlying audit client for sending messages to SQS
+   * @param auditClient - The underlying audit client for sending messages to SQS
    */
-  constructor(private readonly hmppsAuditClient: HmppsAuditClient) {}
+  constructor(private readonly auditClient: AuditClient) {}
 
   /**
    * Logs a generic audit event.
@@ -62,7 +62,7 @@ export default class AuditService<PAGE_NAME extends string = string, SUBJECT_TYP
    * @example Events with subjects
    * ```typescript
    * await auditService.logAuditEvent({
-   *   action: 'DELETE_RECORD',
+   *   what: 'DELETE_RECORD',
    *   who: 'admin@example.com',
    *   subjectType: 'PRISONER_ID',
    *   subjectId: 'A1234BC',
@@ -74,7 +74,7 @@ export default class AuditService<PAGE_NAME extends string = string, SUBJECT_TYP
    * @example Events without subjects
    * ```typescript
    * await auditService.logAuditEvent({
-   *   action: 'LOGIN',
+   *   what: 'LOGIN',
    *   who: 'user@example.com',
    *   subjectType: 'NOT_APPLICABLE',
    *   correlationId: 'session-123',
@@ -84,7 +84,7 @@ export default class AuditService<PAGE_NAME extends string = string, SUBJECT_TYP
    * ```
    */
   async logAuditEvent(event: AuditEvent<SUBJECT_TYPE>, messageOptions: MessageOptions = {}) {
-    await this.hmppsAuditClient.sendMessage(event, messageOptions)
+    await this.auditClient.sendMessage(event, messageOptions)
   }
 
   /**
@@ -109,9 +109,9 @@ export default class AuditService<PAGE_NAME extends string = string, SUBJECT_TYP
    * ```
    */
   async logPageView(pageName: PAGE_NAME, eventDetails: PageViewEventDetails<SUBJECT_TYPE>) {
-    await this.hmppsAuditClient.sendMessage({
+    await this.auditClient.sendMessage({
       ...eventDetails,
-      action: `PAGE_VIEW_${pageName}`,
+      what: `PAGE_VIEW_${pageName}`,
     })
   }
 }

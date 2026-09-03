@@ -14,7 +14,7 @@
  *
  * // Log an audit event with a subject
  * await auditService.logAuditEvent({
- *   action: 'VIEW_PRISONER',
+ *   what: 'VIEW_PRISONER',
  *   who: 'user@example.com',
  *   subjectType: 'PRISONER_ID',
  *   subjectId: 'A1234BC',
@@ -22,7 +22,7 @@
  *
  * // Log an event without a subject
  * await auditService.logAuditEvent({
- *   action: 'LOGIN',
+ *   what: 'LOGIN',
  *   who: 'user@example.com',
  *   subjectType: 'NOT_APPLICABLE',
  *   correlationId: 'request-123',
@@ -61,7 +61,7 @@
  *
  * // Use with type parameter
  * await auditService.logAuditEvent<MySubjectTypes>({
- *   action: 'VIEW_FACILITY',
+ *   what: 'VIEW_FACILITY',
  *   who: 'admin@example.com',
  *   subjectType: 'FACILITY_ID',
  *   subjectId: 'HMP-123',
