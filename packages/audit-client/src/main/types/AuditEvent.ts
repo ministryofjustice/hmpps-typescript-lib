@@ -36,7 +36,7 @@ export interface AuditEvent<T extends string = SubjectType> {
    * This should be capitalised with underscore separators e.g. VIEW_DPS_USER.
    * Your service can use its own defined values here.
    * Use whatever makes sense within the context of your application, but ideally this will start with SEARCH_, VIEW_, CREATE_, EDIT_, DELETE_,PRINT_,DOWNLOAD_.
-   * NB this was previously known as ‘what’
+   * NB this was previously known as ‘action’
    */
   what: string
 
