@@ -15,7 +15,7 @@ import { createProxyRequestHandler } from './helpers/proxySupport'
  *
  * @example
  * ```typescript
- * const auditClient = new HmppsAuditClient(
+ * const auditClient = new AuditClient(
  *   {
  *     queueUrl: 'https://sqs.eu-west-2.amazonaws.com/123456789/audit-queue',
  *     region: 'eu-west-2',
@@ -27,7 +27,7 @@ import { createProxyRequestHandler } from './helpers/proxySupport'
  *
  * // Send an event with a subject
  * await auditClient.sendMessage({
- *   action: 'VIEW_USER',
+ *   what 'VIEW_USER',
  *   who: 'john.doe',
  *   subjectType: 'CRN',
  *   subjectId: 'A123456',
@@ -35,14 +35,14 @@ import { createProxyRequestHandler } from './helpers/proxySupport'
  *
  * // Send an event without a subject
  * await auditClient.sendMessage({
- *   action: 'LOGIN',
+ *   what 'LOGIN',
  *   who: 'john.doe',
  *   subjectType: 'NOT_APPLICABLE',
  *   correlationId: 'request-123',
  * });
  * ```
  */
-export default class HmppsAuditClient {
+export default class AuditClient {
   private sqsClient: SQSClient
 
   private queueUrl: string
@@ -59,7 +59,7 @@ export default class HmppsAuditClient {
    *
    * @example
    * ```typescript
-   * const client = new HmppsAuditClient(
+   * const client = new AuditClient(
    *   {
    *     queueUrl: process.env.AUDIT_SQS_QUEUE_URL,
    *     region: process.env.AUDIT_SQS_REGION,
@@ -103,7 +103,7 @@ export default class HmppsAuditClient {
    * @example Send an event with a subject
    * ```typescript
    * await client.sendMessage({
-   *   action: 'VIEW_PRISONER',
+   *   what 'VIEW_PRISONER',
    *   who: 'user@example.com',
    *   subjectType: 'PRISONER_ID',
    *   subjectId: 'A1234BC',
@@ -113,7 +113,7 @@ export default class HmppsAuditClient {
    * @example Send an event without a subject
    * ```typescript
    * await client.sendMessage({
-   *   action: 'LOGIN',
+   *   what 'LOGIN',
    *   who: 'user@example.com',
    *   subjectType: 'NOT_APPLICABLE',
    *   correlationId: 'request-123',
@@ -124,7 +124,7 @@ export default class HmppsAuditClient {
    * ```typescript
    * await client.sendMessage(
    *   {
-   *     action: 'BACKGROUND_JOB',
+   *     what 'BACKGROUND_JOB',
    *     who: 'system',
    *     subjectType: 'NOT_APPLICABLE',
    *   },
@@ -138,7 +138,7 @@ export default class HmppsAuditClient {
     const { logOnError = false, throwOnError = true } = messageOptions
 
     const sqsMessage: SqsMessage = {
-      what: event.action,
+      what: event.what,
       who: event.who,
       subjectId: event.subjectId,
       subjectType: event.subjectType,

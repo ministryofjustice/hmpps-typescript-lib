@@ -5,7 +5,7 @@ import AuditClient from './AuditClient'
 import type { SqsMessage } from './types/SqsMessage'
 import type { AuditClientConfig } from './types/AuditClientConfig'
 
-describe('hmppsAuditClient', () => {
+describe('AuditClient', () => {
   const sqsMock = mockClient(SQSClient)
   let auditClient: AuditClient
 
@@ -33,7 +33,7 @@ describe('hmppsAuditClient', () => {
       )
 
       const actualResponse = await auditClient.sendMessage({
-        action: 'EXAMPLE_EVENT',
+        what: 'EXAMPLE_EVENT',
         who: 'user1',
         subjectId: 'subject123',
         subjectType: 'CRN',
@@ -72,7 +72,7 @@ describe('hmppsAuditClient', () => {
       auditClient = new AuditClient({ ...auditClientConfig, enabled: false }, console)
 
       await auditClient.sendMessage({
-        action: 'EXAMPLE_EVENT',
+        what: 'EXAMPLE_EVENT',
         who: 'user1',
         subjectId: 'subject123',
         subjectType: 'CRN',
@@ -88,7 +88,7 @@ describe('hmppsAuditClient', () => {
       await expect(() =>
         auditClient.sendMessage(
           {
-            action: 'EXAMPLE_EVENT',
+            what: 'EXAMPLE_EVENT',
             who: 'user1',
             subjectId: 'subject123',
             subjectType: 'CRN',
@@ -106,7 +106,7 @@ describe('hmppsAuditClient', () => {
 
       await expect(() =>
         auditClient.sendMessage({
-          action: 'EXAMPLE_EVENT',
+          what: 'EXAMPLE_EVENT',
           who: 'user1',
           subjectType: 'NOT_APPLICABLE',
         }),

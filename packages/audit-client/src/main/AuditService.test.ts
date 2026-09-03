@@ -21,7 +21,7 @@ describe('Audit service', () => {
   describe('logAuditEvent', () => {
     it('sends audit message using audit client', async () => {
       await auditService.logAuditEvent({
-        action: 'AUDIT_EVENT',
+        what: 'AUDIT_EVENT',
         who: 'user1',
         subjectId: 'subject123',
         subjectType: 'CRN',
@@ -31,7 +31,7 @@ describe('Audit service', () => {
 
       expect(auditClient.sendMessage).toHaveBeenCalledWith(
         {
-          action: 'AUDIT_EVENT',
+          what: 'AUDIT_EVENT',
           who: 'user1',
           subjectId: 'subject123',
           subjectType: 'CRN',
@@ -54,7 +54,7 @@ describe('Audit service', () => {
       })
 
       expect(auditClient.sendMessage).toHaveBeenCalledWith({
-        action: 'PAGE_VIEW_EXAMPLE_PAGE',
+        what: 'PAGE_VIEW_EXAMPLE_PAGE',
         who: 'user1',
         subjectId: 'subject123',
         subjectType: 'CRN',
@@ -77,7 +77,7 @@ describe('Audit service', () => {
       })
 
       expect(auditClient.sendMessage).toHaveBeenCalledWith({
-        action: 'PAGE_VIEW_EXAMPLE_PAGE',
+        what: 'PAGE_VIEW_EXAMPLE_PAGE',
         who: 'user1',
         subjectId: 'subject123',
         subjectType: 'LEVEL',
@@ -100,7 +100,7 @@ describe('Audit service', () => {
       })
 
       expect(auditClient.sendMessage).toHaveBeenCalledWith({
-        action: 'PAGE_VIEW_PAGE_1',
+        what: 'PAGE_VIEW_PAGE_1',
         who: 'user1',
         subjectId: 'subject123',
         subjectType: 'LEVEL',
@@ -126,7 +126,7 @@ describe('Audit service', () => {
       })
 
       expect(auditClient.sendMessage).toHaveBeenCalledWith({
-        action: 'PAGE_VIEW_PAGE_1',
+        what: 'PAGE_VIEW_PAGE_1',
         who: 'user1',
         subjectId: 'subject123',
         subjectType: 'LEVEL',
@@ -145,7 +145,7 @@ describe('Audit service', () => {
       })
 
       expect(auditClient.sendMessage).toHaveBeenCalledWith({
-        action: 'PAGE_VIEW_EXAMPLE_PAGE',
+        what: 'PAGE_VIEW_EXAMPLE_PAGE',
         who: 'user1',
         subjectId: undefined,
         subjectType: 'NOT_APPLICABLE',

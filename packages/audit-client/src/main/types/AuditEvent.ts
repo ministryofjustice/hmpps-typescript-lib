@@ -11,7 +11,7 @@ import { SubjectType } from './SubjectType'
  * @example Basic usage with standard subject types
  * ```typescript
  * const viewEvent: AuditEvent = {
- *   action: 'VIEW_PRISONER',
+ *   what: 'VIEW_PRISONER',
  *   who: 'officer@example.com',
  *   subjectType: 'PRISONER_ID',
  *   subjectId: 'A1234AA',
@@ -23,7 +23,7 @@ import { SubjectType } from './SubjectType'
  * ```typescript
  * type CustomSubjectType = 'COMPONENT_ID' | SubjectType;
  * const customEvent: AuditEvent<CustomSubjectType> = {
- *   action: 'VIEW_COMPONENT',
+ *   what: 'VIEW_COMPONENT',
  *   who: 'developer@example.com',
  *   subjectType: 'COMPONENT_ID',
  *   subjectId: 'hmpps-manage-users',
@@ -38,7 +38,7 @@ export interface AuditEvent<T extends string = SubjectType> {
    * Use whatever makes sense within the context of your application, but ideally this will start with SEARCH_, VIEW_, CREATE_, EDIT_, DELETE_,PRINT_,DOWNLOAD_.
    * NB this was previously known as ‘what’
    */
-  action: string
+  what: string
 
   /**
    * Identifier of the user or entity performing the action.

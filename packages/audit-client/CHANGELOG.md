@@ -1,12 +1,16 @@
 # Change log
 
+## 2.0.0-beta.5
+
+API change:
+* Moving from `action` to `what` to make this more consistent with the spec. 
+* Renaming references to HmppsAuditClient to AuditClient to be consistent with exported type
+
 ## 2.0.0-beta.4
 
 Couple of API changes:
 * Making subject type ignorable to keep backwards compatibility. (This is a required field but not intending to get clients to update this now.)
 * Making details a record of string to unknown
-
-Also 
 
 ## 2.0.0-beta.3
 

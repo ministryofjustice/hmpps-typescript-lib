@@ -133,7 +133,7 @@ Most audit events track actions on specific subjects (prisoners, cases, users, e
 ```typescript
 // Log an audit event with a subject
 await auditService.logAuditEvent({
-  action: 'VIEW_PRISONER',
+  what: 'VIEW_PRISONER',
   who: 'user@example.com',
   subjectType: 'PRISONER_ID',
   subjectId: 'A1234BC',
@@ -143,7 +143,7 @@ await auditService.logAuditEvent({
 
 // Search event
 await auditService.logAuditEvent({
-  action: 'SEARCH_PRISONER',
+  what: 'SEARCH_PRISONER',
   who: 'officer@example.com',
   subjectType: 'SEARCH_TERM',
   subjectId: 'john smith',
@@ -215,7 +215,7 @@ When you have a subject, provide both `subjectType` and `subjectId`:
 
 ```typescript
 await auditService.logAuditEvent({
-  action: 'VIEW_CASE',
+  what: 'VIEW_CASE',
   who: 'probation.officer@example.com',
   subjectType: 'CRN',
   subjectId: 'X123456',
@@ -228,7 +228,7 @@ For events without a specific subject (e.g., login, logout, system events), use 
 
 ```typescript
 await auditService.logAuditEvent({
-  action: 'LOGIN',
+  what: 'LOGIN',
   who: 'user@example.com',
   subjectType: 'NOT_APPLICABLE',
   correlationId: 'request-123',
@@ -252,7 +252,7 @@ type MySubjectType = 'CUSTOM_TYPE' | SubjectType
 const service = AuditServiceFactory.createInstance<Pages, MySubjectType>(...)
 
 service.logAuditEvent({
-  action: 'TEST_EVENT',
+  what: 'TEST_EVENT',
   who: 'user1',
   subjectType: 'CUSTOM_TYPE', // <-- allows use of custom type
   subjectId: 'subject123',
@@ -265,7 +265,7 @@ service.logAuditEvent({
 ```typescript
 // Default behavior: throws on error, no error logging
 await auditService.logAuditEvent({
-  action: 'CREATE_USER',
+  what: 'CREATE_USER',
   who: 'admin@example.com',
   subjectType: 'USER_ID',
   subjectId: 'user-123',
@@ -274,7 +274,7 @@ await auditService.logAuditEvent({
 // Custom error handling with AuditClient directly
 await auditClient.sendMessage(
   {
-    action: 'BACKGROUND_JOB',
+    what: 'BACKGROUND_JOB',
     who: 'system',
     subjectType: 'NOT_APPLICABLE',
   },
