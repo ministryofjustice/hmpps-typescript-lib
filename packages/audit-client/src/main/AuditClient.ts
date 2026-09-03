@@ -27,7 +27,7 @@ import { createProxyRequestHandler } from './helpers/proxySupport'
  *
  * // Send an event with a subject
  * await auditClient.sendMessage({
- *   what 'VIEW_USER',
+ *   what: 'VIEW_USER',
  *   who: 'john.doe',
  *   subjectType: 'CRN',
  *   subjectId: 'A123456',
