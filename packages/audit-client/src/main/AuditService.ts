@@ -62,7 +62,7 @@ export default class AuditService<PAGE_NAME extends string = string, SUBJECT_TYP
    * @example Events with subjects
    * ```typescript
    * await auditService.logAuditEvent({
-   *   what 'DELETE_RECORD',
+   *   what: 'DELETE_RECORD',
    *   who: 'admin@example.com',
    *   subjectType: 'PRISONER_ID',
    *   subjectId: 'A1234BC',
