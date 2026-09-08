@@ -1,5 +1,17 @@
 # Change log
 
+## 2.0.0
+
+First major release of the 2.0.0 release.
+
+View previous changelogs for details but main breaking changes are:
+
+* In audit payloads the `action` property has been renamed to `what` to more closely match the audit spec
+* Construction of an audit service has changed - there are now options for creating directly from env vars and an option to explicitly configure.  
+* It no longer logs errors by default - instead it will throw. There are options to opt back into the existing behaviour. 
+
+Further details are in the project README.
+
 ## 2.0.0-beta.5
 
 API change:
@@ -20,7 +32,7 @@ SQS Audit logging was set to INFO resulting in verbose and noisy logging in prod
 
 NO_PROXY was being ignored, this has been addressed so it is now also respected and enforced
 
-## 2.0.0
+## 2.0.0-beta.1
 
 Initial release of newly migrated hmpps-audit-client over to the typescript lib.
 

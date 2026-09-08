@@ -237,6 +237,8 @@ await auditService.logAuditEvent({
 
 **Note:** The `NOT_APPLICABLE` subject type is for events that don't track actions on specific subjects (people, records, etc.). When using `NOT_APPLICABLE`, you should not provide a `subjectId`.
 
+**Note:** `subjectType` is technically optional on `AuditEvent` for backwards compatibility with services that haven't migrated yet, but it should be treated as required going forward — always provide it (using `NOT_APPLICABLE` where there's no specific subject). This constraint maybe enforced using compile time safety in future releases.
+
 #### Extending Subject Types and providing custom Page types
 
 
