@@ -1,4 +1,5 @@
 import { telemetry as baseTelemetry } from './client'
+import { addUserMetadataToTelemetry } from './middleware/addUserMetadataToTelemetry'
 import { filterSpanWhereClient } from './processors/filterSpanWhereClient'
 import { filterSpanWherePath } from './processors/filterSpanWherePath'
 import { modifySpanNameWithHttpRoute } from './processors/modifySpanNameWithHttpRoute'
@@ -57,4 +58,8 @@ export const telemetry = {
     enrichSpanNameWithHttpRoute: modifySpanNameWithHttpRoute,
     enrichSpanWithObfuscation: modifySpanWithObfuscation,
   },
+}
+
+export const telemetryMiddleware = {
+  addUserMetadataToTelemetry,
 }
