@@ -59,8 +59,10 @@
  * // Define custom subject types
  * type MySubjectTypes = 'FACILITY_ID' | SubjectType;
  *
- * // Use with type parameter
- * await auditService.logAuditEvent<MySubjectTypes>({
+ * // Create the service with the extended subject type as a type parameter
+ * const auditService = AuditServiceFactory.createInstance<string, MySubjectTypes>(config, logger);
+ *
+ * await auditService.logAuditEvent({
  *   what: 'VIEW_FACILITY',
  *   who: 'admin@example.com',
  *   subjectType: 'FACILITY_ID',
