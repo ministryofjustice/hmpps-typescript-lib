@@ -1,5 +1,10 @@
 # Change log
 
+## 1.1.0
+
+Expose `telemetryMiddleware.addUserMetadataToTelemetry()` middleware to add user IDs and the active NOMIS caseload to telemetry spans,
+with an optional `getAttributes(req, res)` callback for custom metadata such as username and auth source.
+
 ## 1.0.2
 
 Populate operation name (HTTP method + route) in Bunyan logs so this is available in AppTraces table.
