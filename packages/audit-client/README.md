@@ -4,9 +4,7 @@ A client library for sending audit events to the HMPPS Audit API via AWS SQS.
 
 ## Status
 
-**This library is currently: in BETA.**
-
-This package is under active development and not yet ready for production use.
+This package is under active development and is ready for production use.
 
 ## Overview
 
