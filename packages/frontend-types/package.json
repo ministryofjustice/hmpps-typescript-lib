@@ -1,6 +1,6 @@
 {
   "name": "@ministryofjustice/frontend-types",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "",
   "author": "hmpps-developers",
   "license": "MIT",
@@ -36,7 +36,7 @@
     "govuk-frontend": "6.4.0"
   },
   "peerDependencies": {
-    "@ministryofjustice/frontend": "6 || 7 || 8 || 9 || 10 || 11",
+    "@ministryofjustice/frontend": "6 || 7 || 8 || 9 || 10 || 11 || 12",
     "accessible-autocomplete": "3",
     "govuk-frontend": "5 || 6"
   },

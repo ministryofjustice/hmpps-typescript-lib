@@ -1,5 +1,9 @@
 # Change log
 
+## 2.0.3
+
+Updated peer dependency requirement to permit use with MoJ frontend v12.
+
 ## 2.0.2
 
 Updated peer dependency requirement to permit use with MoJ frontend v11.
