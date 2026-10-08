@@ -1,4 +1,5 @@
 import { registerInstrumentations } from '@opentelemetry/instrumentation'
+import { LoggerProvider } from '@opentelemetry/sdk-logs'
 import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node'
 
 import { FilteringSpanProcessor } from './FilteringSpanProcessor'
@@ -7,6 +8,8 @@ import { initialiseTelemetry } from './TelemetryInitialiser'
 jest.mock('@opentelemetry/sdk-trace-node', () => ({
   NodeTracerProvider: jest.fn().mockImplementation(() => ({
     register: jest.fn(),
+    forceFlush: jest.fn().mockResolvedValue(undefined),
+    shutdown: jest.fn().mockResolvedValue(undefined),
   })),
 }))
 
@@ -46,7 +49,10 @@ jest.mock('@opentelemetry/api-logs', () => ({
 }))
 
 jest.mock('@opentelemetry/sdk-logs', () => ({
-  LoggerProvider: jest.fn(),
+  LoggerProvider: jest.fn().mockImplementation(() => ({
+    forceFlush: jest.fn().mockResolvedValue(undefined),
+    shutdown: jest.fn().mockResolvedValue(undefined),
+  })),
   BatchLogRecordProcessor: jest.fn(),
   ConsoleLogRecordExporter: jest.fn(),
 }))
@@ -93,6 +99,49 @@ describe('initialiseTelemetry()', () => {
     const result = builder.addFilter(filter).setInstrumentations([]).addModifier(modifier)
 
     expect(result).toBe(builder)
+  })
+
+  it('shares a provider with custom integrations without requiring an Azure exporter', async () => {
+    const sampler = { shouldSample: jest.fn(), toString: () => 'custom' }
+    const contextManager = {} as never
+    const propagator = {} as never
+    const processor = {
+      onStart: jest.fn(),
+      onEnd: jest.fn(),
+      forceFlush: jest.fn().mockResolvedValue(undefined),
+      shutdown: jest.fn().mockResolvedValue(undefined),
+    }
+    const afterFlush = jest.fn().mockResolvedValue(undefined)
+    const builder = initialiseTelemetry({ serviceName: 'test-service' })
+    expect(
+      builder.withProvider({ sampler, contextManager, propagator, extraSpanProcessors: [processor], afterFlush }),
+    ).toBe(builder)
+    const recording = builder.startRecording()!
+    expect(mockedNodeTracerProvider).toHaveBeenCalledWith(expect.objectContaining({ sampler }))
+    const provider = mockedNodeTracerProvider.mock.results.at(-1)!.value
+    expect(provider.register).toHaveBeenCalledWith({ contextManager, propagator })
+    provider.forceFlush.mockRejectedValue(new Error('export failed'))
+    const logger = jest.mocked(LoggerProvider).mock.results.at(-1)!.value
+    logger.forceFlush.mockRejectedValue(new Error('log export failed'))
+    const consoleError = jest.spyOn(console, 'error').mockImplementation()
+    try {
+      await expect(recording.shutdown()).resolves.toBeUndefined()
+      expect(afterFlush).toHaveBeenCalledTimes(1)
+      expect(provider.shutdown).toHaveBeenCalledTimes(1)
+      expect(logger.shutdown).toHaveBeenCalledTimes(1)
+    } finally {
+      consoleError.mockRestore()
+    }
+  })
+
+  it('decorates only library exporters and keeps configured processors separate', () => {
+    const wrapExportProcessor = jest.fn(processor => processor)
+    const extraSpanProcessor = { onStart: jest.fn(), onEnd: jest.fn(), forceFlush: jest.fn(), shutdown: jest.fn() }
+    initialiseTelemetry({ serviceName: 'test-service', connectionString: 'InstrumentationKey=test', debug: true })
+      .withProvider({ wrapExportProcessor, extraSpanProcessors: [extraSpanProcessor] })
+      .startRecording()
+    expect(wrapExportProcessor).toHaveBeenCalledTimes(2)
+    expect(wrapExportProcessor.mock.calls.flat()).not.toContain(extraSpanProcessor)
   })
 
   describe('startRecording()', () => {

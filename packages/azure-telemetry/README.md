@@ -46,6 +46,44 @@ import app from './server/index'
 import logger from './logger'
 ```
 
+## Sharing the OpenTelemetry provider
+
+`withProvider(options)` lets another telemetry SDK share this library's provider.
+The library retains ownership of Azure/debug exporters, resources, logging and
+instrumentation. Without this option, the default OpenTelemetry setup is used.
+
+```ts
+const recording = initialiseTelemetry({ serviceName: 'my-service', connectionString })
+  .addFilter(filter)
+  .addModifier(modifier)
+  .withProvider({
+    sampler,
+    contextManager,
+    propagator,
+    extraSpanProcessors: [sdkSpanProcessor],
+    wrapExportProcessor: processor => new ExportAdapter(processor),
+    afterFlush: () => sdk.flush(),
+  })
+  .startRecording()
+
+await recording?.shutdown()
+```
+
+All options are optional. `wrapExportProcessor` decorates only the library's
+Azure/debug span processors; additional processors receive the original span.
+Filters and modifiers run once on the shared span before export to any processor.
+Start and ending callbacks are forwarded, preserving SDK context and lifecycle.
+Filters apply to ended spans individually; integrations that exclude whole traces
+should also exclude descendants through their sampler.
+
+`startRecording()` returns a `TelemetryHandle` when recording starts, including
+when a custom provider is configured without Azure/debug exporters. Its
+`forceFlush()` flushes trace and log processors and then calls `afterFlush`.
+`shutdown()` does the same before shutting down both providers. Each stage is
+attempted even if another rejects. Existing callers may continue to ignore the
+return value and call `flushTelemetry()`, which shuts down the library-owned
+providers directly.
+
 ## Usage
 
 ### User metadata middleware
