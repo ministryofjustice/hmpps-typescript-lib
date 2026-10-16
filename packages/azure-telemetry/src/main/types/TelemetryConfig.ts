@@ -11,6 +11,9 @@ export interface TelemetryConfig {
   /** Azure Application Insights connection string. */
   connectionString?: string
 
+  /** Filtered paths that error will be included in the telemetry if true */
+  includeFilteredPathsWithErrors?: boolean
+
   /** Enable debug mode - logs spans to console. */
   debug?: boolean
 }

@@ -1,5 +1,7 @@
+import { SpanStatusCode } from '@opentelemetry/api'
 import type { SpanFilterFn } from '../types/SpanProcessor'
 import { getStringAttribute } from '../utils/getStringAttribute'
+import { getConfig } from '../config'
 
 /**
  * Creates a filter that drops requests to specified paths.
@@ -14,14 +16,18 @@ import { getStringAttribute } from '../utils/getStringAttribute'
  */
 export function filterSpanWherePath(paths: string[]): SpanFilterFn {
   return span => {
+    const includeFilteredPathsWithErrors = getConfig()?.includeFilteredPathsWithErrors ?? true
+
     const url = getStringAttribute(span, 'url.path', 'http.target') ?? ''
 
-    return !paths.some(pattern => {
+    const isMatchingPath = paths.some(pattern => {
       if (pattern.endsWith('*')) {
         return url.startsWith(pattern.slice(0, -1))
       }
 
       return url === pattern
     })
+
+    return !isMatchingPath || (includeFilteredPathsWithErrors && span.status?.code === SpanStatusCode.ERROR)
   }
 }

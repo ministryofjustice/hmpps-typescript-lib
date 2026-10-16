@@ -1,6 +1,11 @@
 import { SpanKind, SpanStatusCode } from '@opentelemetry/api'
 
 import { filterSpanWherePath } from './filterSpanWherePath'
+import { getConfig } from '../config'
+
+jest.mock('../config', () => ({ getConfig: jest.fn() }))
+
+const mockedGetConfig = jest.mocked(getConfig)
 
 describe('filterSpanWherePath()', () => {
   const spanInfo = (path: string) => ({
@@ -74,5 +79,24 @@ describe('filterSpanWherePath()', () => {
 
     const result = filter(span)
     expect(result).toBe(true)
+  })
+
+  it('should return true if the filtered path errors', () => {
+    const filter = filterSpanWherePath(['/health'])
+    const span = { ...spanInfo('/health'), status: { code: SpanStatusCode.ERROR } }
+
+    expect(filter(span)).toBe(true)
+  })
+
+  it('should return false when the path matches but includeFilteredPathsWithErrors is false', () => {
+    mockedGetConfig.mockReturnValue({
+      serviceName: 'test-service',
+      includeFilteredPathsWithErrors: false,
+    })
+
+    const filter = filterSpanWherePath(['/health'])
+    const span = { ...spanInfo('/health'), status: { code: SpanStatusCode.ERROR } }
+
+    expect(filter(span)).toBe(false)
   })
 })

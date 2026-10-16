@@ -1,5 +1,9 @@
 # Change log
 
+## 1.1.1
+
+`filterSpanWherePath(paths: string[])` will now record paths that match but error for debugging purposes. Errors can also be dropped by setting `includeFilteredPathsWithErrors: false` in config.
+
 ## 1.1.0
 
 Expose `telemetryMiddleware.addUserMetadataToTelemetry()` middleware to add user IDs and the active NOMIS caseload to telemetry spans,
