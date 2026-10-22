@@ -38,10 +38,11 @@ export class FilteringSpanProcessor implements SpanProcessor {
   }
 
   onEnding(span: Span): void {
-    const modifiable = this.toModifiableSpan(span)
-
-    for (const modifier of this.modifiers) {
-      modifier(modifiable)
+    if (this.modifiers.length) {
+      const modifiable = this.toModifiableSpan(span)
+      for (const modifier of this.modifiers) {
+        modifier(modifiable)
+      }
     }
     this.delegate.onEnding?.(span as Span & ReadableSpan)
   }

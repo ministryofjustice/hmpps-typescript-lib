@@ -126,7 +126,7 @@ describe('FilteringSpanProcessor', () => {
 
   describe('onEnding()', () => {
     it('should not call modifiers when there are none', () => {
-      const delegate = createMockDelegate()
+      const delegate = { ...createMockDelegate(), onEnding: jest.fn() }
       const processor = new FilteringSpanProcessor(delegate)
       const readable = createReadableSpan()
       const span = createWritableSpan(readable)
@@ -134,6 +134,7 @@ describe('FilteringSpanProcessor', () => {
       processor.onEnding(span)
 
       expect(span.updateName).not.toHaveBeenCalled()
+      expect(delegate.onEnding).toHaveBeenCalledWith(span)
     })
 
     it('should call each modifier with a ModifiableSpan', () => {

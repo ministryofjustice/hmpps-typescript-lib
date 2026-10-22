@@ -80,7 +80,11 @@ should also exclude descendants through their sampler.
 when a custom provider is configured without Azure/debug exporters. Its
 `forceFlush()` flushes trace and log processors and then calls `afterFlush`.
 `shutdown()` does the same before shutting down both providers. Each stage is
-attempted even if another rejects. Existing callers may continue to ignore the
+attempted even if another rejects or times out. Trace/log flushing is limited to
+10 seconds, `afterFlush` to 5 seconds, and provider shutdown to 5 seconds (at most
+20 seconds in total). Timeouts are logged and may leave pending telemetry unsent;
+they do not cancel work already in flight. Repeated shutdown calls return the
+same promise and do not shut providers down twice. Existing callers may continue to ignore the
 return value and call `flushTelemetry()`, which shuts down the library-owned
 providers directly.
 

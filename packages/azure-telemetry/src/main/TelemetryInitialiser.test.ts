@@ -3,7 +3,7 @@ import { LoggerProvider } from '@opentelemetry/sdk-logs'
 import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node'
 
 import { FilteringSpanProcessor } from './FilteringSpanProcessor'
-import { initialiseTelemetry } from './TelemetryInitialiser'
+import { flushTelemetry, initialiseTelemetry } from './TelemetryInitialiser'
 
 jest.mock('@opentelemetry/sdk-trace-node', () => ({
   NodeTracerProvider: jest.fn().mockImplementation(() => ({
@@ -117,6 +117,7 @@ describe('initialiseTelemetry()', () => {
       builder.withProvider({ sampler, contextManager, propagator, extraSpanProcessors: [processor], afterFlush }),
     ).toBe(builder)
     const recording = builder.startRecording()!
+    expect(consoleInfoSpy).toHaveBeenCalledWith('Telemetry: Custom provider only, no Azure/debug exporters')
     expect(mockedNodeTracerProvider).toHaveBeenCalledWith(expect.objectContaining({ sampler }))
     const provider = mockedNodeTracerProvider.mock.results.at(-1)!.value
     expect(provider.register).toHaveBeenCalledWith({ contextManager, propagator })
@@ -131,6 +132,77 @@ describe('initialiseTelemetry()', () => {
       expect(logger.shutdown).toHaveBeenCalledTimes(1)
     } finally {
       consoleError.mockRestore()
+    }
+  })
+
+  it('flushTelemetry flushes and shuts down the owned providers without custom hooks', async () => {
+    initialiseTelemetry({ serviceName: 'test-service', connectionString: 'InstrumentationKey=test' }).startRecording()
+    const provider = mockedNodeTracerProvider.mock.results.at(-1)!.value
+    const logger = jest.mocked(LoggerProvider).mock.results.at(-1)!.value
+
+    await flushTelemetry()
+
+    for (const owned of [provider, logger]) {
+      expect(owned.forceFlush).toHaveBeenCalledTimes(1)
+      expect(owned.shutdown).toHaveBeenCalledTimes(1)
+      expect(owned.forceFlush.mock.invocationCallOrder[0]).toBeLessThan(owned.shutdown.mock.invocationCallOrder[0])
+    }
+    expect(consoleInfoSpy).toHaveBeenCalledWith('Telemetry: Flushing telemetry...')
+    expect(consoleInfoSpy).toHaveBeenCalledWith('Telemetry: Flush complete')
+  })
+
+  it('shares one shutdown across concurrent and subsequent signal/direct calls', async () => {
+    const afterFlush = jest.fn().mockResolvedValue(undefined)
+    const recording = initialiseTelemetry({ serviceName: 'test-service' })
+      .withProvider({ afterFlush })
+      .startRecording()!
+    const provider = mockedNodeTracerProvider.mock.results.at(-1)!.value
+    const logger = jest.mocked(LoggerProvider).mock.results.at(-1)!.value
+    const first = recording.shutdown()
+    expect(recording.shutdown()).toBe(first)
+    await Promise.all([first, flushTelemetry(), flushTelemetry()])
+    expect(recording.shutdown()).toBe(first)
+    await recording.forceFlush()
+    for (const owned of [provider, logger]) {
+      expect(owned.forceFlush).toHaveBeenCalledTimes(1)
+      expect(owned.shutdown).toHaveBeenCalledTimes(1)
+    }
+    expect(afterFlush).toHaveBeenCalledTimes(1)
+  })
+
+  it('reaches shutdown within 20 seconds even when every stage stalls', async () => {
+    jest.useFakeTimers()
+    const consoleError = jest.spyOn(console, 'error').mockImplementation()
+    try {
+      const stalled = () => new Promise<void>(() => {})
+      const afterFlush = jest.fn(stalled)
+      const recording = initialiseTelemetry({ serviceName: 'test-service' })
+        .withProvider({ afterFlush })
+        .startRecording()!
+      const provider = mockedNodeTracerProvider.mock.results.at(-1)!.value
+      const logger = jest.mocked(LoggerProvider).mock.results.at(-1)!.value
+      for (const owned of [provider, logger]) {
+        owned.forceFlush.mockImplementation(stalled)
+        owned.shutdown.mockImplementation(stalled)
+      }
+      const complete = jest.fn()
+      const shutdown = flushTelemetry().then(complete)
+      await jest.advanceTimersByTimeAsync(10000)
+      expect(afterFlush).toHaveBeenCalledTimes(1)
+      expect(provider.shutdown).not.toHaveBeenCalled()
+      await jest.advanceTimersByTimeAsync(5000)
+      expect(provider.shutdown).toHaveBeenCalledTimes(1)
+      expect(logger.shutdown).toHaveBeenCalledTimes(1)
+      expect(complete).not.toHaveBeenCalled()
+      await jest.advanceTimersByTimeAsync(5000)
+      await shutdown
+      expect(complete).toHaveBeenCalledTimes(1)
+      expect(consoleError).toHaveBeenCalledTimes(3)
+      expect(jest.getTimerCount()).toBe(0)
+      expect(recording.shutdown()).toBe(recording.shutdown())
+    } finally {
+      consoleError.mockRestore()
+      jest.useRealTimers()
     }
   })
 

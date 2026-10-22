@@ -63,7 +63,9 @@ let activeTelemetry: TelemetryHandle | undefined
  */
 export async function flushTelemetry(): Promise<void> {
   if (activeTelemetry) {
+    console.info('Telemetry: Flushing telemetry...')
     await activeTelemetry.shutdown()
+    console.info('Telemetry: Flush complete')
     return
   }
   console.info('Telemetry: Flushing telemetry...')
@@ -137,6 +139,8 @@ function startTelemetry(
     logProcessors.push(new BatchLogRecordProcessor(createCompatibleAzureLogExporter(config.connectionString)))
   } else if (config.debug) {
     console.info(`Telemetry: Debug mode only for ${config.serviceName} - spans will be logged to console`)
+  } else {
+    console.info('Telemetry: Custom provider only, no Azure/debug exporters')
   }
   if (config.debug) {
     addExporter(new BatchSpanProcessor(new ConsoleSpanExporter()))
@@ -161,23 +165,44 @@ function startTelemetry(
     instrumentations,
   })
   const flush = async () => {
-    await settle([() => provider.forceFlush(), () => loggerProvider.forceFlush()])
-    if (options.afterFlush) await settle([options.afterFlush])
+    await settle([() => provider.forceFlush(), () => loggerProvider.forceFlush()], 10000)
+    if (options.afterFlush) await settle([options.afterFlush], 5000)
   }
+  // Both signal handlers (and direct callers) share the same shutdown operation.
+  let shutdownPromise: Promise<void> | undefined
   return {
-    forceFlush: flush,
-    shutdown: async () => {
-      await flush()
-      await settle([() => provider.shutdown(), () => loggerProvider.shutdown()])
+    forceFlush: () => shutdownPromise ?? flush(),
+    shutdown: () => {
+      shutdownPromise ??= (async () => {
+        await flush()
+        await settle([() => provider.shutdown(), () => loggerProvider.shutdown()], 5000)
+      })()
+      return shutdownPromise
     },
   }
 }
 
-async function settle(actions: (() => Promise<unknown>)[]) {
-  const results = await Promise.allSettled(actions.map(async action => action()))
-  results.forEach(result => {
-    if (result.status === 'rejected') console.error('Telemetry: Error during flush/shutdown', result.reason)
+/** Bound each stage so integrations cannot consume the pod's entire grace period. */
+async function settle(actions: (() => Promise<unknown>)[], timeoutMs: number) {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const completed = Promise.allSettled(actions.map(async action => action())).then(results => {
+    results.forEach(result => {
+      if (result.status === 'rejected') console.error('Telemetry: Error during flush/shutdown', result.reason)
+    })
   })
+  try {
+    await Promise.race([
+      completed,
+      new Promise<void>(resolve => {
+        timer = setTimeout(() => {
+          console.error(`Telemetry: Flush/shutdown stage timed out after ${timeoutMs}ms`)
+          resolve()
+        }, timeoutMs)
+      }),
+    ])
+  } finally {
+    clearTimeout(timer)
+  }
 }
 
 /**
