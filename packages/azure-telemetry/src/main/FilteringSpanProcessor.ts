@@ -33,20 +33,18 @@ export class FilteringSpanProcessor implements SpanProcessor {
     return this.delegate.shutdown()
   }
 
-  onStart(_span: Span, _parentContext: Context): void {
-    // No-op — modifications happen in onEnding, filtering in onEnd
+  onStart(span: Span, parentContext: Context): void {
+    this.delegate.onStart(span as Span & ReadableSpan, parentContext)
   }
 
   onEnding(span: Span): void {
-    if (this.modifiers.length === 0) {
-      return
+    if (this.modifiers.length) {
+      const modifiable = this.toModifiableSpan(span)
+      for (const modifier of this.modifiers) {
+        modifier(modifiable)
+      }
     }
-
-    const modifiable = this.toModifiableSpan(span)
-
-    for (const modifier of this.modifiers) {
-      modifier(modifiable)
-    }
+    this.delegate.onEnding?.(span as Span & ReadableSpan)
   }
 
   onEnd(span: ReadableSpan): void {

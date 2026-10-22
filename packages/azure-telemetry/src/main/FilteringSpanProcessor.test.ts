@@ -1,4 +1,4 @@
-import { SpanKind, SpanStatusCode } from '@opentelemetry/api'
+import { ROOT_CONTEXT, SpanKind, SpanStatusCode } from '@opentelemetry/api'
 import type { ReadableSpan, SpanProcessor } from '@opentelemetry/sdk-trace-base'
 
 import { FilteringSpanProcessor } from './FilteringSpanProcessor'
@@ -53,6 +53,18 @@ function createWritableSpan(readable: ReadableSpan) {
 }
 
 describe('FilteringSpanProcessor', () => {
+  it('forwards start context and ending to custom processors, applying modifiers first', () => {
+    const delegate = { ...createMockDelegate(), onEnding: jest.fn() }
+    const span = createWritableSpan(createReadableSpan())
+    const modifier = jest.fn()
+    const processor = new FilteringSpanProcessor(delegate, [], [modifier])
+    processor.onStart(span, ROOT_CONTEXT)
+    processor.onEnding(span)
+    expect(delegate.onStart).toHaveBeenCalledWith(span, ROOT_CONTEXT)
+    expect(delegate.onEnding).toHaveBeenCalledWith(span)
+    expect(modifier.mock.invocationCallOrder[0]).toBeLessThan(delegate.onEnding.mock.invocationCallOrder[0])
+  })
+
   describe('onEnd()', () => {
     it('should forward to delegate when there are no filters', () => {
       const delegate = createMockDelegate()
@@ -114,7 +126,7 @@ describe('FilteringSpanProcessor', () => {
 
   describe('onEnding()', () => {
     it('should not call modifiers when there are none', () => {
-      const delegate = createMockDelegate()
+      const delegate = { ...createMockDelegate(), onEnding: jest.fn() }
       const processor = new FilteringSpanProcessor(delegate)
       const readable = createReadableSpan()
       const span = createWritableSpan(readable)
@@ -122,6 +134,7 @@ describe('FilteringSpanProcessor', () => {
       processor.onEnding(span)
 
       expect(span.updateName).not.toHaveBeenCalled()
+      expect(delegate.onEnding).toHaveBeenCalledWith(span)
     })
 
     it('should call each modifier with a ModifiableSpan', () => {
