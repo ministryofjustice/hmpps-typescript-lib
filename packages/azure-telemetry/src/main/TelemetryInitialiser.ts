@@ -1,4 +1,6 @@
 import { metrics, trace } from '@opentelemetry/api'
+import type { ContextManager, TextMapPropagator } from '@opentelemetry/api'
+
 import { logs } from '@opentelemetry/api-logs'
 import { type Instrumentation, registerInstrumentations } from '@opentelemetry/instrumentation'
 import { BunyanInstrumentation } from '@opentelemetry/instrumentation-bunyan'
@@ -8,11 +10,14 @@ import { resourceFromAttributes } from '@opentelemetry/resources'
 import { BatchLogRecordProcessor, ConsoleLogRecordExporter, LoggerProvider } from '@opentelemetry/sdk-logs'
 import type { LogRecordExporter, ReadableLogRecord } from '@opentelemetry/sdk-logs'
 import { BatchSpanProcessor, ConsoleSpanExporter } from '@opentelemetry/sdk-trace-base'
+import type { Sampler, SpanProcessor } from '@opentelemetry/sdk-trace-base'
+
 import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node'
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions'
 import { AzureMonitorLogExporter, AzureMonitorTraceExporter } from '@azure/monitor-opentelemetry-exporter'
 import type { TelemetryConfig } from './types/TelemetryConfig'
 import type { SpanFilterFn, SpanModifierFn } from './types/SpanProcessor'
+import { CompositeSpanProcessor } from './CompositeSpanProcessor'
 import { FilteringSpanProcessor } from './FilteringSpanProcessor'
 import { populateOperationNameLogHook } from './populateOperationNameLogHook'
 import { setConfig } from './config'
@@ -29,14 +34,40 @@ export interface TelemetryBuilder {
   addFilter(filter: SpanFilterFn): TelemetryBuilder
   addModifier(modifier: SpanModifierFn): TelemetryBuilder
   setInstrumentations(instrumentations: Instrumentation[]): TelemetryBuilder
-  startRecording(): void
+  withProvider(options: TelemetryProviderOptions): TelemetryBuilder
+  startRecording(): TelemetryHandle | undefined
 }
+
+/** Optional integration hooks; Azure exporters, resources and logging stay library-owned. */
+export interface TelemetryProviderOptions {
+  sampler?: Sampler
+  propagator?: TextMapPropagator
+  contextManager?: ContextManager
+  extraSpanProcessors?: SpanProcessor[]
+  /** Decorate each Azure/debug processor, e.g. adapt an export copy for another sampler. */
+  wrapExportProcessor?: (processor: SpanProcessor) => SpanProcessor
+  /** Run after all processors flush, before shutdown (e.g. flush an SDK transport). */
+  afterFlush?: () => Promise<unknown>
+}
+
+export interface TelemetryHandle {
+  forceFlush(): Promise<void>
+  shutdown(): Promise<void>
+}
+
+let activeTelemetry: TelemetryHandle | undefined
 
 /**
  * Flush pending telemetry and shut down the provider.
  * Call this during application shutdown to ensure all telemetry is sent.
  */
 export async function flushTelemetry(): Promise<void> {
+  if (activeTelemetry) {
+    console.info('Telemetry: Flushing telemetry...')
+    await activeTelemetry.shutdown()
+    console.info('Telemetry: Flush complete')
+    return
+  }
   console.info('Telemetry: Flushing telemetry...')
 
   try {
@@ -86,90 +117,92 @@ function createCompatibleAzureLogExporter(connectionString: string): LogRecordEx
   }
 }
 
-function initialiseWithAzureMonitor(
+function startTelemetry(
   config: TelemetryConfig,
   filters: SpanFilterFn[],
   modifiers: SpanModifierFn[],
   instrumentations: Instrumentation[],
-): void {
-  console.info(`Telemetry: Initialising Azure Monitor for ${config.serviceName}`)
-  const connectionString = config.connectionString as string
-
+  options: TelemetryProviderOptions,
+): TelemetryHandle {
   const resource = resourceFromAttributes({
     [ATTR_SERVICE_NAME]: config.serviceName,
     [ATTR_SERVICE_VERSION]: config.serviceVersion || 'unknown',
   })
-
-  const azureExporter = new AzureMonitorTraceExporter({
-    connectionString,
-  })
-
-  const spanProcessors = [new FilteringSpanProcessor(new BatchSpanProcessor(azureExporter), filters, modifiers)]
-
-  if (config.debug) {
-    console.info('Telemetry: Debug mode enabled - spans will be logged to console')
-    spanProcessors.push(
-      new FilteringSpanProcessor(new BatchSpanProcessor(new ConsoleSpanExporter()), filters, modifiers),
-    )
+  const spanProcessors: SpanProcessor[] = []
+  const logProcessors: BatchLogRecordProcessor[] = []
+  const addExporter = (processor: SpanProcessor) => {
+    spanProcessors.push(options.wrapExportProcessor ? options.wrapExportProcessor(processor) : processor)
   }
-
-  const provider = new NodeTracerProvider({
-    resource,
-    spanProcessors,
-  })
-
-  provider.register()
-
-  const logProcessors = [new BatchLogRecordProcessor(createCompatibleAzureLogExporter(connectionString))]
-
+  if (config.connectionString) {
+    console.info(`Telemetry: Initialising Azure Monitor for ${config.serviceName}`)
+    addExporter(new BatchSpanProcessor(new AzureMonitorTraceExporter({ connectionString: config.connectionString })))
+    logProcessors.push(new BatchLogRecordProcessor(createCompatibleAzureLogExporter(config.connectionString)))
+  } else if (config.debug) {
+    console.info(`Telemetry: Debug mode only for ${config.serviceName} - spans will be logged to console`)
+  } else {
+    console.info('Telemetry: Custom provider only, no Azure/debug exporters')
+  }
   if (config.debug) {
+    addExporter(new BatchSpanProcessor(new ConsoleSpanExporter()))
     logProcessors.push(new BatchLogRecordProcessor(new ConsoleLogRecordExporter()))
   }
-
+  spanProcessors.push(...(options.extraSpanProcessors || []))
+  const provider = new NodeTracerProvider({
+    resource,
+    ...(options.sampler ? { sampler: options.sampler } : {}),
+    spanProcessors: [new FilteringSpanProcessor(new CompositeSpanProcessor(spanProcessors), filters, modifiers)],
+  })
+  provider.register({
+    ...(options.contextManager ? { contextManager: options.contextManager } : {}),
+    ...(options.propagator ? { propagator: options.propagator } : {}),
+  })
   const loggerProvider = new LoggerProvider({ resource, processors: logProcessors })
   logs.setGlobalLoggerProvider(loggerProvider)
-
   registerInstrumentations({
     tracerProvider: provider,
     meterProvider: metrics.getMeterProvider(),
     loggerProvider,
     instrumentations,
   })
+  const flush = async () => {
+    await settle([() => provider.forceFlush(), () => loggerProvider.forceFlush()], 10000)
+    if (options.afterFlush) await settle([options.afterFlush], 5000)
+  }
+  // Both signal handlers (and direct callers) share the same shutdown operation.
+  let shutdownPromise: Promise<void> | undefined
+  return {
+    forceFlush: () => shutdownPromise ?? flush(),
+    shutdown: () => {
+      shutdownPromise ??= (async () => {
+        await flush()
+        await settle([() => provider.shutdown(), () => loggerProvider.shutdown()], 5000)
+      })()
+      return shutdownPromise
+    },
+  }
 }
 
-function initialiseDebugOnly(
-  config: TelemetryConfig,
-  filters: SpanFilterFn[],
-  modifiers: SpanModifierFn[],
-  instrumentations: Instrumentation[],
-): void {
-  console.info(`Telemetry: Debug mode only for ${config.serviceName} - spans will be logged to console`)
-
-  const provider = new NodeTracerProvider({
-    resource: resourceFromAttributes({
-      [ATTR_SERVICE_NAME]: config.serviceName,
-      [ATTR_SERVICE_VERSION]: config.serviceVersion || 'unknown',
-    }),
-    spanProcessors: [new FilteringSpanProcessor(new BatchSpanProcessor(new ConsoleSpanExporter()), filters, modifiers)],
+/** Bound each stage so integrations cannot consume the pod's entire grace period. */
+async function settle(actions: (() => Promise<unknown>)[], timeoutMs: number) {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const completed = Promise.allSettled(actions.map(async action => action())).then(results => {
+    results.forEach(result => {
+      if (result.status === 'rejected') console.error('Telemetry: Error during flush/shutdown', result.reason)
+    })
   })
-
-  provider.register()
-
-  const loggerProvider = new LoggerProvider({
-    resource: resourceFromAttributes({
-      [ATTR_SERVICE_NAME]: config.serviceName,
-      [ATTR_SERVICE_VERSION]: config.serviceVersion || 'unknown',
-    }),
-    processors: [new BatchLogRecordProcessor(new ConsoleLogRecordExporter())],
-  })
-
-  logs.setGlobalLoggerProvider(loggerProvider)
-
-  registerInstrumentations({
-    tracerProvider: provider,
-    loggerProvider,
-    instrumentations,
-  })
+  try {
+    await Promise.race([
+      completed,
+      new Promise<void>(resolve => {
+        timer = setTimeout(() => {
+          console.error(`Telemetry: Flush/shutdown stage timed out after ${timeoutMs}ms`)
+          resolve()
+        }, timeoutMs)
+      }),
+    ])
+  } finally {
+    clearTimeout(timer)
+  }
 }
 
 /**
@@ -197,6 +230,7 @@ export function initialiseTelemetry(config: TelemetryConfig): TelemetryBuilder {
   const filters: SpanFilterFn[] = []
   const modifiers: SpanModifierFn[] = []
   let instrumentations: Instrumentation[] = defaultInstrumentations
+  let providerOptions: TelemetryProviderOptions | undefined
 
   return {
     addFilter(filter: SpanFilterFn): TelemetryBuilder {
@@ -217,14 +251,18 @@ export function initialiseTelemetry(config: TelemetryConfig): TelemetryBuilder {
       return this
     },
 
-    startRecording(): void {
-      if (config.connectionString) {
-        initialiseWithAzureMonitor(config, filters, modifiers, instrumentations)
-      } else if (config.debug) {
-        initialiseDebugOnly(config, filters, modifiers, instrumentations)
-      } else {
-        console.info('Telemetry: No connection string and debug disabled - telemetry not initialised')
+    withProvider(options: TelemetryProviderOptions): TelemetryBuilder {
+      providerOptions = options
+      return this
+    },
+
+    startRecording(): TelemetryHandle | undefined {
+      if (config.connectionString || config.debug || providerOptions) {
+        activeTelemetry = startTelemetry(config, filters, modifiers, instrumentations, providerOptions || {})
+        return activeTelemetry
       }
+      console.info('Telemetry: No connection string and debug disabled - telemetry not initialised')
+      return undefined
     },
   }
 }
