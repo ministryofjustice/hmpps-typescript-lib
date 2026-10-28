@@ -1,5 +1,11 @@
 # Change log
 
+## 2.0.0-alpha.3
+
+Upgrade to ESLint 10, including compatible Cypress and import plugins. The package now requires Node.js 22.13 or later
+within the supported Node 22 line. Import rules use the `import-x/` namespace; deprecated core rules
+`no-throw-literal` and `no-implied-eval` were removed.
+
 ## 2.0.0-alpha.2
 
 Drops support for node engine 20 (no longer maintained) and adds 26 (will be LTS later this year).

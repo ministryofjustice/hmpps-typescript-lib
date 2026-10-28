@@ -71,10 +71,6 @@ const errorPreventionRules = {
   // https://eslint.org/docs/latest/rules/no-promise-executor-return
   'no-promise-executor-return': 'error',
 
-  // Disallow throwing literals as exceptions.
-  // https://eslint.org/docs/latest/rules/no-throw-literal
-  'no-throw-literal': 'error',
-
   // Disallow unmodified loop conditions.
   // https://eslint.org/docs/latest/rules/no-unmodified-loop-condition
   'no-unmodified-loop-condition': 'off',
@@ -105,10 +101,6 @@ const errorPreventionRules = {
   // Disallow `await` inside of loops.
   // https://eslint.org/docs/latest/rules/no-await-in-loop
   'no-await-in-loop': 'error',
-
-  // Disallow the use of `eval()`-like methods.
-  // https://eslint.org/docs/latest/rules/no-implied-eval
-  'no-implied-eval': 'error',
 
   // Disallow function declarations that contain unsafe references inside loop statements.
   // https://eslint.org/docs/latest/rules/no-loop-func
