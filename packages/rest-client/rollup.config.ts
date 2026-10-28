@@ -1,8 +1,8 @@
-/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable import-x/no-extraneous-dependencies */
 import typescript from '@rollup/plugin-typescript'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
 import { dts } from 'rollup-plugin-dts'
-/* eslint-enable import/no-extraneous-dependencies */
+/* eslint-enable import-x/no-extraneous-dependencies */
 
 import pkg from './package.json'
 
