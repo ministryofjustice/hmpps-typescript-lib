@@ -69,11 +69,11 @@ const typescriptRules = {
 
   // Ensure imports resolve to existing files/modules.
   // https://github.com/import-js/eslint-plugin-import/blob/main/docs/rules/no-unresolved.md
-  'import/no-unresolved': 'error',
+  'import-x/no-unresolved': 'error',
 
   // Disabled due false positives with re-export/member patterns.
   // https://github.com/import-js/eslint-plugin-import/blob/main/docs/rules/no-named-as-default-member.md
-  'import/no-named-as-default-member': 0,
+  'import-x/no-named-as-default-member': 0,
 }
 
 export default typescriptRules

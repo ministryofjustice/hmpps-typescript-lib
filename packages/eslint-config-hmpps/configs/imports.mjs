@@ -1,4 +1,4 @@
-import importPlugin from 'eslint-plugin-import'
+import { importX } from 'eslint-plugin-import-x'
 import importRules from './rules/import-rules.mjs'
 
 const defaultPathsAllowingDevDependencies = ['bin/**']
@@ -10,11 +10,11 @@ const defaultPathsAllowingDevDependencies = ['bin/**']
  * @returns {import('eslint').Linter.RulesRecord}
  */
 function withExtraDevDependencyPaths(extraPathsAllowingDevDependencies) {
-  const [severity, options] = importRules['import/no-extraneous-dependencies']
+  const [severity, options] = importRules['import-x/no-extraneous-dependencies']
 
   return {
     ...importRules,
-    'import/no-extraneous-dependencies': [
+    'import-x/no-extraneous-dependencies': [
       severity,
       {
         ...options,
@@ -39,11 +39,18 @@ function createImportConfigs({ typescriptFiles, extraPathsAllowingDevDependencie
 
   return [
     {
+      name: 'hmpps-import-compatibility',
+      plugins: {
+        // Keep existing consumer overrides working after migrating to import-x.
+        import: importX,
+      },
+    },
+    {
       settings: {
-        'import/parsers': {
+        'import-x/parsers': {
           '@typescript-eslint/parser': ['.ts', '.tsx', '.mts', '.cts'],
         },
-        'import/resolver': {
+        'import-x/resolver': {
           typescript: {
             alwaysTryTypes: true,
           },
@@ -52,10 +59,10 @@ function createImportConfigs({ typescriptFiles, extraPathsAllowingDevDependencie
           },
         },
       },
-      ...importPlugin.flatConfigs.recommended,
+      ...importX.flatConfigs.recommended,
     },
     {
-      ...importPlugin.flatConfigs.typescript,
+      ...importX.flatConfigs.typescript,
       files: typescriptFiles,
     },
     {

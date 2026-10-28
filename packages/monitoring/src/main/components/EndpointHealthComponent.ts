@@ -1,7 +1,7 @@
 import { RestClient, type AgentConfig, type ApiConfig, type SanitisedError } from '@ministryofjustice/hmpps-rest-client'
 import type { Response as SuperAgentResponse } from 'superagent'
 // annoyingly, eslint doesn't automatically consider @types/bunyan a dev depdendency, it's not even directly referenced here
-// eslint-disable-next-line import/no-extraneous-dependencies
+// eslint-disable-next-line import-x/no-extraneous-dependencies
 import Logger from 'bunyan'
 
 import { EndpointHealthComponentOptions } from '../types/EndpointHealthComponentOptions'
