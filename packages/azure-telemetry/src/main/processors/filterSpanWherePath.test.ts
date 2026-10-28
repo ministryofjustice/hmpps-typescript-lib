@@ -75,4 +75,25 @@ describe('filterSpanWherePath()', () => {
     const result = filter(span)
     expect(result).toBe(true)
   })
+
+  it('should return true if the filtered path errors', () => {
+    const filter = filterSpanWherePath(['/health'], true)
+    const span = { ...spanInfo('/health'), status: { code: SpanStatusCode.ERROR } }
+
+    expect(filter(span)).toBe(true)
+  })
+
+  it('should default to logging (and return true) if includeFilteredPathsWithErrors is not defined', () => {
+    const filter = filterSpanWherePath(['/health'])
+    const span = { ...spanInfo('/health'), status: { code: SpanStatusCode.ERROR } }
+
+    expect(filter(span)).toBe(true)
+  })
+
+  it('should return false when the path matches but includeFilteredPathsWithErrors is false', () => {
+    const filter = filterSpanWherePath(['/health'], false)
+    const span = { ...spanInfo('/health'), status: { code: SpanStatusCode.ERROR } }
+
+    expect(filter(span)).toBe(false)
+  })
 })

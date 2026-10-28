@@ -1,5 +1,10 @@
 # Change log
 
+## 1.3.0
+
+`filterSpanWherePath(paths: string[], includeFilteredPathsWithErrors: boolean)` will now record paths that match but error for debugging purposes. Errors can also be dropped by passing `includeFilteredPathsWithErrors: false` into the filter.
+
+
 ## 1.2.0
 
 - Add optional `withProvider` hooks for a sampler, propagator, context manager, extra span processors,
