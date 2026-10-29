@@ -32,6 +32,9 @@
     "lint-fix": "eslint . --cache --max-warnings 0 --fix",
     "check-for-updates": "npx npm-check-updates -u"
   },
+  "dependencies": {
+    "@opentelemetry/core": "2.8.0"
+  },
   "peerDependencies": {
     "@azure/monitor-opentelemetry-exporter": "1.0.0-beta.32",
     "@opentelemetry/api": "1.9.0",
