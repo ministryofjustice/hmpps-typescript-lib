@@ -48,6 +48,6 @@
     "@opentelemetry/semantic-conventions": "1.39.0"
   },
   "devDependencies": {
-    "@ministryofjustice/eslint-config-hmpps": "1.0.3"
+    "@ministryofjustice/eslint-config-hmpps": "^1.0.3"
   }
 }
