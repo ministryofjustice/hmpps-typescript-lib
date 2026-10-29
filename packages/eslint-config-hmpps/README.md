@@ -54,9 +54,6 @@ If some overriding is required to make your project successfully build configura
 e.g: [here](https://github.com/ministryofjustice/hmpps-assess-for-early-release-ui/pull/46)
 and [here](https://github.com/ministryofjustice/hmpps-incident-reporting/pull/255).
 
-Import rules use the `import-x/` namespace. The legacy `import/` namespace remains available for rule overrides, but
-ESLint disable comments must use `import-x/` rule names.
-
 ## Developing this package
 
 It is deliberately not using typescript or rollup so that building is not required.

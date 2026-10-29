@@ -1,11 +1,11 @@
-// eslint-disable-next-line import-x/no-extraneous-dependencies
+// eslint-disable-next-line import/no-extraneous-dependencies
 import hmppsConfig from '@ministryofjustice/eslint-config-hmpps'
 
 export default [
   ...hmppsConfig(),
   {
     rules: {
-      'import-x/prefer-default-export': 'off',
+      'import/prefer-default-export': 'off',
     },
   },
   {
