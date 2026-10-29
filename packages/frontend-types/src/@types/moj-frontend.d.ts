@@ -1,11 +1,10 @@
+/* eslint-disable max-classes-per-file */
 /**
  * MoJ Frontend types based on v12.0.0-beta.1
  * https://github.com/ministryofjustice/moj-frontend
  *
  * NB: this was recreated manually from javascript sources and may be incomplete!
  */
-
-// eslint-disable-next-line max-classes-per-file
 declare module '@ministryofjustice/frontend' {
   import type { Component, ConfigurableComponent, CreateAllOptions } from 'govuk-frontend'
 

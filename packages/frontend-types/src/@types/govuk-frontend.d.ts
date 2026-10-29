@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 /**
  * GOV.UK Frontend types based on v6.1.0
  * https://github.com/alphagov/govuk-frontend
@@ -5,7 +6,6 @@
  * NB: this was recreated manually from javascript sources and may be incomplete!
  */
 
-// eslint-disable-next-line max-classes-per-file
 declare module 'govuk-frontend' {
   /** @since 5.7.0 */
   export abstract class Component<RootElement extends HTMLElement = HTMLElement> {
