@@ -5,6 +5,7 @@
  *
  * NB: this was recreated manually from javascript sources and may be incomplete!
  */
+
 declare module '@ministryofjustice/frontend' {
   import type { Component, ConfigurableComponent, CreateAllOptions } from 'govuk-frontend'
 
