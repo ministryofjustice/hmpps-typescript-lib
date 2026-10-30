@@ -39,6 +39,7 @@
     "@ministryofjustice/hmpps-rest-client": "^2.1.0"
   },
   "devDependencies": {
+    "@ministryofjustice/eslint-config-hmpps": "^1.0.4",
     "@types/bunyan": "^1.8.11",
     "@types/express": "^5.0.6",
     "nock": "14.0.16"
