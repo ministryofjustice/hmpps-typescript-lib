@@ -1,3 +1,4 @@
+// eslint-disable-next-line import-x/no-extraneous-dependencies
 import hmppsConfig from '@ministryofjustice/eslint-config-hmpps'
 
 export default [
@@ -6,7 +7,7 @@ export default [
     rules: {
       'no-await-in-loop': 'off',
       'no-console': 'off',
-      'import/prefer-default-export': 'off',
+      'import-x/prefer-default-export': 'off',
     },
   },
 ]
