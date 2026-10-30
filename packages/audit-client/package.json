@@ -39,6 +39,7 @@
     "proxy-from-env": "^2.1.0"
   },
   "devDependencies": {
+    "@ministryofjustice/eslint-config-hmpps": "^1.0.3",
     "@types/bunyan": "^1.8.11",
     "@types/proxy-from-env": "^1.0.4",
     "aws-sdk-client-mock": "^4.1.0"
