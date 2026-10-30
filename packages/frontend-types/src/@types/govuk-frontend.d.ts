@@ -5,6 +5,7 @@
  *
  * NB: this was recreated manually from javascript sources and may be incomplete!
  */
+
 declare module 'govuk-frontend' {
   /** @since 5.7.0 */
   export abstract class Component<RootElement extends HTMLElement = HTMLElement> {

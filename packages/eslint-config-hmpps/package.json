@@ -29,7 +29,7 @@
     "configs/**/*.mjs"
   ],
   "engines": {
-    "node": "22 || 24 || 26"
+    "node": "^22.13.0 || ^24 || ^26"
   },
   "scripts": {
     "lint": "eslint . --cache --max-warnings 0",
