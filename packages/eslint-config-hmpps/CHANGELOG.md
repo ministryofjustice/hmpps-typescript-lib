@@ -1,5 +1,9 @@
 # Change log
 
+## 1.0.4
+
+Add support for Node 26 which is now the current LTS version.
+
 ## 2.0.0-alpha.3
 
 Upgrade to ESLint 10, including compatible Cypress and import plugins. The package now requires Node.js 22.13 or later
