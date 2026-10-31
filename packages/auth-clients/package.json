@@ -33,7 +33,7 @@
     "check-for-updates": "npx npm-check-updates -u"
   },
   "devDependencies": {
-    "@ministryofjustice/eslint-config-hmpps": "1.0.3",
+    "@ministryofjustice/eslint-config-hmpps": "1.0.4",
     "@types/bunyan": "^1.8.11",
     "@types/express": "^5.0.6",
     "@types/superagent": "^8.1.9",
