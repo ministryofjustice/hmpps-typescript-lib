@@ -1,6 +1,8 @@
+import { AzureMonitorLogExporter } from '@azure/monitor-opentelemetry-exporter'
 import { context, propagation, trace } from '@opentelemetry/api'
 import { registerInstrumentations } from '@opentelemetry/instrumentation'
-import { LoggerProvider } from '@opentelemetry/sdk-logs'
+import { BatchLogRecordProcessor, LoggerProvider } from '@opentelemetry/sdk-logs'
+import type { ReadableLogRecord } from '@opentelemetry/sdk-logs'
 import { TracerProvider } from '@opentelemetry/sdk-trace'
 
 import { FilteringSpanProcessor } from './FilteringSpanProcessor'
@@ -232,6 +234,34 @@ describe('initialiseTelemetry()', () => {
 
       expect(mockedNodeTracerProvider).toHaveBeenCalled()
       expect(consoleInfoSpy).toHaveBeenCalledWith('Telemetry: Initialising Azure Monitor for test-service')
+    })
+
+    it('should adapt log records to the Azure log exporter types', async () => {
+      const azureExporter = {
+        export: jest.fn(),
+        shutdown: jest.fn().mockResolvedValue(undefined),
+        forceFlush: jest.fn().mockResolvedValue(undefined),
+      }
+      jest.mocked(AzureMonitorLogExporter).mockImplementationOnce(() => azureExporter as never)
+      initialiseTelemetry({ serviceName: 'test-service', connectionString: 'InstrumentationKey=test' }).startRecording()
+      const { exporter } = jest.mocked(BatchLogRecordProcessor).mock.calls[0][0]
+      const record = {
+        body: BigInt(1),
+        attributes: { key: 'value' },
+        resource: { attributes: {}, merge: jest.fn(), getRawAttributes: () => [] },
+      } as unknown as ReadableLogRecord
+      const callback = jest.fn()
+
+      exporter.export([record], callback)
+      await exporter.forceFlush()
+      await exporter.shutdown()
+
+      expect(azureExporter.export).toHaveBeenCalledWith(
+        [expect.objectContaining({ body: '1', attributes: { key: 'value' } })],
+        callback,
+      )
+      expect(azureExporter.forceFlush).toHaveBeenCalled()
+      expect(azureExporter.shutdown).toHaveBeenCalled()
     })
 
     it('should initialise debug-only mode when debug is true and no connectionString', () => {

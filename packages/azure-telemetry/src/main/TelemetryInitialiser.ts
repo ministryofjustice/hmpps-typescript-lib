@@ -21,6 +21,7 @@ import { CompositeSpanProcessor } from './CompositeSpanProcessor'
 import { FilteringSpanProcessor } from './FilteringSpanProcessor'
 import { populateOperationNameLogHook } from './populateOperationNameLogHook'
 import { setConfig } from './config'
+import { toAzureLogRecord } from './toAzureLogRecord'
 
 export const defaultInstrumentations: Instrumentation[] = [
   new BunyanInstrumentation({ disableLogSending: false, logHook: populateOperationNameLogHook }),
@@ -102,7 +103,7 @@ function createCompatibleAzureLogExporter(connectionString: string): LogRecordEx
 
   return {
     export(logRecords: ReadableLogRecord[], resultCallback) {
-      return exporter.export(logRecords, resultCallback)
+      return exporter.export(logRecords.map(toAzureLogRecord), resultCallback)
     },
     shutdown() {
       return exporter.shutdown()
