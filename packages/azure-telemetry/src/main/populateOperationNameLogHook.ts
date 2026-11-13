@@ -1,7 +1,7 @@
 import { context } from '@opentelemetry/api'
 import { getRPCMetadata } from '@opentelemetry/core'
 import { LogHookFunction } from '@opentelemetry/instrumentation-bunyan'
-import type { ReadableSpan } from '@opentelemetry/sdk-trace-base'
+import type { ReadableSpan } from '@opentelemetry/sdk-trace'
 import { AI_OPERATION_NAME } from '@azure/monitor-opentelemetry-exporter'
 
 /**

@@ -1,21 +1,18 @@
 import { registerInstrumentations } from '@opentelemetry/instrumentation'
 import { LoggerProvider } from '@opentelemetry/sdk-logs'
-import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node'
+import { TracerProvider } from '@opentelemetry/sdk-trace'
 
 import { FilteringSpanProcessor } from './FilteringSpanProcessor'
 import { flushTelemetry, initialiseTelemetry } from './TelemetryInitialiser'
 
-jest.mock('@opentelemetry/sdk-trace-node', () => ({
-  NodeTracerProvider: jest.fn().mockImplementation(() => ({
+jest.mock('@opentelemetry/sdk-trace', () => ({
+  BatchSpanProcessor: jest.fn(),
+  ConsoleSpanExporter: jest.fn(),
+  TracerProvider: jest.fn().mockImplementation(() => ({
     register: jest.fn(),
     forceFlush: jest.fn().mockResolvedValue(undefined),
     shutdown: jest.fn().mockResolvedValue(undefined),
   })),
-}))
-
-jest.mock('@opentelemetry/sdk-trace-base', () => ({
-  BatchSpanProcessor: jest.fn(),
-  ConsoleSpanExporter: jest.fn(),
 }))
 
 jest.mock('@opentelemetry/instrumentation', () => ({
@@ -44,7 +41,7 @@ jest.mock('@opentelemetry/semantic-conventions', () => ({
   ATTR_SERVICE_VERSION: 'service.version',
 }))
 
-jest.mock('@opentelemetry/api-logs', () => ({
+jest.mock('@opentelemetry/api', () => ({
   logs: { setGlobalLoggerProvider: jest.fn() },
 }))
 
@@ -66,7 +63,7 @@ jest.mock('./FilteringSpanProcessor', () => ({
   FilteringSpanProcessor: jest.fn(),
 }))
 
-const mockedNodeTracerProvider = jest.mocked(NodeTracerProvider)
+const mockedNodeTracerProvider = jest.mocked(TracerProvider)
 const mockedFilteringSpanProcessor = jest.mocked(FilteringSpanProcessor)
 const mockedRegisterInstrumentations = jest.mocked(registerInstrumentations)
 

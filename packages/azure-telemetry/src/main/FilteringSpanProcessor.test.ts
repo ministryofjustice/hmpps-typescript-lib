@@ -1,5 +1,5 @@
 import { ROOT_CONTEXT, SpanKind, SpanStatusCode } from '@opentelemetry/api'
-import type { ReadableSpan, SpanProcessor } from '@opentelemetry/sdk-trace-base'
+import type { ReadableSpan, SpanProcessor } from '@opentelemetry/sdk-trace'
 
 import { FilteringSpanProcessor } from './FilteringSpanProcessor'
 
