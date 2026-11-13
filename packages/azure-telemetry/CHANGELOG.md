@@ -1,5 +1,12 @@
 # Change log
 
+## 2.0.0
+
+- Upgrade to use @opentelemetry/core@3.0.0 (https://github.com/open-telemetry/opentelemetry-js/blob/v3.0.0/doc/3.x/migration-guide.md)
+- Move to Node 26
+- Adapt OpenTelemetry v3 log records (bodies, attributes and resources) to the older types expected by
+  `@azure/monitor-opentelemetry-exporter`. Values that can't be represented in those types are stringified.
+
 ## 1.3.0
 
 `filterSpanWherePath(paths: string[], includeFilteredPathsWithErrors: boolean)` will now record paths that match but error for debugging purposes. Errors can also be dropped by passing `includeFilteredPathsWithErrors: false` into the filter.

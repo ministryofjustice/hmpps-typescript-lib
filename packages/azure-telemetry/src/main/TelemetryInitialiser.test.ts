@@ -1,21 +1,20 @@
+import { AzureMonitorLogExporter } from '@azure/monitor-opentelemetry-exporter'
+import { context, propagation, trace } from '@opentelemetry/api'
 import { registerInstrumentations } from '@opentelemetry/instrumentation'
-import { LoggerProvider } from '@opentelemetry/sdk-logs'
-import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node'
+import { BatchLogRecordProcessor, LoggerProvider } from '@opentelemetry/sdk-logs'
+import type { ReadableLogRecord } from '@opentelemetry/sdk-logs'
+import { TracerProvider } from '@opentelemetry/sdk-trace'
 
 import { FilteringSpanProcessor } from './FilteringSpanProcessor'
 import { flushTelemetry, initialiseTelemetry } from './TelemetryInitialiser'
 
-jest.mock('@opentelemetry/sdk-trace-node', () => ({
-  NodeTracerProvider: jest.fn().mockImplementation(() => ({
-    register: jest.fn(),
+jest.mock('@opentelemetry/sdk-trace', () => ({
+  BatchSpanProcessor: jest.fn(),
+  ConsoleSpanExporter: jest.fn(),
+  TracerProvider: jest.fn().mockImplementation(() => ({
     forceFlush: jest.fn().mockResolvedValue(undefined),
     shutdown: jest.fn().mockResolvedValue(undefined),
   })),
-}))
-
-jest.mock('@opentelemetry/sdk-trace-base', () => ({
-  BatchSpanProcessor: jest.fn(),
-  ConsoleSpanExporter: jest.fn(),
 }))
 
 jest.mock('@opentelemetry/instrumentation', () => ({
@@ -44,7 +43,8 @@ jest.mock('@opentelemetry/semantic-conventions', () => ({
   ATTR_SERVICE_VERSION: 'service.version',
 }))
 
-jest.mock('@opentelemetry/api-logs', () => ({
+jest.mock('@opentelemetry/api', () => ({
+  ...jest.requireActual('@opentelemetry/api'),
   logs: { setGlobalLoggerProvider: jest.fn() },
 }))
 
@@ -66,7 +66,7 @@ jest.mock('./FilteringSpanProcessor', () => ({
   FilteringSpanProcessor: jest.fn(),
 }))
 
-const mockedNodeTracerProvider = jest.mocked(NodeTracerProvider)
+const mockedNodeTracerProvider = jest.mocked(TracerProvider)
 const mockedFilteringSpanProcessor = jest.mocked(FilteringSpanProcessor)
 const mockedRegisterInstrumentations = jest.mocked(registerInstrumentations)
 
@@ -103,7 +103,7 @@ describe('initialiseTelemetry()', () => {
 
   it('shares a provider with custom integrations without requiring an Azure exporter', async () => {
     const sampler = { shouldSample: jest.fn(), toString: () => 'custom' }
-    const contextManager = {} as never
+    const contextManager = { enable: jest.fn().mockReturnThis() } as never
     const propagator = {} as never
     const processor = {
       onStart: jest.fn(),
@@ -116,11 +116,17 @@ describe('initialiseTelemetry()', () => {
     expect(
       builder.withProvider({ sampler, contextManager, propagator, extraSpanProcessors: [processor], afterFlush }),
     ).toBe(builder)
+    const setTracerProvider = jest.spyOn(trace, 'setGlobalTracerProvider').mockReturnValue(true)
+    const setContextManager = jest.spyOn(context, 'setGlobalContextManager').mockReturnValue(true)
+    const setPropagator = jest.spyOn(propagation, 'setGlobalPropagator').mockReturnValue(true)
     const recording = builder.startRecording()!
     expect(consoleInfoSpy).toHaveBeenCalledWith('Telemetry: Custom provider only, no Azure/debug exporters')
     expect(mockedNodeTracerProvider).toHaveBeenCalledWith(expect.objectContaining({ sampler }))
     const provider = mockedNodeTracerProvider.mock.results.at(-1)!.value
-    expect(provider.register).toHaveBeenCalledWith({ contextManager, propagator })
+    expect(setTracerProvider).toHaveBeenCalledWith(provider)
+    expect(setContextManager).toHaveBeenCalledWith(contextManager)
+    expect((contextManager as { enable: jest.Mock }).enable).toHaveBeenCalled()
+    expect(setPropagator).toHaveBeenCalledWith(propagator)
     provider.forceFlush.mockRejectedValue(new Error('export failed'))
     const logger = jest.mocked(LoggerProvider).mock.results.at(-1)!.value
     logger.forceFlush.mockRejectedValue(new Error('log export failed'))
@@ -132,6 +138,9 @@ describe('initialiseTelemetry()', () => {
       expect(logger.shutdown).toHaveBeenCalledTimes(1)
     } finally {
       consoleError.mockRestore()
+      setTracerProvider.mockRestore()
+      setContextManager.mockRestore()
+      setPropagator.mockRestore()
     }
   })
 
@@ -225,6 +234,34 @@ describe('initialiseTelemetry()', () => {
 
       expect(mockedNodeTracerProvider).toHaveBeenCalled()
       expect(consoleInfoSpy).toHaveBeenCalledWith('Telemetry: Initialising Azure Monitor for test-service')
+    })
+
+    it('should adapt log records to the Azure log exporter types', async () => {
+      const azureExporter = {
+        export: jest.fn(),
+        shutdown: jest.fn().mockResolvedValue(undefined),
+        forceFlush: jest.fn().mockResolvedValue(undefined),
+      }
+      jest.mocked(AzureMonitorLogExporter).mockImplementationOnce(() => azureExporter as never)
+      initialiseTelemetry({ serviceName: 'test-service', connectionString: 'InstrumentationKey=test' }).startRecording()
+      const { exporter } = jest.mocked(BatchLogRecordProcessor).mock.calls[0][0]
+      const record = {
+        body: BigInt(1),
+        attributes: { key: 'value' },
+        resource: { attributes: {}, merge: jest.fn(), getRawAttributes: () => [] },
+      } as unknown as ReadableLogRecord
+      const callback = jest.fn()
+
+      exporter.export([record], callback)
+      await exporter.forceFlush()
+      await exporter.shutdown()
+
+      expect(azureExporter.export).toHaveBeenCalledWith(
+        [expect.objectContaining({ body: '1', attributes: { key: 'value' } })],
+        callback,
+      )
+      expect(azureExporter.forceFlush).toHaveBeenCalled()
+      expect(azureExporter.shutdown).toHaveBeenCalled()
     })
 
     it('should initialise debug-only mode when debug is true and no connectionString', () => {

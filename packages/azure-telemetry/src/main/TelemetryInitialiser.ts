@@ -1,7 +1,6 @@
-import { metrics, trace } from '@opentelemetry/api'
+import { context, propagation, metrics, trace, logs } from '@opentelemetry/api'
 import type { ContextManager, TextMapPropagator } from '@opentelemetry/api'
 
-import { logs } from '@opentelemetry/api-logs'
 import { type Instrumentation, registerInstrumentations } from '@opentelemetry/instrumentation'
 import { BunyanInstrumentation } from '@opentelemetry/instrumentation-bunyan'
 import { ExpressInstrumentation, ExpressLayerType } from '@opentelemetry/instrumentation-express'
@@ -9,10 +8,11 @@ import { HttpInstrumentation } from '@opentelemetry/instrumentation-http'
 import { resourceFromAttributes } from '@opentelemetry/resources'
 import { BatchLogRecordProcessor, ConsoleLogRecordExporter, LoggerProvider } from '@opentelemetry/sdk-logs'
 import type { LogRecordExporter, ReadableLogRecord } from '@opentelemetry/sdk-logs'
-import { BatchSpanProcessor, ConsoleSpanExporter } from '@opentelemetry/sdk-trace-base'
-import type { Sampler, SpanProcessor } from '@opentelemetry/sdk-trace-base'
+import { BatchSpanProcessor, ConsoleSpanExporter, TracerProvider } from '@opentelemetry/sdk-trace'
+import type { Sampler, SpanProcessor } from '@opentelemetry/sdk-trace'
+import { CompositePropagator, W3CBaggagePropagator, W3CTraceContextPropagator } from '@opentelemetry/core'
+import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks'
 
-import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node'
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions'
 import { AzureMonitorLogExporter, AzureMonitorTraceExporter } from '@azure/monitor-opentelemetry-exporter'
 import type { TelemetryConfig } from './types/TelemetryConfig'
@@ -21,6 +21,7 @@ import { CompositeSpanProcessor } from './CompositeSpanProcessor'
 import { FilteringSpanProcessor } from './FilteringSpanProcessor'
 import { populateOperationNameLogHook } from './populateOperationNameLogHook'
 import { setConfig } from './config'
+import { toAzureLogRecord } from './toAzureLogRecord'
 
 export const defaultInstrumentations: Instrumentation[] = [
   new BunyanInstrumentation({ disableLogSending: false, logHook: populateOperationNameLogHook }),
@@ -102,7 +103,7 @@ function createCompatibleAzureLogExporter(connectionString: string): LogRecordEx
 
   return {
     export(logRecords: ReadableLogRecord[], resultCallback) {
-      return exporter.export(logRecords, resultCallback)
+      return exporter.export(logRecords.map(toAzureLogRecord), resultCallback)
     },
     shutdown() {
       return exporter.shutdown()
@@ -135,27 +136,38 @@ function startTelemetry(
   }
   if (config.connectionString) {
     console.info(`Telemetry: Initialising Azure Monitor for ${config.serviceName}`)
-    addExporter(new BatchSpanProcessor(new AzureMonitorTraceExporter({ connectionString: config.connectionString })))
-    logProcessors.push(new BatchLogRecordProcessor(createCompatibleAzureLogExporter(config.connectionString)))
+    addExporter(
+      new BatchSpanProcessor({
+        exporter: new AzureMonitorTraceExporter({ connectionString: config.connectionString }),
+      }),
+    )
+    logProcessors.push(
+      new BatchLogRecordProcessor({ exporter: createCompatibleAzureLogExporter(config.connectionString) }),
+    )
   } else if (config.debug) {
     console.info(`Telemetry: Debug mode only for ${config.serviceName} - spans will be logged to console`)
   } else {
     console.info('Telemetry: Custom provider only, no Azure/debug exporters')
   }
   if (config.debug) {
-    addExporter(new BatchSpanProcessor(new ConsoleSpanExporter()))
-    logProcessors.push(new BatchLogRecordProcessor(new ConsoleLogRecordExporter()))
+    addExporter(new BatchSpanProcessor({ exporter: new ConsoleSpanExporter() }))
+    logProcessors.push(new BatchLogRecordProcessor({ exporter: new ConsoleLogRecordExporter() }))
   }
   spanProcessors.push(...(options.extraSpanProcessors || []))
-  const provider = new NodeTracerProvider({
+
+  const provider = new TracerProvider({
     resource,
     ...(options.sampler ? { sampler: options.sampler } : {}),
     spanProcessors: [new FilteringSpanProcessor(new CompositeSpanProcessor(spanProcessors), filters, modifiers)],
   })
-  provider.register({
-    ...(options.contextManager ? { contextManager: options.contextManager } : {}),
-    ...(options.propagator ? { propagator: options.propagator } : {}),
-  })
+  // Equivalent of the removed NodeTracerProvider.register() from OpenTelemetry v2
+  trace.setGlobalTracerProvider(provider)
+  context.setGlobalContextManager((options.contextManager ?? new AsyncLocalStorageContextManager()).enable())
+  propagation.setGlobalPropagator(
+    options.propagator ??
+      new CompositePropagator({ propagators: [new W3CTraceContextPropagator(), new W3CBaggagePropagator()] }),
+  )
+
   const loggerProvider = new LoggerProvider({ resource, processors: logProcessors })
   logs.setGlobalLoggerProvider(loggerProvider)
   registerInstrumentations({
