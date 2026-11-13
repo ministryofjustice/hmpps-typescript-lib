@@ -42,6 +42,7 @@ jest.mock('@opentelemetry/semantic-conventions', () => ({
 }))
 
 jest.mock('@opentelemetry/api', () => ({
+  ...jest.requireActual('@opentelemetry/api'),
   logs: { setGlobalLoggerProvider: jest.fn() },
 }))
 
