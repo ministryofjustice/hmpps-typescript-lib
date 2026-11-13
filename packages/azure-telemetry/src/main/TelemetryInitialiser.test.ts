@@ -1,3 +1,4 @@
+import { context, propagation, trace } from '@opentelemetry/api'
 import { registerInstrumentations } from '@opentelemetry/instrumentation'
 import { LoggerProvider } from '@opentelemetry/sdk-logs'
 import { TracerProvider } from '@opentelemetry/sdk-trace'
@@ -9,7 +10,6 @@ jest.mock('@opentelemetry/sdk-trace', () => ({
   BatchSpanProcessor: jest.fn(),
   ConsoleSpanExporter: jest.fn(),
   TracerProvider: jest.fn().mockImplementation(() => ({
-    register: jest.fn(),
     forceFlush: jest.fn().mockResolvedValue(undefined),
     shutdown: jest.fn().mockResolvedValue(undefined),
   })),
@@ -101,7 +101,7 @@ describe('initialiseTelemetry()', () => {
 
   it('shares a provider with custom integrations without requiring an Azure exporter', async () => {
     const sampler = { shouldSample: jest.fn(), toString: () => 'custom' }
-    const contextManager = {} as never
+    const contextManager = { enable: jest.fn().mockReturnThis() } as never
     const propagator = {} as never
     const processor = {
       onStart: jest.fn(),
@@ -114,11 +114,17 @@ describe('initialiseTelemetry()', () => {
     expect(
       builder.withProvider({ sampler, contextManager, propagator, extraSpanProcessors: [processor], afterFlush }),
     ).toBe(builder)
+    const setTracerProvider = jest.spyOn(trace, 'setGlobalTracerProvider').mockReturnValue(true)
+    const setContextManager = jest.spyOn(context, 'setGlobalContextManager').mockReturnValue(true)
+    const setPropagator = jest.spyOn(propagation, 'setGlobalPropagator').mockReturnValue(true)
     const recording = builder.startRecording()!
     expect(consoleInfoSpy).toHaveBeenCalledWith('Telemetry: Custom provider only, no Azure/debug exporters')
     expect(mockedNodeTracerProvider).toHaveBeenCalledWith(expect.objectContaining({ sampler }))
     const provider = mockedNodeTracerProvider.mock.results.at(-1)!.value
-    expect(provider.register).toHaveBeenCalledWith({ contextManager, propagator })
+    expect(setTracerProvider).toHaveBeenCalledWith(provider)
+    expect(setContextManager).toHaveBeenCalledWith(contextManager)
+    expect((contextManager as { enable: jest.Mock }).enable).toHaveBeenCalled()
+    expect(setPropagator).toHaveBeenCalledWith(propagator)
     provider.forceFlush.mockRejectedValue(new Error('export failed'))
     const logger = jest.mocked(LoggerProvider).mock.results.at(-1)!.value
     logger.forceFlush.mockRejectedValue(new Error('log export failed'))
@@ -130,6 +136,9 @@ describe('initialiseTelemetry()', () => {
       expect(logger.shutdown).toHaveBeenCalledTimes(1)
     } finally {
       consoleError.mockRestore()
+      setTracerProvider.mockRestore()
+      setContextManager.mockRestore()
+      setPropagator.mockRestore()
     }
   })
 

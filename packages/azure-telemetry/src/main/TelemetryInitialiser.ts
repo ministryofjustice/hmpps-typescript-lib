@@ -1,4 +1,4 @@
-import { metrics, trace, logs } from '@opentelemetry/api'
+import { context, propagation, metrics, trace, logs } from '@opentelemetry/api'
 import type { ContextManager, TextMapPropagator } from '@opentelemetry/api'
 
 import { type Instrumentation, registerInstrumentations } from '@opentelemetry/instrumentation'
@@ -10,6 +10,8 @@ import { BatchLogRecordProcessor, ConsoleLogRecordExporter, LoggerProvider } fro
 import type { LogRecordExporter, ReadableLogRecord } from '@opentelemetry/sdk-logs'
 import { BatchSpanProcessor, ConsoleSpanExporter, TracerProvider } from '@opentelemetry/sdk-trace'
 import type { Sampler, SpanProcessor } from '@opentelemetry/sdk-trace'
+import { CompositePropagator, W3CBaggagePropagator, W3CTraceContextPropagator } from '@opentelemetry/core'
+import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks'
 
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions'
 import { AzureMonitorLogExporter, AzureMonitorTraceExporter } from '@azure/monitor-opentelemetry-exporter'
@@ -138,7 +140,9 @@ function startTelemetry(
         exporter: new AzureMonitorTraceExporter({ connectionString: config.connectionString }),
       }),
     )
-    logProcessors.push(new BatchLogRecordProcessor(createCompatibleAzureLogExporter(config.connectionString)))
+    logProcessors.push(
+      new BatchLogRecordProcessor({ exporter: createCompatibleAzureLogExporter(config.connectionString) }),
+    )
   } else if (config.debug) {
     console.info(`Telemetry: Debug mode only for ${config.serviceName} - spans will be logged to console`)
   } else {
@@ -146,7 +150,7 @@ function startTelemetry(
   }
   if (config.debug) {
     addExporter(new BatchSpanProcessor({ exporter: new ConsoleSpanExporter() }))
-    logProcessors.push(new BatchLogRecordProcessor(new ConsoleLogRecordExporter()))
+    logProcessors.push(new BatchLogRecordProcessor({ exporter: new ConsoleLogRecordExporter() }))
   }
   spanProcessors.push(...(options.extraSpanProcessors || []))
 
@@ -155,10 +159,13 @@ function startTelemetry(
     ...(options.sampler ? { sampler: options.sampler } : {}),
     spanProcessors: [new FilteringSpanProcessor(new CompositeSpanProcessor(spanProcessors), filters, modifiers)],
   })
-  provider.register({
-    ...(options.contextManager ? { contextManager: options.contextManager } : {}),
-    ...(options.propagator ? { propagator: options.propagator } : {}),
-  })
+  // Equivalent of the removed NodeTracerProvider.register() from OpenTelemetry v2
+  trace.setGlobalTracerProvider(provider)
+  context.setGlobalContextManager((options.contextManager ?? new AsyncLocalStorageContextManager()).enable())
+  propagation.setGlobalPropagator(
+    options.propagator ??
+      new CompositePropagator({ propagators: [new W3CTraceContextPropagator(), new W3CBaggagePropagator()] }),
+  )
 
   const loggerProvider = new LoggerProvider({ resource, processors: logProcessors })
   logs.setGlobalLoggerProvider(loggerProvider)
