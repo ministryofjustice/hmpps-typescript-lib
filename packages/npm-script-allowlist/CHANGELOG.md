@@ -1,5 +1,9 @@
 # Change log
 
+## 0.1.0
+
+Move to node 26
+
 ## 0.0.6
 
 No functional change - moved to publish as `latest` version

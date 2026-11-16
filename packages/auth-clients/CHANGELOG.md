@@ -1,5 +1,9 @@
 # Change log
 
+## 3.1.0
+
+Move to node 26
+
 ## 3.0.0
 
 Updates redis node library to version 6, which changes type definitions of the client class.

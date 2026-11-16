@@ -1,5 +1,9 @@
 # Change log
 
+# 2.3.0
+
+Move to node 26
+
 # 2.2.0
 
 Adds support for call-specific custom timeout

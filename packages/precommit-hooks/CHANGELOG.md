@@ -1,5 +1,9 @@
 # Change log
 
+## 3.1.0
+
+Move to node 26
+
 ## 3.0.2
 
 Bump version of `devsecops-hooks` to v2.0.2
