@@ -1,6 +1,6 @@
 # Change log
 
-## 2.0.0
+## 2.0.0-beta.1
 
 - Upgrade to use @opentelemetry/core@3.0.0 (https://github.com/open-telemetry/opentelemetry-js/blob/v3.0.0/doc/3.x/migration-guide.md)
 - Move to Node 26
