@@ -8,6 +8,12 @@ import { SubjectType } from './types/SubjectType'
 import { createProxyRequestHandler } from './helpers/proxySupport'
 
 /**
+ * Matches a signed session cookie value
+ * i.e. `s:<id>.<signature>`
+ */
+const SIGNED_SESSION_ID = /^s(?::|%3A).+\..+$/i
+
+/**
  * HMPPS Audit Client for sending audit events to SQS.
  *
  * This client handles the low-level communication with AWS SQS for sending audit messages.
@@ -137,12 +143,15 @@ export default class AuditClient {
 
     const { logOnError = false, throwOnError = true } = messageOptions
 
+    const activityId = this.safeActivityId(event.activityId)
+
     const sqsMessage: SqsMessage = {
       what: event.what,
       who: event.who,
       subjectId: event.subjectId,
       subjectType: event.subjectType,
       correlationId: event.correlationId,
+      activityId,
       details: JSON.stringify(event.details),
       service: this.serviceName,
       when: new Date().toISOString(),
@@ -161,5 +170,16 @@ export default class AuditClient {
       if (throwOnError) throw error
     }
     return null
+  }
+
+  /**
+   * Drops an activityId that looks like a signed session cookie
+   */
+  private safeActivityId(activityId?: string): string | undefined {
+    if (activityId && SIGNED_SESSION_ID.test(activityId)) {
+      this.logger.warn('HMPPS Audit activityId looks like a signed session id and has been dropped from the event')
+      return undefined
+    }
+    return activityId
   }
 }
