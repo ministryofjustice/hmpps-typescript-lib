@@ -21,6 +21,12 @@ export type SubjectType =
    * Infrequently used - only used by user/account management services/ Please speak to the HAA team if you want to record events with this Subject Type
    */
   | 'USER_ID'
+
+  /**
+   * The subject of the Audit Event is report, identified by its report ID
+   */
+  | 'REPORT_ID'
+
   /**
    * There are no personal details on this audit,  or is not appropriate for the page being viewed
    */

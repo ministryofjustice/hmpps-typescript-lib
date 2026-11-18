@@ -143,6 +143,7 @@ export default class AuditClient {
       subjectId: event.subjectId,
       subjectType: event.subjectType,
       correlationId: event.correlationId,
+      sessionId: event.sessionId,
       details: JSON.stringify(event.details),
       service: this.serviceName,
       when: new Date().toISOString(),
