@@ -1,11 +1,11 @@
-import { logs, SeverityNumber } from '@opentelemetry/api-logs'
-import { trace } from '@opentelemetry/api'
+import { trace, logs, SeverityNumber } from '@opentelemetry/api'
 
 import { telemetry } from './client'
 
 const mockEmit = jest.fn()
 
-jest.mock('@opentelemetry/api-logs', () => ({
+jest.mock('@opentelemetry/api', () => ({
+  ...jest.requireActual('@opentelemetry/api'),
   logs: {
     getLogger: jest.fn().mockReturnValue({ emit: jest.fn() }),
   },

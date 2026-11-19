@@ -1,5 +1,9 @@
 # Change log
 
+## 2.1.0
+
+Move to node 26
+
 ## 2.0.3
 
 Updated peer dependency requirement to permit use with MoJ frontend v12.

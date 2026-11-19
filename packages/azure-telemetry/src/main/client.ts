@@ -1,5 +1,4 @@
-import { trace, SpanStatusCode, Span } from '@opentelemetry/api'
-import { logs, SeverityNumber } from '@opentelemetry/api-logs'
+import { trace, logs, SeverityNumber, SpanStatusCode, Span } from '@opentelemetry/api'
 
 import { getConfig } from './config'
 

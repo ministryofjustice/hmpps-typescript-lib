@@ -1,5 +1,9 @@
 # Change log
 
+## 2.2.0
+
+Move to node 26
+
 ## 2.1.0
 
 Require `@ministryofjustice/hmpps-rest-client` 2.1.0 so endpoint health checks can use the proxy-aware rest-client

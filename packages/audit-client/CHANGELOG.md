@@ -1,5 +1,9 @@
 # Change log
 
+## 2.1.0
+
+Move to node 26
+
 ## 2.0.0
 
 First major release of the 2.0.0 release.

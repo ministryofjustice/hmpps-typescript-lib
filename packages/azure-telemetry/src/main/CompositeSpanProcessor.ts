@@ -1,5 +1,5 @@
 import type { Context } from '@opentelemetry/api'
-import type { ReadableSpan, Span, SpanProcessor } from '@opentelemetry/sdk-trace-base'
+import type { ReadableSpan, Span, SpanProcessor } from '@opentelemetry/sdk-trace'
 
 /** Fan out after common filters/modifiers, preserving each processor's lifecycle. */
 export class CompositeSpanProcessor implements SpanProcessor {
