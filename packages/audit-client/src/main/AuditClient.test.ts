@@ -67,6 +67,50 @@ describe('AuditClient', () => {
       expect(sqsMock.calls().length).toEqual(1)
     })
 
+    it('should include sessionId in sqs message when provided', async () => {
+      sqsMock.on(SendMessageCommand).resolves({ MessageId: '123' })
+      auditClient = new AuditClient(auditClientConfig, console)
+
+      await auditClient.sendMessage({
+        what: 'VIEW_REPORT',
+        who: 'user1',
+        subjectId: 'report-123',
+        subjectType: 'REPORT_ID',
+        correlationId: 'request-123',
+        sessionId: 'session-123',
+      })
+
+      const actualMessageInput = sqsMock.call(0).args[0].input as SendMessageCommandInput
+      const actualMessageBody = JSON.parse((actualMessageInput.MessageBody || {}).toString())
+
+      expect(actualMessageBody).toEqual({
+        what: 'VIEW_REPORT',
+        who: 'user1',
+        when: expect.any(String),
+        service: 'hmpps-service',
+        subjectId: 'report-123',
+        subjectType: 'REPORT_ID',
+        correlationId: 'request-123',
+        sessionId: 'session-123',
+      })
+    })
+
+    it('should omit sessionId from sqs message when not provided', async () => {
+      sqsMock.on(SendMessageCommand).resolves({ MessageId: '123' })
+      auditClient = new AuditClient(auditClientConfig, console)
+
+      await auditClient.sendMessage({
+        what: 'LOGIN',
+        who: 'user1',
+        subjectType: 'NOT_APPLICABLE',
+      })
+
+      const actualMessageInput = sqsMock.call(0).args[0].input as SendMessageCommandInput
+      const actualMessageBody = JSON.parse((actualMessageInput.MessageBody || {}).toString())
+
+      expect(actualMessageBody).not.toHaveProperty('sessionId')
+    })
+
     it("shouldn't send sqs message to audit queue if client disabled", async () => {
       sqsMock.on(SendMessageCommand).resolves({ MessageId: '123' })
       auditClient = new AuditClient({ ...auditClientConfig, enabled: false }, console)

@@ -10,6 +10,7 @@ import { SubjectType } from './SubjectType'
  * @property {string} [subjectId] - Optional identifier for the subject of the page view - should be provided if subjectType is not 'NOT_APPLICABLE'
  * @property {T} subjectType - Type classification of the subject, constrained to SubjectType by default
  * @property {string} [correlationId] - Optional correlation identifier for linking related events
+ * @property {string} [sessionId] - Optional correlation identifier for linking events from the same period of user activity
  * @property {object} [details] - Optional additional details or metadata about the page view
  */
 export type PageViewEventDetails<T extends string = SubjectType> = Omit<AuditEvent<T>, 'what'>
