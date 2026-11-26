@@ -1,5 +1,9 @@
 # Change log
 
+## 2.0.0
+
+Bump to a release now it's been tested.
+
 ## 2.0.0-beta.1
 
 - Upgrade to use @opentelemetry/core@3.0.0 (https://github.com/open-telemetry/opentelemetry-js/blob/v3.0.0/doc/3.x/migration-guide.md)
