@@ -1,5 +1,12 @@
 # Change log
 
+## 2.2.0
+
+Non-breaking additions:
+* Added optional `activityId` to `AuditEvent` (and so `PageViewEventDetails`), passed through on the SQS message. This allows audit events from the same period of user activity to be tied together. It is optional for now so existing integrations are not broken.
+* Added `REPORT_ID` as standard `SubjectType`
+* Clarified the `subjectId` docs: it should only be omitted when `subjectType` is `NOT_APPLICABLE`, or `SEARCH_TERM` where there is no `primary` search term.
+
 ## 2.1.0
 
 Move to node 26
@@ -11,15 +18,15 @@ First major release of the 2.0.0 release.
 View previous changelogs for details but main breaking changes are:
 
 * In audit payloads the `action` property has been renamed to `what` to more closely match the audit spec
-* Construction of an audit service has changed - there are now options for creating directly from env vars and an option to explicitly configure.  
-* It no longer logs errors by default - instead it will throw. There are options to opt back into the existing behaviour. 
+* Construction of an audit service has changed - there are now options for creating directly from env vars and an option to explicitly configure.
+* It no longer logs errors by default - instead it will throw. There are options to opt back into the existing behaviour.
 
 Further details are in the project README.
 
 ## 2.0.0-beta.5
 
 API change:
-* Moving from `action` to `what` to make this more consistent with the spec. 
+* Moving from `action` to `what` to make this more consistent with the spec.
 * Renaming references to HmppsAuditClient to AuditClient to be consistent with exported type
 
 ## 2.0.0-beta.4
@@ -30,7 +37,7 @@ Couple of API changes:
 
 ## 2.0.0-beta.3
 
-SQS Audit logging was set to INFO resulting in verbose and noisy logging in prod environments with high volume usage of audited journeys. Reduced to DEBUG. 
+SQS Audit logging was set to INFO resulting in verbose and noisy logging in prod environments with high volume usage of audited journeys. Reduced to DEBUG.
 
 ## 2.0.0-beta.2
 
@@ -42,7 +49,7 @@ Initial release of newly migrated hmpps-audit-client over to the typescript lib.
 
 ### Changes
 
-This version has been mostly rewritten from the standalone hmpps-audit-client and an implementation written into the template project.  
+This version has been mostly rewritten from the standalone hmpps-audit-client and an implementation written into the template project.
 
 #### New features
 The client is now proxy aware, see README for more details.

@@ -29,7 +29,7 @@ npm install @ministryofjustice/hmpps-audit-client
 #### Using the Factory (Recommended)
 
 The `AuditService` is designed to be a singleton and shared across the application.
- 
+
 The easiest way to create an instance is using the `AuditServiceFactory`, which automatically configures from environment variables:
 
 ```typescript
@@ -136,6 +136,7 @@ await auditService.logAuditEvent({
   subjectType: 'PRISONER_ID',
   subjectId: 'A1234BC',
   correlationId: 'request-123',
+  sessionId: 'session-123',
   details: { page: 'prisoner-profile' },
 })
 
@@ -161,9 +162,9 @@ await auditService.logAuditEvent({
 
 ### Logging Page Views
 
-Note: the current facility to log page views is not compliant with the audit specification. 
-The audit specification expects `VERB_RESOURCE` style naming of actions. 
-This capability will likely be reviewed in the future.  
+Note: the current facility to log page views is not compliant with the audit specification.
+The audit specification expects `VERB_RESOURCE` style naming of actions.
+This capability will likely be reviewed in the future.
 
 ```typescript
 // Log a page view (automatically prefixes with 'PAGE_VIEW_')
@@ -176,7 +177,7 @@ await auditService.logPageView('PRISONER_PROFILE', {
 })
 ```
 
-By default any string can be passed via page views. 
+By default any string can be passed via page views.
 To enforce a subset of known pages via type safety, then override the generic type when creating an audit service.
 
 ```typescript
@@ -205,6 +206,7 @@ The library provides standard subject types:
 - `CRN` - NDelius CRN (for probation services)
 - `SEARCH_TERM` - User search queries
 - `USER_ID` - Staff member or external user ID
+- `REPORT_ID` - A report, identified by its report ID
 - `NOT_APPLICABLE` - For events without specific subjects
 
 #### Events with Subjects
@@ -234,6 +236,8 @@ await auditService.logAuditEvent({
 ```
 
 **Note:** The `NOT_APPLICABLE` subject type is for events that don't track actions on specific subjects (people, records, etc.). When using `NOT_APPLICABLE`, you should not provide a `subjectId`.
+
+**Note:** The `activityId` should only be omitted when `subjectType` is `NOT_APPLICABLE`, or `SEARCH_TERM` where there is no `primary` search term.
 
 **Note:** `subjectType` is technically optional on `AuditEvent` for backwards compatibility with services that haven't migrated yet, but it should be treated as required going forward — always provide it (using `NOT_APPLICABLE` where there's no specific subject). This constraint maybe enforced using compile time safety in future releases.
 
@@ -374,9 +378,10 @@ npm run lint
    - Use `subjectType: 'NOT_APPLICABLE'` for events without a specific subject (e.g., LOGIN, LOGOUT, system events)
 3. **Follow action naming conventions** - Use prefixes: `SEARCH_*`, `VIEW_*`, `CREATE_*`, `EDIT_*`, `DELETE_*`, `PRINT_*`, `DOWNLOAD_*`
 4. **Always include correlationId** - Helps link related audit events together (e.g., request ID, session ID)
-5. **Use AuditService over AuditClient** - Unless you need custom error handling with `messageOptions`
-6. **Don't log sensitive data in details** - The audit system tracks actions, not data. Avoid PII in the `details` field
-7. **Talk to HMPPS Audit & Reporting (HAAR) before extending SubjectType** - Ensure new subject types align with audit standards
+5. **Include activityId where available** - Ties together all audit events from the same period of user activity, Optional for now.
+6. **Use AuditService over AuditClient** - Unless you need custom error handling with `messageOptions`
+7. **Don't log sensitive data in details** - The audit system tracks actions, not data. Avoid PII in the `details` field
+8. **Talk to HMPPS Audit & Reporting (HAAR) before extending SubjectType** - Ensure new subject types align with audit standards
 
 ## License
 

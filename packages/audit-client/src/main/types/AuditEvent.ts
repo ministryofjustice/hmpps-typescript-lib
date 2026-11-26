@@ -53,6 +53,16 @@ export interface AuditEvent<T extends string = SubjectType> {
   correlationId?: string
 
   /**
+   * Activity ID for the event
+   * Identifies a period of user activity so that all audit events raised during it can be tied together.
+   * Optional for now so that existing integrations are not broken
+   *
+   * This must be a value your service generates for this purpose (e.g. a random UUID created once and
+   * stored on the session), not the Express session ID (`req.sessionID`) or the session cookie value
+   */
+  activityId?: string
+
+  /**
    * Additional details about the event.
    * Your service can define what it sends here to provide extra context.
    * If it’s important that you do have a data history for your application then that should be a feature of your service in addition to HMPPS Audit.
@@ -70,7 +80,10 @@ export interface AuditEvent<T extends string = SubjectType> {
   /**
    * Identifier of the subject of the action.
    * This identifies the actual 'thing' the user is interacting with (eg a CRN or the words used in the search term).
-   * NB - if you omit the subjectId your subjectType should be set to NOT_APPLICABLE
+   * The subjectId should only be null/omitted when the subjectType is either:
+   * - NOT_APPLICABLE, or
+   * - SEARCH_TERM, in the scenario where there is no "primary" search term.
+   * For every other subjectType a subjectId must be provided.
    */
   subjectId?: string
 }
